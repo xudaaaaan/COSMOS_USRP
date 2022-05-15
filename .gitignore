@@ -1,0 +1,14 @@
+.Xauthority
+build/
+debian
+prepare.sh
+.gnuradio/
+.local/
+.profile
+.cache/
+late_commands.sh
+.bash_history
+.bash_logout
+.bashrc
+.viminfo
+.gem/
