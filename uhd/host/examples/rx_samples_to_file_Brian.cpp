@@ -4,6 +4,11 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
+//
+//
+// Modified by:
+//      Yuning (Brian) Zhang, 5/13/2022
+//
 
 #include <uhd/exception.hpp>
 #include <uhd/types/tune_request.hpp>
@@ -37,7 +42,7 @@ std::cout << std::endl;
 */
 
 template <typename samp_type>
-void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,
+void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual) device
     const std::string& cpu_format,
     const std::string& wire_format,
     const size_t& channel,
@@ -47,7 +52,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,
     double time_requested       = 0.0,
     bool bw_summary             = false,
     bool stats                  = false,
-    bool null                   = false,
+    bool Save                   = true,
     bool enable_size_map        = false,
     bool continue_on_bad_packet = false)
 {
@@ -57,15 +62,16 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,
         uhd::stream_args_t stream_args(cpu_format, wire_format);
         std::vector<size_t> channel_nums;
         channel_nums.push_back(channel);
-        stream_args.channels             = channel_nums;
+        stream_args.channels = channel_nums;
         uhd::rx_streamer::sptr rx_stream = usrp->get_rx_stream(stream_args);
 
         uhd::rx_metadata_t md;
         std::vector<samp_type> buff(samps_per_buff);
         std::ofstream outfile;
-        if (not null)
+        if (Save)
             outfile.open(file.c_str(), std::ofstream::binary);
         bool overflow_message = true;
+        // ?????? Set overflow-message to true no matter what?
 
 
     //// ====== Setup streaming ======
@@ -156,6 +162,8 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,
         }
     }
     const auto actual_stop_time = std::chrono::steady_clock::now();
+
+
 
     stream_cmd.stream_mode = uhd::stream_cmd_t::STREAM_MODE_STOP_CONTINUOUS;
     rx_stream->issue_stream_cmd(stream_cmd);
@@ -266,8 +274,8 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("lo-offset", po::value<double>(&lo_offset)->default_value(0.0),
             "Offset for frontend LO in Hz (optional)")
         
-        ("nsamps", po::value<size_t>(&total_num_samps)->default_value(0), "total number of samples to receive")
-        ("null", "run without writing to file")
+        ("nsamps", po::value<size_t>(&total_num_samps)->default_value(0), "total number of samples to receive (requested)")
+        ("Save", "Determine if run the code and save data to file. Add 'Save' when you want to save the data. ")
         
         ("progress", "periodically display short-term bandwidth")
 
@@ -291,10 +299,13 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("skip-lo", "skip checking LO lock status")
         ("int-n", "tune USRP with integer-N tuning")
     ;
+
+
     // clang-format on
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
+
 
     // print the help message
     if (vm.count("help")) {
@@ -306,32 +317,39 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         return ~0;
     }
 
+
+    // vm.count("x") > 0 means there is an option named "x" is found. 
     bool bw_summary             = vm.count("progress") > 0;
     bool stats                  = vm.count("stats") > 0;
-    bool null                   = vm.count("null") > 0;
+    bool Save                   = vm.count("Save") > 0;
     bool enable_size_map        = vm.count("sizemap") > 0;
     bool continue_on_bad_packet = vm.count("continue") > 0;
+
 
     if (enable_size_map)
         std::cout << "Packet size tracking enabled - will only recv one packet at a time!"
                   << std::endl;
 
-    // create a usrp device
+
+    // create a usrp object/device
     std::cout << std::endl;
     std::cout << boost::format("Creating the usrp device with: %s...") % args
               << std::endl;
     uhd::usrp::multi_usrp::sptr usrp = uhd::usrp::multi_usrp::make(args);
+
 
     // Lock mboard clocks
     if (vm.count("ref")) {
         usrp->set_clock_source(ref);
     }
 
+
     // always select the subdevice first, the channel mapping affects the other settings
     if (vm.count("subdev"))
         usrp->set_rx_subdev_spec(subdev);
 
     std::cout << boost::format("Using Device: %s") % usrp->get_pp_string() << std::endl;
+
 
     // set the sample rate
     if (rate <= 0.0) {
@@ -344,6 +362,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
                      % (usrp->get_rx_rate(channel) / 1e6)
               << std::endl
               << std::endl;
+
 
     // set the center frequency
     if (vm.count("freq")) { // with default of 0.0 this will always be true
@@ -361,6 +380,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
                   << std::endl;
     }
 
+
     // set the rf gain
     if (vm.count("gain")) {
         std::cout << boost::format("Setting RX Gain: %f dB...") % gain << std::endl;
@@ -370,6 +390,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
                   << std::endl
                   << std::endl;
     }
+
 
     // set the IF filter bandwidth
     if (vm.count("bw")) {
@@ -382,11 +403,13 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
                   << std::endl;
     }
 
+
     // set the antenna
     if (vm.count("ant"))
         usrp->set_rx_antenna(ant, channel);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(int64_t(1000 * setup_time)));
+
 
     // check Ref and LO Lock detect
     if (not vm.count("skip-lo")) {
@@ -419,9 +442,32 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         std::cout << "Press Ctrl + C to stop streaming..." << std::endl;
     }
 
-#define recv_to_file_args(format) \
+
+/* 
+    All parameters are passed by main function
+        file                   --> file name to save data
+        spb                    --> samples per buffer
+        total_num_samps        --> requested sample amount to receive       
+        total_time             --> requested time to receive
+        bw_summary             --> bool from recv_to_file()
+        stats                  --> bool from recv_to_file()
+        Save                   --> bool from recv_to_file()
+        enable_size_map        --> bool from recv_to_file()
+        continue_on_bad_packet --> bool from recv_to_file()
+
+    
+    Review:
+        // vm.count("x") > 0 means there is an option named "x" is found. 
+        bool bw_summary             = vm.count("progress") > 0;
+        bool stats                  = vm.count("stats") > 0;
+        bool Save                   = vm.count("Save") > 0;
+        bool enable_size_map        = vm.count("sizemap") > 0;
+        bool continue_on_bad_packet = vm.count("continue") > 0;
+
+*/
+#define recv_to_file_args(cpufmt) \
     (usrp,                        \
-        format,                   \
+        cpufmt,                   \
         wirefmt,                  \
         channel,                  \
         file,                     \
@@ -430,7 +476,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         total_time,               \
         bw_summary,               \
         stats,                    \
-        null,                     \
+        Save,                     \
         enable_size_map,          \
         continue_on_bad_packet)
     // recv to file

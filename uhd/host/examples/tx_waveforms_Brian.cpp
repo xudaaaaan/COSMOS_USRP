@@ -13,6 +13,11 @@
 //  4. According to point 1 and 3, every capture should give 150 samples. 
 // ------ 5. No need to pay attention to subdev? ------ 
 //  6. size_t has something to do with system memory. 
+//
+//
+// Modified by:
+//      Yuning (Brian) Zhang, 5/13/2022
+//
 
 #include "wavetable.hpp"
 #include <uhd/exception.hpp>
@@ -67,7 +72,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
         size_t spb;
 
-        double rate, freq, gain, power, wave_freq, bw, lo_offset, tx_actual_rate;
+        double rate, freq, gain, wave_freq, bw, lo_offset, tx_actual_rate; //power, 
 
         float ampl;
 
@@ -104,7 +109,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
         ("otw", po::value<std::string>(&otw)->default_value("sc16"), "specify the over-the-wire sample mode")
 
-        ("power", po::value<double>(&power), "Transmit power (if USRP supports it)")
+        //("power", po::value<double>(&power), "Transmit power (if USRP supports it)")
         ("pps", po::value<std::string>(&pps), "PPS source (internal, external, mimo, gpsdo)")
 
         ("rate", po::value<double>(&rate), "rate of outgoing samples")
@@ -251,10 +256,9 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
     //// ====== Compute the waveform values (wavetable) ======
         const wave_table_class wave_table(wave_type, ampl);
-        // ? ? ?
-        // Does "wave_table_len" = 150? Or integer multiple of 150?
-        // ? ? ?
-        // "wave_table_len" is static within tx_waveforms.cpp. 
+        // "wave_table_len" = Tx sampling rate * signal duration
+        // "wave_table_len" is static within tx_waveforms.cpp, 
+        // determined by the certain OFDM symbol. 
         if (tx_actual_rate / std::abs(wave_freq) > wave_table_len / 2) {
             throw std::runtime_error("wave freq too small for table");
         }
@@ -264,6 +268,26 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     // lround stands for standard round with long int return type. 
     const size_t step =
         std::lround(wave_freq / tx_actual_rate * wave_table_len);
+
+
+
+        /*
+            // stock code:
+            boost::math::iround(wave_freq / usrp->get_tx_rate() * wave_table_len);
+        */
+
+
+
+        /*
+        ???????
+            // fixing step @ 491.52 with iround
+            const size_t step = 493;// 493 is best
+            std::cout<<"Fixing step function @ "<<step<<std::endl;
+        ???????
+        */
+
+
+
     size_t index = 0;
 
 
@@ -286,25 +310,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
                         << std::endl
                         << std::endl;
 
-
             // set the rf gain
-                // if (vm.count("power")) {
-                //     if (!usrp->has_tx_power_reference(ch_idx)) {
-                //         std::cout << "ERROR: USRP does not have a reference power API on channel "
-                //                 << ch_idx << "!" << std::endl;
-                //         return EXIT_FAILURE;
-                //     }
-                //     std::cout << "Setting TX output power: " << power << " dBm..." << std::endl;
-                //     usrp->set_tx_power_reference(power - wave_table.get_power(), ch_idx);
-                //     std::cout << "Actual TX output power: "
-                //             << usrp->get_tx_power_reference(ch_idx) + wave_table.get_power()
-                //             << " dBm..." << std::endl;
-                //     if (vm.count("gain")) {
-                //         std::cout << "WARNING: If you specify both --power and --gain, "
-                //                     " the latter will be ignored."
-                //                 << std::endl;
-                //     }
-                // } else 
                 if (vm.count("gain")) {
                     std::cout << boost::format("Setting TX Gain: %f dB...") % gain << std::endl;
                     usrp->set_tx_gain(gain, channel_nums[ch_idx]);
@@ -442,6 +448,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     // Until the signal handler gets called or if we accumulate the number 
     // of samples that been specified (unless it's 0).
     uint64_t num_acc_samps = 0; // the accumulated number of samples
+    uhd::set_thread_priority(); //Added as suggested by Neel
     while (true) {
         // Break on the end of duration or CTRL-C
         if (stop_signal_called) {   // ctrl+C is one stop signal

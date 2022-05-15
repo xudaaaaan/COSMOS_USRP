@@ -28,6 +28,9 @@ set(example_sources
     latency_test.cpp
     gpio.cpp
     sync_to_gps.cpp
+
+    tx_waveforms_Brian.cpp
+    rx_samples_to_file_Brian.cpp
 )
 
 if(ENABLE_RFNOC)
