@@ -7,7 +7,7 @@ import sys
 import argparse
 import numpy as np
 import matplotlib
-import configparser
+# import configparser
 import threading
 
 matplotlib.use('TkAgg')
@@ -30,7 +30,7 @@ def main():
 
     # Create an argument parser
     parser = argparse.ArgumentParser()
-    parser.add_argument("--node", type=str, default='srv1-in1', help="COSMOS-SB1 node name (i.e., srv1-in1)")
+    parser.add_argument("--node", dest='node', type=str, default='srv1-in1', help="COSMOS-SB1 node name (i.e., srv1-in1)")
     parser.add_argument("--x", type=int, default=0, help="x coordinate on XY table")
     parser.add_argument("--y", type=int, default=0, help="y coordinate on XY table")
     parser.add_argument("--a", type=int, default=0, help="angle of the array on XY table")
@@ -38,11 +38,16 @@ def main():
     args = parser.parse_args()
 
     # Create a configuration parser
-    config = configparser.ConfigParser()
-    config.read('sivers.ini')
+    # config = configparser.ConfigParser()
+    # config.read('sivers.ini')
 
-    xytable0 = table.utils.XYTable(config[args.node]['table_name'], isdebug=isdebug)
-    xytable0.move(x=args.x, y=args.y, angle=args.a)
+    if args.node == "srv1-in1":
+        xytable0 = table.utils.XYTable('xytable1', isdebug=isdebug)
+        xytable0.move(x=args.x, y=args.y, angle=args.a)
+
+    if args.node == "srv1-in2":
+        xytable0 = table.utils.XYTable('xytable2', isdebug=isdebug)
+        xytable0.move(x=args.x, y=args.y, angle=args.a)
 
 
     t = threading.Thread(target=xytable0.video(t=args.videotime))
