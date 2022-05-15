@@ -1,0 +1,1 @@
+from .xytable import XYTable
