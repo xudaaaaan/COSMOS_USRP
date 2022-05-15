@@ -29,8 +29,8 @@ set(example_sources
     gpio.cpp
     sync_to_gps.cpp
 
-    tx_Brian.cpp
-    rx_file_Brian.cpp
+    Brian_tx.cpp
+    Brian_rx_savedata
 )
 
 if(ENABLE_RFNOC)
