@@ -12,3 +12,5 @@ late_commands.sh
 .bashrc
 .viminfo
 .gem/
+*swp
+*.pyc
