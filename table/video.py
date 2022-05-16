@@ -16,7 +16,7 @@ from matplotlib import pyplot as plt
 path = os.path.abspath('../../')
 if not path in sys.path:
     sys.path.append(path)
-import table
+# import table
 
 
 def main():
@@ -42,11 +42,13 @@ def main():
     # config.read('sivers.ini')
 
     if args.node == "srv1-in1":
-        xytable0 = table.utils.XYTable('xytable1', isdebug=isdebug)
+        # xytable0 = table.utils.XYTable('xytable1', isdebug=isdebug)
+        xytable0 = utils.XYTable('xytable1', isdebug=isdebug)
         xytable0.move(x=args.x, y=args.y, angle=args.a)
 
     if args.node == "srv1-in2":
-        xytable0 = table.utils.XYTable('xytable2', isdebug=isdebug)
+        # xytable0 = table.utils.XYTable('xytable2', isdebug=isdebug)
+        xytable0 = utils.XYTable('xytable2', isdebug=isdebug)
         xytable0.move(x=args.x, y=args.y, angle=args.a)
 
 
