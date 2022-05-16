@@ -14,4 +14,4 @@ late_commands.sh
 .gem/
 *swp
 *.pyc
-eder.info
+ederenv/Eder_A/pythonGUI/eder.info
