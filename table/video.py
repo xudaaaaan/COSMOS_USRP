@@ -17,6 +17,7 @@ path = os.path.abspath('../../')
 if not path in sys.path:
     sys.path.append(path)
 # import table
+import utils
 
 
 def main():
