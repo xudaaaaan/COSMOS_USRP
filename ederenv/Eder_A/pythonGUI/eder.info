@@ -5794,3 +5794,8 @@
 2022-05-15 22:53:09,258 INFO:   Chip ADC init.
 2022-05-15 22:53:09,261 INFO:   Chip TEMP init.
 2022-05-15 22:53:09,263 INFO:   Chip present (chip_id = 0x02711702).
+2022-05-16 00:48:13,407 INFO:   Chip present (chip_id = 0x02711702).
+2022-05-16 00:48:13,414 INFO:   Chip REF init.
+2022-05-16 00:48:13,420 INFO:   Chip ADC init.
+2022-05-16 00:48:13,423 INFO:   Chip TEMP init.
+2022-05-16 00:48:13,425 INFO:   Chip present (chip_id = 0x02711702).
