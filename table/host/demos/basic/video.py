@@ -48,6 +48,7 @@ def main():
 
 
     t = threading.Thread(target=xytable0.video(t=args.videotime))
+    t.daemon = True
     t.start()
 
     # Create a move
