@@ -34,7 +34,7 @@ def main():
     parser.add_argument("--x", type=int, default=0, help="x coordinate on XY table")
     parser.add_argument("--y", type=int, default=0, help="y coordinate on XY table")
     parser.add_argument("--a", type=int, default=0, help="angle of the array on XY table")
-    parser.add_argument("--t", dest='videotime', type=int, default=10, help="video duration")
+    # parser.add_argument("--t", dest='videotime', type=int, default=10, help="video duration")
     args = parser.parse_args()
 
     # Create a configuration parser
@@ -42,18 +42,16 @@ def main():
     config.read('../../config/sivers.ini')
 
     xytable0 = mmwsdr.utils.XYTable(config[args.node]['table_name'], isdebug=isdebug)
-
-    if args.x and args.y and args.a:
-        xytable0.move(x=args.x, y=args.y, angle=args.a)
+    xytable0.move(x=args.x, y=args.y, angle=args.a)
 
 
-    t = threading.Thread(target=xytable0.video(t=args.videotime))
-    t.start()
+    # t = threading.Thread(target=xytable0.video(t=args.videotime))
+    # t.start()
 
     # Create a move
     # xytable0.move(x=500, y=500, angle=-45)
 
-    t.join()
+    # t.join()
 
 if __name__ == '__main__':
     try:
