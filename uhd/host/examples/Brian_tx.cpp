@@ -259,6 +259,10 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         // "wave_table_len" = Tx sampling rate * signal duration
         // "wave_table_len" is static within tx_waveforms.cpp, 
         // determined by the certain OFDM symbol. 
+        //
+        // This step is to make sure there are more than half of the signal
+        // points have been sampled within each signal duration (which is 
+        // determined by the waveform frequency accordingly). 
         if (tx_actual_rate / std::abs(wave_freq) > wave_table_len / 2) {
             throw std::runtime_error("wave freq too small for table");
         }
@@ -361,6 +365,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         std::vector<std::complex<float>*> buffs(channel_nums.size(), &buff.front());
 
         // pre-fill the buffer with the waveform
+        std::cout<<"size of buffer "<<buff.size()<<" and step " << step << std::endl;
         for (size_t n = 0; n < buff.size(); n++) {
             buff[n] = wave_table(index += step);
         }

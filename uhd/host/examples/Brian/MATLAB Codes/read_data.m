@@ -22,18 +22,155 @@ close all
 % 
 % % =================================
 
-fid = fopen('test20220515_2_gain_0.dat','r');
-data = fread(fid,'*int16');
+
+
+
+%% Tx signal SINE
+wfm_freq = 1e6;
+tx_sampling_rate = 10e6;
+signal_len = 8192;
+buff_size = 15000;
+
+
+
+signal_tmp = zeros(signal_len, 1);
+for i = 1:signal_len
+    signal_tmp(i) = sin((2*pi*(i-1))/signal_len);   
+end
+% figure;
+% plot(1:signal_len,signal_tmp)
+
+% signal is just a single sine wave, no frequency has been set
+signal = zeros(signal_len, 1);
+for i = 1:signal_len
+    q = mod((i + (3 * signal_len) / 4),  signal_len);
+    signal(i) = signal_tmp(i) + 1j * signal_tmp(q+1);
+end
+% figure;plot(1:signal_len, 20*log10(abs(fft(tx))))
+
+
+
+% Just a test for different freq at real and iamge
+% for i = 1:signal_len
+%     tx_tmp2(i) = sin((2*100*pi*(i-1))/signal_len);   
+% end
+% tx_tmp2 = tx_tmp2.';
+% 
+% tx = tx_tmp + 1i * tx_tmp2;
+% figure;plot(1:signal_len, 20*log10(abs(fft(tx))))
+
+
+
+% Sampling
+sampling_step = floor(wfm_freq / tx_sampling_rate * signal_len);
+sampling_idx = 0;
+tx = zeros(buff_size, 1);
+for i = 1:buff_size
+    sampling_idx = mod(sampling_idx, signal_len);
+    tx(i) = signal(sampling_idx+1);
+    sampling_idx = sampling_idx + sampling_step;
+end
+
+t_step = 1/tx_sampling_rate;
+t = (0: t_step : (buff_size-1)*t_step)';
+figure
+subplot(2,2,1)
+if max(t) > 1e-6 && max(t) < 1e-3
+    plot(t*1e6, real(tx))
+    xlabel('Time [us]')
+    xlim([t(3901)*1e6, t(4001)*1e6])
+elseif max(t) > 1e-3 && max(t) < 1
+    plot(t*1e3, real(tx))
+    xlabel('Time [ms]')
+    xlim([t(3901)*1e3, t(4001)*1e3])
+end
+ylabel('Amp [A]')
+title('Original Sine, Real part')
+
+
+subplot(2,2,2)
+if max(t) > 1e-6 && max(t) < 1e-3
+    plot(t*1e6, real(tx))
+    xlabel('Time [us]')
+elseif max(t) > 1e-3 && max(t) < 1
+    plot(t*1e3, real(tx))
+    xlabel('Time [ms]')
+end
+ylabel('Amp [A]')
+title('Original Sine, Real part')
+
+
+
+
+
+
+
+%% Read data
+fid = fopen('test_double_1_gain_-10.dat','r');
+data = fread(fid,'*double');
 fclose all;
 
-
-
-
-
 data = reshape(data, 2, [])';
+data = data(:,1)+data(:,2)*1i;
+
+data(1:17) = [];
+data(end-13:end) = [];
 
 
 
+subplot(2,2,3)
+if max(t) > 1e-6 && max(t) < 1e-3
+    plot(t(1:length(data))*1e6, real(data))
+    xlabel('Time [us]')
+    xlim([t(3901)*1e6, t(4001)*1e6])
+elseif max(t) > 1e-3 && max(t) < 1
+    plot(t(1:length(data))*1e3, real(data))
+    xlabel('Time [ms]')
+    xlim([t(3901)*1e3, t(4001)*1e3])
+end
+ylabel('Amp [A]')
+title('Received data, Real part')
+
+subplot(2,2,4)
+if max(t) > 1e-6 && max(t) < 1e-3
+    plot(t(1:length(data))*1e6, real(data))
+    xlabel('Time [us]')
+elseif max(t) > 1e-3 && max(t) < 1
+    plot(t(1:length(data))*1e3, real(data))
+    xlabel('Time [ms]')
+end
+ylabel('Amp [A]')
+title('Received data, Real part')
+
+
+
+f = linspace(0, tx_sampling_rate, length(data)+1);
+f(end) = [];
+
+figure;
+hold on
+plot(f/1e6, 20*log10(abs(fft(data))), "LineWidth",1.5)
+plot(f/1e6, 20*log10(abs(fft(real(data)))))
+plot(f/1e6, 20*log10(abs(fft(imag(data)))))
+xlabel('Frequency [MHz]')
+ylabel('Pwr [dBm]')
+title('Frequency Reponse of Received Signal')
+legend('Complex', 'Real', 'Image')
+grid minor
+
+
+f = linspace(0, tx_sampling_rate, length(tx)+1);
+f(end) = [];
+figure;
+hold on
+plot(f/1e6, 20*log10(abs(fft(tx))), "LineWidth",1.5)
+plot(f/1e6, 20*log10(abs(fft(real(tx)))))
+plot(f/1e6, 20*log10(abs(fft(imag(tx)))))
+xlabel('Frequency [MHz]')
+ylabel('Pwr [dBm]')
+title('Frequency Reponse of Sampled Original Signal')
+legend('Complex', 'Real', 'Image')
+grid minor
 
 
 
