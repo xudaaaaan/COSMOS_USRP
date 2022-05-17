@@ -15,4 +15,5 @@ late_commands.sh
 *swp
 *.pyc
 ederenv/Eder_A/pythonGUI/eder.info
-uhd/host/examples/Brian/
+.m
+.mlx
