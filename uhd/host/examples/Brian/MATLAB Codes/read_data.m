@@ -106,15 +106,15 @@ title('Original Sine, Real part')
 
 
 %% Read data
-fid = fopen('test_double_1_gain_-10.dat','r');
+fid = fopen('test_double_2_gain_6db_external_clock.dat','r');
 data = fread(fid,'*double');
 fclose all;
 
 data = reshape(data, 2, [])';
 data = data(:,1)+data(:,2)*1i;
 
-data(1:17) = [];
-data(end-13:end) = [];
+% data(1:17) = [];
+% data(end-13:end) = [];
 
 
 
