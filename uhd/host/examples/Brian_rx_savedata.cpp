@@ -277,6 +277,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("nsamps", po::value<size_t>(&total_num_samps)->default_value(0), "total number of samples to receive (requested)")
         ("Save", "Determine if run the code and save data to file. Add 'Save' when you want to save the data. ")
         
+        ("pps", po::value<std::string>(&pps), "PPS source (internal, external, mimo, gpsdo)")
         ("progress", "periodically display short-term bandwidth")
 
         ("rate", po::value<double>(&rate)->default_value(1e6), "rate of incoming samples")
@@ -342,6 +343,12 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     if (vm.count("ref")) {
         usrp->set_clock_source(ref);
     }
+
+    // Lock 1pps signal
+    if (vm.count("pps")) {
+        usrp->set_time_source(pps);
+    }
+    
 
 
     // always select the subdevice first, the channel mapping affects the other settings
