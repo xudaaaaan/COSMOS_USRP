@@ -15,5 +15,5 @@ late_commands.sh
 *swp
 *.pyc
 ederenv/Eder_A/pythonGUI/eder.info
-.m
-.mlx
+*.m
+*.mlx

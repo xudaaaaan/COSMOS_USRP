@@ -106,7 +106,7 @@ title('Original Sine, Real part')
 
 
 %% Read data
-fid = fopen('test_double_2_gain_6db_external_clock.dat','r');
+fid = fopen('test_double_3_gain_6db_external_clock.dat','r');
 data = fread(fid,'*double');
 fclose all;
 
