@@ -48,6 +48,11 @@ public:
         } else
             throw std::runtime_error("unknown waveform type: " + wave_type);
 
+        for (size_t i = 0; i < wave_table_len; i++) {
+            _wave_table[i] = std::complex<float>(ampl * real_wave_table[i], 
+            ampl * imag_wave_table[i]);
+        }
+
 
         // // compute i and q pairs with 90% offset and scale to amplitude
         // for (size_t i = 0; i < wave_table_len; i++) {
@@ -56,9 +61,7 @@ public:
         //         std::complex<float>(ampl * real_wave_table[i], ampl * real_wave_table[q]);
         // }
 
-        for (size_t i = 0; i < wave_table_len; i++) {
-            _wave_table[i] = std::complex<float>(ampl * real_wave_table[i], ampl * imag_wave_table[i]);
-        }
+        
 
     }
 

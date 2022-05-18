@@ -280,9 +280,6 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
             // stock code:
             boost::math::iround(wave_freq / usrp->get_tx_rate() * wave_table_len);  // has error!!!!
         */
-        for (size_t test_idx = 0; test_idx < 30; test_idx++){
-            std::cout << "test value for test id " << test_idx << " is: " << std::lround(wave_freq / tx_actual_rate * wave_table_len);
-        }
 
         /*
         ???????
@@ -370,6 +367,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         std::cout<<"size of buffer "<<buff.size()<<" and step " << step << std::endl;
         for (size_t n = 0; n < buff.size(); n++) {
             buff[n] = wave_table(index += step);
+            std::cout << buff[n] << std::endl;
         }
 
 
