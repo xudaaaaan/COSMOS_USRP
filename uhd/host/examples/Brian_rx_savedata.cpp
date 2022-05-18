@@ -257,7 +257,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("help", "help message")
 
         ("ant", po::value<std::string>(&ant), "antenna selection")
-        ("args", po::value<std::string>(&args)->default_value(""), "multi uhd device address args")
+        ("args", po::value<std::string>(&args)->default_value("addr=10.38.14.2"), "multi uhd device address args")
         
         ("bw", po::value<double>(&bw), "analog frontend filter bandwidth in Hz")
 
