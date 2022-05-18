@@ -96,7 +96,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
         ("channels", po::value<std::string>(&channel_list)->default_value("0"), "which channels to use (specify \"0\", \"1\", \"0,1\", etc)")
 
-        ("freq", po::value<double>(&freq)->default_value(200), "IF center frequency in Hz")
+        ("freq", po::value<double>(&freq)->default_value(200e6), "IF center frequency in Hz")
 
         ("gain", po::value<double>(&gain)->default_value(0), "gain for the RF chain")
 
