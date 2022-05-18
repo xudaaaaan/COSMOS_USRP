@@ -91,30 +91,19 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("ant", po::value<std::string>(&ant)->default_value("AB"), "antenna selection")
         ("args", po::value<std::string>(&args)->default_value("addr=10.38.14.1"), 
             "single uhd device address args, and it can be IP address. Default value is the Tx USRP. ")
-
         ("bw", po::value<double>(&bw), "analog frontend filter bandwidth in Hz")
-
         ("channels", po::value<std::string>(&channel_list)->default_value("0"), "which channels to use (specify \"0\", \"1\", \"0,1\", etc)")
-
         ("freq", po::value<double>(&freq)->default_value(100e6), "IF center frequency in Hz")
-
         ("gain", po::value<double>(&gain)->default_value(0), "gain for the RF chain")
-
         ("int-n", "tune USRP with integer-N tuning")
-
         ("lo-offset", po::value<double>(&lo_offset)->default_value(0.0),
             "Offset for frontend LO in Hz (optional)")    
-
         ("nsamps", po::value<uint64_t>(&total_num_samps)->default_value(0), "total number of samples to transmit")
-
         ("pps", po::value<std::string>(&pps)->default_value("external"), "PPS source (internal, external, mimo, gpsdo)")
-
         ("rate", po::value<double>(&rate)->default_value(10e6), "rate of outgoing samples")
         ("ref", po::value<std::string>(&ref)->default_value("external"), "clock reference (internal, external, mimo, gpsdo)")
-
         ("spb", po::value<size_t>(&spb)->default_value(0), "samples per buffer, 0 for default")
         ("subdev", po::value<std::string>(&subdev)->default_value("A:AB"), "subdevice specification, use A:AB for Tx")
-
         ("wave-type", po::value<std::string>(&wave_type)->default_value("SINE"), "waveform type (SINE)")
         ("wave-freq", po::value<double>(&wave_freq)->default_value(1e6), "waveform frequency in Hz")
         ("wirefmt", po::value<std::string>(&wirefmt)->default_value("sc16"), "specify the over-the-wire sample mode")
@@ -148,7 +137,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     
     //// ====== Create a usrp device ======
         std::cout << std::endl;  // print blank line
-        std::cout << boost::format("Creating the usrp device with: \"%s...\" ") % args
+        std::cout << boost::format("Creating the usrp device with: %s... ") % args
                 << std::endl;
         std::cout << std::endl;  
         // uhd is defined at "<uhd/usrp/multi_usrp.hpp>"   
@@ -159,7 +148,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     //// ====== Select Sub-device ======
         // always select the subdevice first, the channel mapping affects the other settings
         if (vm.count("subdev")){
-            usrp->set_tx_subdev_spec(subdev);   // A:AB for Tx, and B:AB for Rx
+            usrp->set_tx_subdev_spec(subdev);   // A:AB for Tx, and B:AB for Rx, check the "X310 probe" note in Samsung Notes
         }
 
 
@@ -439,11 +428,11 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
 
-    //// ====== Send data until... ======
+    //// ====== Send data ======
     // Until the signal handler gets called or if we accumulate the number 
     // of samples that been specified (unless it's 0).
     uint64_t num_acc_samps = 0; // the accumulated number of samples
-    uhd::set_thread_priority(); //Added as suggested by Neel
+    // uhd::set_thread_priority(); //Added as suggested by Neel
     while (true) {
         // Break on the end of duration or CTRL-C
         if (stop_signal_called) {   // ctrl+C is one stop signal

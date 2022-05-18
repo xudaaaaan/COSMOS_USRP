@@ -30,6 +30,7 @@ set(example_sources
     sync_to_gps.cpp
 
     Brian_tx.cpp
+    Brian_tx_2.cpp
     Brian_rx.cpp
 )
 
