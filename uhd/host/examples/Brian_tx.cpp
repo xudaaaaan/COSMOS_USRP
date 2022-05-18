@@ -19,7 +19,7 @@
 //      Yuning (Brian) Zhang, 5/13/2022
 //
 
-#include "wavetable.hpp"
+#include "wavetable_Brian.hpp"
 #include <uhd/exception.hpp>
 #include <uhd/usrp/multi_usrp.hpp>
 #include <uhd/utils/safe_main.hpp>
@@ -279,8 +279,9 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
             // stock code:
             boost::math::iround(wave_freq / usrp->get_tx_rate() * wave_table_len);
         */
-
-
+        for (size_t test_idx = 0; test_idx < 30; test_idx++){
+            std::cout << "test value for test id %s is: " %test_idx << boost::math::iround(test_idx/10) << std::endl;
+        }
 
         /*
         ???????
