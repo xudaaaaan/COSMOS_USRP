@@ -87,7 +87,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     desc.add_options()
         ("help", "help message")
 
-        ("ampl", po::value<float>(&ampl)->default_value(float(0.3)), "amplitude of the waveform [0 to 0.7]")
+        ("ampl", po::value<float>(&ampl)->default_value(float(0.7)), "amplitude of the waveform [0 to 0.7]")
         ("ant", po::value<std::string>(&ant)->default_value("AB"), "antenna selection")
         ("args", po::value<std::string>(&args)->default_value("addr=10.38.14.1"), 
             "single uhd device address args, and it can be IP address. Default value is the Tx USRP. ")
