@@ -88,7 +88,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("help", "help message")
 
         ("ampl", po::value<float>(&ampl)->default_value(float(0.3)), "amplitude of the waveform [0 to 0.7]")
-        ("ant", po::value<std::string>(&ant), "antenna selection")
+        ("ant", po::value<std::string>(&ant)->default_value("AB"), "antenna selection")
         ("args", po::value<std::string>(&args)->default_value("addr=10.38.14.1"), 
             "single uhd device address args, and it can be IP address. Default value is the Tx USRP. ")
 
@@ -96,9 +96,9 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
         ("channels", po::value<std::string>(&channel_list)->default_value("0"), "which channels to use (specify \"0\", \"1\", \"0,1\", etc)")
 
-        ("freq", po::value<double>(&freq), "RF center frequency in Hz")
+        ("freq", po::value<double>(&freq)->default_value(200), "IF center frequency in Hz")
 
-        ("gain", po::value<double>(&gain), "gain for the RF chain")
+        ("gain", po::value<double>(&gain)->default_value(0), "gain for the RF chain")
 
         ("int-n", "tune USRP with integer-N tuning")
 
@@ -110,15 +110,15 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("otw", po::value<std::string>(&otw)->default_value("sc16"), "specify the over-the-wire sample mode")
 
         //("power", po::value<double>(&power), "Transmit power (if USRP supports it)")
-        ("pps", po::value<std::string>(&pps), "PPS source (internal, external, mimo, gpsdo)")
+        ("pps", po::value<std::string>(&pps)->default_value("external"), "PPS source (internal, external, mimo, gpsdo)")
 
         ("rate", po::value<double>(&rate), "rate of outgoing samples")
-        ("ref", po::value<std::string>(&ref)->default_value("internal"), "clock reference (internal, external, mimo, gpsdo)")
+        ("ref", po::value<std::string>(&ref)->default_value("external"), "clock reference (internal, external, mimo, gpsdo)")
 
         ("spb", po::value<size_t>(&spb)->default_value(0), "samples per buffer, 0 for default")
-        ("subdev", po::value<std::string>(&subdev), "subdevice specification, use A:AB for Tx")
+        ("subdev", po::value<std::string>(&subdev)->default_value("A:AB"), "subdevice specification, use A:AB for Tx")
 
-        ("wave-type", po::value<std::string>(&wave_type)->default_value("CONST"), "waveform type (CONST, SQUARE, RAMP, SINE)")
+        ("wave-type", po::value<std::string>(&wave_type)->default_value("CONST"), "waveform type (SINE)")
         ("wave-freq", po::value<double>(&wave_freq)->default_value(0), "waveform frequency in Hz")
     ;
 
@@ -291,7 +291,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
 
-    size_t index = 0;
+    
 
 
 
@@ -364,10 +364,11 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         std::vector<std::complex<float>*> buffs(channel_nums.size(), &buff.front());
 
         // pre-fill the buffer with the waveform
+        size_t index = 0;
         std::cout<<"size of buffer "<<buff.size()<<" and step " << step << std::endl;
         for (size_t n = 0; n < buff.size(); n++) {
             buff[n] = wave_table(index += step);
-            std::cout << buff[n] << std::endl;
+            // std::cout << buff[n] << std::endl;
         }
 
 

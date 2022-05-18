@@ -11,6 +11,7 @@
 //
 
 #include <uhd/exception.hpp>
+#include "wavetable_Brian.hpp"
 #include <uhd/types/tune_request.hpp>
 #include <uhd/usrp/multi_usrp.hpp>
 #include <uhd/utils/safe_main.hpp>
@@ -246,9 +247,9 @@ bool check_locked_sensor(std::vector<std::string> sensor_names,
 int UHD_SAFE_MAIN(int argc, char* argv[])
 {
     // variables to be set by po
-    std::string args, file, type, ant, subdev, ref, wirefmt, pps;
+    std::string args, wave_type, file, type, ant, subdev, ref, wirefmt, pps;
     size_t channel, total_num_samps, spb;
-    double rate, freq, gain, bw, total_time, setup_time, lo_offset;
+    double rate, freq, gain, bw, total_time, setup_time, lo_offset, wave_freq;
 
     // setup the program options
     po::options_description desc("Allowed options");
@@ -256,7 +257,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     desc.add_options()
         ("help", "help message")
 
-        ("ant", po::value<std::string>(&ant), "antenna selection")
+        ("ant", po::value<std::string>(&ant)->default_value("AB"), "antenna selection")
         ("args", po::value<std::string>(&args)->default_value("addr=10.38.14.2"), "multi uhd device address args")
         
         ("bw", po::value<double>(&bw), "analog frontend filter bandwidth in Hz")
@@ -267,9 +268,9 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("duration", po::value<double>(&total_time)->default_value(0), "total number of seconds to receive")
 
         ("file", po::value<std::string>(&file)->default_value("usrp_samples.dat"), "name of the file to write binary samples to")
-        ("freq", po::value<double>(&freq)->default_value(0.0), "RF center frequency in Hz")
+        ("freq", po::value<double>(&freq)->default_value(200), "IF center frequency in Hz")
         
-        ("gain", po::value<double>(&gain), "gain for the RF chain")
+        ("gain", po::value<double>(&gain)->default_value(6), "gain for the RF chain")
 
         ("lo-offset", po::value<double>(&lo_offset)->default_value(0.0),
             "Offset for frontend LO in Hz (optional)")
@@ -277,22 +278,23 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("nsamps", po::value<size_t>(&total_num_samps)->default_value(0), "total number of samples to receive (requested)")
         ("Save", "Determine if run the code and save data to file. Add 'Save' when you want to save the data. ")
         
-        ("pps", po::value<std::string>(&pps), "PPS source (internal, external, mimo, gpsdo)")
+        ("pps", po::value<std::string>(&pps)->default_value("external"), "PPS source (internal, external, mimo, gpsdo)")
         ("progress", "periodically display short-term bandwidth")
 
         ("rate", po::value<double>(&rate)->default_value(1e6), "rate of incoming samples")
-        ("ref", po::value<std::string>(&ref)->default_value("internal"), "reference source (internal, external, mimo)")
+        ("ref", po::value<std::string>(&ref)->default_value("external"), "reference source (internal, external, mimo)")
         
         ("setup", po::value<double>(&setup_time)->default_value(1.0), "seconds of setup time")
         ("sizemap", "track packet size and display breakdown on exit")
         ("spb", po::value<size_t>(&spb)->default_value(10000), "samples per buffer")
-        ("subdev", po::value<std::string>(&subdev), "subdevice specification")
+        ("subdev", po::value<std::string>(&subdev)->default_value("B:AB"), "subdevice specification")
         ("stats", "show average bandwidth on exit")
         
-        ("type", po::value<std::string>(&type)->default_value("short"), "sample type: double, float, or short")
+        ("type", po::value<std::string>(&type)->default_value("double"), "sample type: double, float, or short")
         
         ("wirefmt", po::value<std::string>(&wirefmt)->default_value("sc16"), "wire format (sc8, sc16 or s16)")
-        
+        ("wave-type", po::value<std::string>(&wave_type)->default_value("CONST"), "waveform type (SINE)")
+        ("wave-freq", po::value<double>(&wave_freq)->default_value(0), "waveform frequency in Hz")
         
         
         
@@ -369,6 +371,17 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
                      % (usrp->get_rx_rate(channel) / 1e6)
               << std::endl
               << std::endl;
+
+
+
+
+    // original waveform
+    size_t index = 0;
+    const wave_table_class wave_table(wave_type, 1);
+    const size_t step = 1000;
+    for (size_t n = 0; n < rate/wave_freq; n++) {
+        std::cout << wave_table(index += step) << std::endl;
+    }
 
 
     // set the center frequency
