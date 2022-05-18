@@ -43,7 +43,7 @@ public:
             static const double tau = 2 * std::acos(-1.0);  // tau = 2pi
             for (size_t i = 0; i < wave_table_len; i++){
                 real_wave_table[i] = std::cos((tau * i) / wave_table_len);
-                imag_wave_table[i] = std::sin((tau * i) / wave_table_len);
+                imag_wave_table[i] = std::cos((tau * i) / wave_table_len);
             }
         } else
             throw std::runtime_error("unknown waveform type: " + wave_type);
