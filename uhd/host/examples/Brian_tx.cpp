@@ -270,8 +270,9 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
     // lround stands for standard round with long int return type. 
-    const size_t step =
-        std::lround(wave_freq / tx_actual_rate * wave_table_len);
+    // const size_t step =
+    //     std::lround(wave_freq / tx_actual_rate * wave_table_len);
+    const size_t step = 1000;
 
 
 
