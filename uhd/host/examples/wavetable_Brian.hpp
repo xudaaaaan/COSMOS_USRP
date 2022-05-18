@@ -31,7 +31,7 @@ public:
         //         real_wave_table[i] = (i < wave_table_len / 2) ? 0.0 : 1.0;
         // } else if (wave_type == "RAMP") {
         //     for (size_t i = 0; i < wave_table_len; i++)
-        //         real_wave_table[i] = 2.0 * i / (wave_table_len - 1) - 1.0;
+        //         real_wave_table[i] = 2.0 * i / (wave_table_len - 1) - 1.0;real_wave_table
         // } else if (wave_type == "SINE") {
         //     static const double tau = 2 * std::acos(-1.0);
         //     for (size_t i = 0; i < wave_table_len; i++)
@@ -41,9 +41,10 @@ public:
 
         if (wave_type == "SINE") {
             static const double tau = 2 * std::acos(-1.0);  // tau = 2pi
-            for (size_t i = 0; i < wave_table_len; i++)
+            for (size_t i = 0; i < wave_table_len; i++){
                 real_wave_table[i] = std::cos((tau * i) / wave_table_len);
                 imag_wave_table[i] = std::sin((tau * i) / wave_table_len);
+            }
         } else
             throw std::runtime_error("unknown waveform type: " + wave_type);
 
@@ -55,8 +56,9 @@ public:
         //         std::complex<float>(ampl * real_wave_table[i], ampl * real_wave_table[q]);
         // }
 
-        _wave_table = std::complex<float>(ampl * real_wave_table, ampl * imag_wave_table);
-
+        for (size_t i = 0; i < wave_table_len; i++) {
+            _wave_table[i] = std::complex<float>(ampl * real_wave_table[i], ampl * imag_wave_table[i]);
+        }
 
     }
 
