@@ -30,7 +30,7 @@ set(example_sources
     sync_to_gps.cpp
 
     Brian_tx.cpp
-    Brian_rx_savedata
+    Brian_rx.cpp
 )
 
 if(ENABLE_RFNOC)
