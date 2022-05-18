@@ -275,15 +275,15 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("lo-offset", po::value<double>(&lo_offset)->default_value(0.0),
             "Offset for frontend LO in Hz (optional)")
         
-        ("nsamps", po::value<size_t>(&total_num_samps)->default_value(0), "total number of samples to receive (requested)")
-        ("Save", "Determine if run the code and save data to file. Add 'Save' when you want to save the data. ")
-        
+        ("nsamps", po::value<size_t>(&total_num_samps)->default_value(10000), "total number of samples to receive (requested)")
+                
         ("pps", po::value<std::string>(&pps)->default_value("external"), "PPS source (internal, external, mimo, gpsdo)")
         ("progress", "periodically display short-term bandwidth")
 
-        ("rate", po::value<double>(&rate)->default_value(1e6), "rate of incoming samples")
+        ("rate", po::value<double>(&rate)->default_value(10e6), "rate of incoming samples")
         ("ref", po::value<std::string>(&ref)->default_value("external"), "reference source (internal, external, mimo)")
         
+        ("Save", "Determine if run the code and save data to file. Add 'Save' when you want to save the data. ")
         ("setup", po::value<double>(&setup_time)->default_value(1.0), "seconds of setup time")
         ("sizemap", "track packet size and display breakdown on exit")
         ("spb", po::value<size_t>(&spb)->default_value(10000), "samples per buffer")
@@ -292,9 +292,9 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         
         ("type", po::value<std::string>(&type)->default_value("double"), "sample type: double, float, or short")
         
+        ("wave-type", po::value<std::string>(&wave_type)->default_value("SINE"), "waveform type (SINE)")
+        ("wave-freq", po::value<double>(&wave_freq)->default_value(1e6), "waveform frequency in Hz")
         ("wirefmt", po::value<std::string>(&wirefmt)->default_value("sc16"), "wire format (sc8, sc16 or s16)")
-        ("wave-type", po::value<std::string>(&wave_type)->default_value("CONST"), "waveform type (SINE)")
-        ("wave-freq", po::value<double>(&wave_freq)->default_value(0), "waveform frequency in Hz")
         
         
         

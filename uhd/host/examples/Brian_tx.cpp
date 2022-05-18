@@ -66,7 +66,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     //// ====== Variables to be set by program_options ======
         // std::type is using the namespace called as "std", standard namespace.
         // there are several "string" type variables: args, wave_type, etc. 
-        std::string args, wave_type, ant, subdev, ref, pps, otw, channel_list;
+        std::string args, wave_type, ant, subdev, ref, pps, wirefmt, channel_list;
 
         uint64_t total_num_samps;
 
@@ -107,19 +107,17 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
         ("nsamps", po::value<uint64_t>(&total_num_samps)->default_value(0), "total number of samples to transmit")
 
-        ("otw", po::value<std::string>(&otw)->default_value("sc16"), "specify the over-the-wire sample mode")
-
-        //("power", po::value<double>(&power), "Transmit power (if USRP supports it)")
         ("pps", po::value<std::string>(&pps)->default_value("external"), "PPS source (internal, external, mimo, gpsdo)")
 
-        ("rate", po::value<double>(&rate), "rate of outgoing samples")
+        ("rate", po::value<double>(&rate)->default_value(10e6), "rate of outgoing samples")
         ("ref", po::value<std::string>(&ref)->default_value("external"), "clock reference (internal, external, mimo, gpsdo)")
 
         ("spb", po::value<size_t>(&spb)->default_value(0), "samples per buffer, 0 for default")
         ("subdev", po::value<std::string>(&subdev)->default_value("A:AB"), "subdevice specification, use A:AB for Tx")
 
-        ("wave-type", po::value<std::string>(&wave_type)->default_value("CONST"), "waveform type (SINE)")
-        ("wave-freq", po::value<double>(&wave_freq)->default_value(0), "waveform frequency in Hz")
+        ("wave-type", po::value<std::string>(&wave_type)->default_value("SINE"), "waveform type (SINE)")
+        ("wave-freq", po::value<double>(&wave_freq)->default_value(1e6), "waveform frequency in Hz")
+        ("wirefmt", po::value<std::string>(&wirefmt)->default_value("sc16"), "specify the over-the-wire sample mode")
     ;
 
 
@@ -350,7 +348,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
     //// ====== Create a transmit streamer ======
         // linearly map channels (index0 = channel0, index1 = channel1, ...)
-        uhd::stream_args_t stream_args("fc32", otw);    // fc32 is a system data format
+        uhd::stream_args_t stream_args("fc32", wirefmt);    // fc32 is a system data format
         stream_args.channels = channel_nums;
         uhd::tx_streamer::sptr tx_stream = usrp->get_tx_stream(stream_args);
 
