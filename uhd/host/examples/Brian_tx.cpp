@@ -72,7 +72,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
         size_t spb;
 
-        double rate, freq, gain, wave_freq, bw, lo_offset, tx_actual_rate; //power, 
+        double rate, freq, gain, wave_freq, bw, lo_offset; //power, 
 
         float ampl;
 
@@ -203,23 +203,14 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
             return ~0;
         }
 
-        std::cout << std::endl; 
-        std::cout << boost::format("Setting TX Rate: %f MSamples/s...") % (rate / 1e6) << std::endl;
-        std::cout << std::endl; 
+        std::cout << boost::format("Setting TX Rate: %f Msps...") % (rate / 1e6) << std::endl;
         usrp->set_tx_rate(rate);
-        
-        std::cout << std::endl; 
-        std::cout << "Fetching actual Tx Rate..." << std::endl;
-        std::cout << std::endl; 
-        tx_actual_rate = usrp->get_tx_rate();
-
-        std::cout << std::endl; 
-        std::cout << boost::format("Actual TX Rate: %f MSamples/s. ") % (tx_actual_rate / 1e6)
+        std::cout << boost::format("Actual TX Rate: %f Msps...") % (usrp->get_tx_rate() / 1e6)
+                << std::endl
                 << std::endl;
-        std::cout << std::endl; 
         
         // when the waveform frequency*2 > Tx sampling rate, can't generate wfm. 
-        if (std::abs(wave_freq) > tx_actual_rate / 2) {
+        if (std::abs(wave_freq) > usrp->get_tx_rate() / 2) {
             throw std::runtime_error("wave freq out of Nyquist zone");
         }
 
@@ -261,7 +252,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         // This step is to make sure there are more than half of the signal
         // points have been sampled within each signal duration (which is 
         // determined by the waveform frequency accordingly). 
-        if (tx_actual_rate / std::abs(wave_freq) > wave_table_len / 2) {
+        if (usrp->get_tx_rate() / std::abs(wave_freq) > wave_table_len / 2) {
             throw std::runtime_error("wave freq too small for table");
         }
 
@@ -269,7 +260,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
     // lround stands for standard round with long int return type. 
     // const size_t step =
-    //     std::lround(wave_freq / tx_actual_rate * wave_table_len);
+    //     std::lround(wave_freq / usrp->get_tx_rate() * wave_table_len);
     const size_t step = 1000;
 
 
