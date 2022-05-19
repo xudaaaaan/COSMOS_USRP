@@ -11,7 +11,7 @@
 //
 
 #include <uhd/exception.hpp>
-#include "wavetable_Brian.hpp"
+// #include "wavetable_Brian.hpp"
 #include <uhd/types/tune_request.hpp>
 #include <uhd/usrp/multi_usrp.hpp>
 #include <uhd/utils/safe_main.hpp>
@@ -376,12 +376,12 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
     // original waveform
-    size_t index = 0;
-    const wave_table_class wave_table(wave_type, 1);
-    const size_t step = 1000;
-    for (size_t n = 0; n < rate/wave_freq; n++) {
-        std::cout << wave_table(index += step) << std::endl;
-    }
+  //  size_t index = 0;
+  //  const wave_table_class wave_table(wave_type, 1);
+  //  const size_t step = 1000;
+  //  for (size_t n = 0; n < rate/wave_freq; n++) {
+  //      std::cout << wave_table(index += step) << std::endl;
+  //  }
 
 
     // set the center frequency
