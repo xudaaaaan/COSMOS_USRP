@@ -5,7 +5,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-#include "wavetable_Brian.hpp"
+// #include "wavetable_Brian.hpp"
+#include "wavetable.hpp"
 #include <uhd/exception.hpp>
 #include <uhd/usrp/multi_usrp.hpp>
 #include <uhd/utils/safe_main.hpp>
@@ -38,11 +39,6 @@ void sig_int_handler(int)
  **********************************************************************/
 int UHD_SAFE_MAIN(int argc, char* argv[])
 {
-
-
-    uhd::set_thread_priority_safe();
-
-
     // variables to be set by po
     std::string args, wave_type, ant, subdev, ref, pps, otw, channel_list;
     uint64_t total_num_samps;
@@ -62,15 +58,15 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("freq", po::value<double>(&freq), "RF center frequency in Hz")
         ("lo-offset", po::value<double>(&lo_offset)->default_value(0.0),
             "Offset for frontend LO in Hz (optional)")
-        ("ampl", po::value<float>(&ampl)->default_value(float(0.7)), "amplitude of the waveform [0 to 0.7]")
+        ("ampl", po::value<float>(&ampl)->default_value(float(0.3)), "amplitude of the waveform [0 to 0.7]")
         ("gain", po::value<double>(&gain), "gain for the RF chain")
         ("ant", po::value<std::string>(&ant), "antenna selection")
         ("subdev", po::value<std::string>(&subdev), "subdevice specification")
         ("bw", po::value<double>(&bw), "analog frontend filter bandwidth in Hz")
-        ("wave-type", po::value<std::string>(&wave_type)->default_value("SINE"), "waveform type (CONST, SQUARE, RAMP, SINE)")
+        ("wave-type", po::value<std::string>(&wave_type)->default_value("CONST"), "waveform type (CONST, SQUARE, RAMP, SINE)")
         ("wave-freq", po::value<double>(&wave_freq)->default_value(0), "waveform frequency in Hz")
-        ("ref", po::value<std::string>(&ref)->default_value("external"), "clock reference (internal, external, mimo, gpsdo)")
-        ("pps", po::value<std::string>(&pps)->default_value("external"), "PPS source (internal, external, mimo, gpsdo)")
+        ("ref", po::value<std::string>(&ref)->default_value("internal"), "clock reference (internal, external, mimo, gpsdo)")
+        ("pps", po::value<std::string>(&pps), "PPS source (internal, external, mimo, gpsdo)")
         ("otw", po::value<std::string>(&otw)->default_value("sc16"), "specify the over-the-wire sample mode")
         ("channels", po::value<std::string>(&channel_list)->default_value("0"), "which channels to use (specify \"0\", \"1\", \"0,1\", etc)")
         ("int-n", "tune USRP with integer-N tuning")
