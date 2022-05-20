@@ -5,8 +5,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-// #include "wavetable_Brian.hpp"
-#include "wavetable.hpp"
+#include "wavetable_Brian.hpp"
+// #include "wavetable.hpp"
 #include <uhd/exception.hpp>
 #include <uhd/usrp/multi_usrp.hpp>
 #include <uhd/utils/safe_main.hpp>

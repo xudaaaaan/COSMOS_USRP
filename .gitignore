@@ -18,3 +18,5 @@ ederenv/Eder_A/pythonGUI/eder.info
 *.m
 *.mlx
 *.avi
+*.fig
+*.jpg
