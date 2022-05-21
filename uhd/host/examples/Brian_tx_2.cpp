@@ -172,8 +172,8 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
     //// ====== Set the center frequency (always has default value) ======
-            std::cerr << "Please specify the center frequency with --freq" << std::endl;
-            return ~0;
+            // std::cerr << "Please specify the center frequency with --freq" << std::endl;
+            // return ~0;
 
 
     //// ====== Configure each channel ======
