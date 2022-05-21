@@ -215,7 +215,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
             // set the antenna (always has default value)
                 usrp->set_tx_antenna(ant, channel_nums[ch_idx]);
-
+        }
 
 
 
@@ -395,3 +395,4 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         std::cout << std::endl << "Done!" << std::endl << std::endl;
         return EXIT_SUCCESS;
 }
+
