@@ -127,8 +127,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
 
-    //// ====== Select Sub-device ======
-        if (vm.count("subdev"))
+    //// ====== Select Sub-device (always has default value) ======
             usrp->set_tx_subdev_spec(subdev);   // A:AB for Tx, and B:AB for Rx, check the "X310 probe" note in Samsung Notes
 
 
@@ -146,12 +145,10 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
 
-    //// ====== Lock mboard reference clock source ======
-    if (vm.count("ref")) {
+    //// ====== Lock mboard reference clock source (always has default value) ======
         usrp->set_clock_source(ref);
         std::cout<<boost::format("The reference clock for motherboard is: %s...") % ref
                     <<std::endl;
-    }
 
 
     //// ====== Print Device Info ======
@@ -174,11 +171,9 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
 
-    //// ====== Set the center frequency ======
-        if (not vm.count("freq")) {
+    //// ====== Set the center frequency (always has default value) ======
             std::cerr << "Please specify the center frequency with --freq" << std::endl;
             return ~0;
-        }
 
 
     //// ====== Configure each channel ======
@@ -197,21 +192,13 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
                     << std::endl;
 
 
-            // set the rf gain
-            if (vm.count("gain")) {
+            // set the rf gain (always has default value)
                 std::cout << boost::format("Setting TX Gain: %f dB...") % gain << std::endl;
                 usrp->set_tx_gain(gain, channel_nums[ch_idx]);
                 std::cout << boost::format("Actual TX Gain: %f dB...")
                                 % usrp->get_tx_gain(channel_nums[ch_idx])
                         << std::endl
                         << std::endl;
-            } else {
-                std::cout << boost::format("Setting TX Gain to default value: %f dB...") % gain << std::endl;
-                usrp->set_tx_gain(gain, channel_nums[ch_idx]);
-                std::cout << boost::format("Actual TX Gain: %f dB...")
-                                % usrp->get_tx_gain(channel_nums[ch_idx])
-                                << std::endl;
-            }
 
 
             // set the analog frontend filter bandwidth
@@ -226,10 +213,9 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
             }
 
 
-            // set the antenna
-            if (vm.count("ant"))
+            // set the antenna (always has default value)
                 usrp->set_tx_antenna(ant, channel_nums[ch_idx]);
-        }
+
 
 
 
