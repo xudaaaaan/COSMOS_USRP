@@ -210,6 +210,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
                 usrp->set_tx_gain(gain, channel_nums[ch_idx]);
                 std::cout << boost::format("Actual TX Gain: %f dB...")
                                 % usrp->get_tx_gain(channel_nums[ch_idx])
+                                << std::endl;
             }
 
 
