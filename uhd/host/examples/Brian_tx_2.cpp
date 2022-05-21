@@ -80,7 +80,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("bw", po::value<double>(&bw), "analog frontend filter bandwidth in Hz")
         ("channels", po::value<std::string>(&channel_list)->default_value("0"), "which channels to use (specify \"0\", \"1\", \"0,1\", etc)")
         ("freq", po::value<double>(&freq)->default_value(80e6), "IF center frequency in Hz")
-        ("gain", po::value<double>(&gain)->default_value(2), "gain for the RF chain")
+        ("gain", po::value<double>(&gain)->default_value(0), "gain for the RF chain")
         ("int-n", "tune USRP with integer-N tuning")
         ("lo-offset", po::value<double>(&lo_offset)->default_value(0.0),
             "Offset for frontend LO in Hz (optional)")    
@@ -235,7 +235,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
 
-    //// error when the waveform is not possible to generate
+    //// ====== Error when the waveform is not possible to generate ======
         // when the waveform frequency*2 > Tx sampling rate, can't generate wfm. 
         if (std::abs(wave_freq) > usrp->get_tx_rate() / 2) {
             throw std::runtime_error("wave freq out of Nyquist zone");
@@ -243,19 +243,10 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
         // This step is to make sure there are more than half of the signal
         // points have been sampled within each signal duration (which is 
-        // determined by the waveform frequency accordingly). 
+        // determined by the waveform frequency accordingly). --> still Nyquist Sampling Law
         if (usrp->get_tx_rate() / std::abs(wave_freq) > wave_table_len / 2) {
             throw std::runtime_error("wave freq too small for table");
         }
-
-
-
-    //// ====== Compute the waveform values (wavetable) ======
-        const wave_table_class wave_table(wave_type, ampl);
-        const size_t step = 
-            std::lround(wave_freq / usrp->get_tx_rate() * wave_table_len);
-            // boost::math::iround(wave_freq / usrp->get_tx_rate() * wave_table_len);
-        size_t index = 0;
 
 
 
@@ -276,6 +267,11 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
         // pre-fill the buffer with the waveform
+        const wave_table_class wave_table(wave_type, ampl);
+        const size_t step = 
+            std::lround(wave_freq / usrp->get_tx_rate() * wave_table_len);
+        size_t index = 0;
+
         std::cout<<"size of buffer is: "<<buff.size()<<" and step is: " << step << std::endl;
         for (size_t n = 0; n < buff.size(); n++) {
             buff[n] = wave_table(index += step);
