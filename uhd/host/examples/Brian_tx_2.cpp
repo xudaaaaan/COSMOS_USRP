@@ -79,7 +79,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
             "single uhd device address args, and it can be IP address. Default value is the Tx USRP. ")
         ("bw", po::value<double>(&bw), "analog frontend filter bandwidth in Hz")
         ("channels", po::value<std::string>(&channel_list)->default_value("0"), "which channels to use (specify \"0\", \"1\", \"0,1\", etc)")
-        ("freq", po::value<double>(&freq)->default_value(100e6), "IF center frequency in Hz")
+        ("freq", po::value<double>(&freq)->default_value(80e6), "IF center frequency in Hz")
         ("gain", po::value<double>(&gain)->default_value(0), "gain for the RF chain")
         ("int-n", "tune USRP with integer-N tuning")
         ("lo-offset", po::value<double>(&lo_offset)->default_value(0.0),
@@ -205,6 +205,11 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
                                 % usrp->get_tx_gain(channel_nums[ch_idx])
                         << std::endl
                         << std::endl;
+            } else {
+                std::cout << boost::format("Setting TX Gain to default value: %f dB...") % gain << std::endl;
+                usrp->set_tx_gain(gain, channel_nums[ch_idx]);
+                std::cout << boost::format("Actual TX Gain: %f dB...")
+                                % usrp->get_tx_gain(channel_nums[ch_idx])
             }
 
 

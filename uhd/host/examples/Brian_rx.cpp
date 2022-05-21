@@ -53,7 +53,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
     double time_requested       = 0.0,
     bool bw_summary             = false,
     bool stats                  = false,
-    bool Save                   = true,
+    bool null                   = false,
     bool enable_size_map        = false,
     bool continue_on_bad_packet = false)
 {
@@ -69,7 +69,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
         uhd::rx_metadata_t md;
         std::vector<samp_type> buff(samps_per_buff);
         std::ofstream outfile;
-        if (Save)
+        if (not null)
             outfile.open(file.c_str(), std::ofstream::binary);
         bool overflow_message = true;
         // ?????? Set overflow-message to true no matter what?
@@ -268,7 +268,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("duration", po::value<double>(&total_time)->default_value(0), "total number of seconds to receive")
 
         ("file", po::value<std::string>(&file)->default_value("usrp_samples.dat"), "name of the file to write binary samples to")
-        ("freq", po::value<double>(&freq)->default_value(100e6), "IF center frequency in Hz")
+        ("freq", po::value<double>(&freq)->default_value(80e6), "IF center frequency in Hz")
         
         ("gain", po::value<double>(&gain)->default_value(6), "gain for the RF chain")
 
@@ -283,7 +283,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("rate", po::value<double>(&rate)->default_value(10e6), "rate of incoming samples")
         ("ref", po::value<std::string>(&ref)->default_value("external"), "reference source (internal, external, mimo)")
         
-        ("Save", "Determine if run the code and save data to file. Add 'Save' when you want to save the data. ")
+        ("null", "Determine if run the code and save data to file. Add 'null' when you don't want to save the data. ")
         ("setup", po::value<double>(&setup_time)->default_value(1.0), "seconds of setup time")
         ("sizemap", "track packet size and display breakdown on exit")
         ("spb", po::value<size_t>(&spb)->default_value(10000), "samples per buffer")
@@ -324,7 +324,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     // vm.count("x") > 0 means there is an option named "x" is found. 
     bool bw_summary             = vm.count("progress") > 0;
     bool stats                  = vm.count("stats") > 0;
-    bool Save                   = vm.count("Save") > 0;
+    bool null                   = vm.count("null") > 0;
     bool enable_size_map        = vm.count("sizemap") > 0;
     bool continue_on_bad_packet = vm.count("continue") > 0;
 
@@ -471,7 +471,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         total_time             --> requested time to receive
         bw_summary             --> bool from recv_to_file()
         stats                  --> bool from recv_to_file()
-        Save                   --> bool from recv_to_file()
+        null                   --> bool from recv_to_file()
         enable_size_map        --> bool from recv_to_file()
         continue_on_bad_packet --> bool from recv_to_file()
 
@@ -480,7 +480,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         // vm.count("x") > 0 means there is an option named "x" is found. 
         bool bw_summary             = vm.count("progress") > 0;
         bool stats                  = vm.count("stats") > 0;
-        bool Save                   = vm.count("Save") > 0;
+        bool null                   = vm.count("null") > 0;
         bool enable_size_map        = vm.count("sizemap") > 0;
         bool continue_on_bad_packet = vm.count("continue") > 0;
 
@@ -496,7 +496,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         total_time,               \
         bw_summary,               \
         stats,                    \
-        Save,                     \
+        null,                     \
         enable_size_map,          \
         continue_on_bad_packet)
     // recv to file
