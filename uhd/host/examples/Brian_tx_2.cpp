@@ -80,7 +80,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("bw", po::value<double>(&bw), "analog frontend filter bandwidth in Hz")
         ("channels", po::value<std::string>(&channel_list)->default_value("0"), "which channels to use (specify \"0\", \"1\", \"0,1\", etc)")
         ("freq", po::value<double>(&freq)->default_value(80e6), "IF center frequency in Hz")
-        ("gain", po::value<double>(&gain)->default_value(0), "gain for the RF chain")
+        ("gain", po::value<double>(&gain)->default_value(2), "gain for the RF chain")
         ("int-n", "tune USRP with integer-N tuning")
         ("lo-offset", po::value<double>(&lo_offset)->default_value(0.0),
             "Offset for frontend LO in Hz (optional)")    
