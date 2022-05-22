@@ -56,21 +56,20 @@ public:
 
             // read in data
             if (reader.is_open()) {
-                for (size_t row_idx = 0; row_idx < rows; row_idx++) {
+                for (size_t i = 0; i < rows; i++) {
                     reader >> real_wave_table_tmp;
-                    real_wave_table[row_idx] = real_wave_table_tmp;
+                    real_wave_table[i] = real_wave_table_tmp;
 
                     reader >> imag_wave_table_tmp;
-                    imag_wave_table[row_idx] = imag_wave_table_tmp;
+                    imag_wave_table[i] = imag_wave_table_tmp;
 
-                    _wave_table[row_idx] = 
-                        std::complex<float>(ampl * real_wave_table[row_idx], ampl * imag_wave_table[row_idx]);
+                    _wave_table[i] = 
+                        std::complex<float>(ampl * real_wave_table[i], ampl * imag_wave_table[i]);
+                    std::cout<<_wave_table[i]<<endl;
                 }
             }
 
             std::cout<<"wavetable generated! - Brian"<<endl;
-            std::cout<<_wave_table[0]<<endl;
-            std::cout<<_wave_table[4]<<endl;
 
 
 
