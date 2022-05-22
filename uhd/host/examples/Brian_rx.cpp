@@ -365,6 +365,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
    // original waveform
+   std::vector<std::complex<float>> buff(9960);
    size_t index = 0;
    const wave_table_class wave_table(wave_type, 1);
 //    const size_t step = 1000;
