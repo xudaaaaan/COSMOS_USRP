@@ -373,6 +373,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
    const size_t step = wave_table_len / (usrp->get_tx_rate() * T0);
    for (size_t n = 0; n < buff.size(); n++) {
        std::cout <<n<<"th: "<< wave_table(index += step) << std::endl;
+       std::cout<<"index = " << (index) << std::endl;
    }
 
 
