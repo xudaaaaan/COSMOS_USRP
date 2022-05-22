@@ -364,21 +364,21 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
 
-   // original waveform
-   std::vector<std::complex<float>> buff(9960);
-   size_t index = 0;
-   const wave_table_class wave_table(wave_type, 1);
-//    const size_t step = 1000;
-    std::cout<<wave_table_len<<std::endl;
-    const size_t step = wave_table_len / (usrp->get_rx_rate(channel) * T0);
-    std::cout<<"wave_table_len = " << (wave_table_len) << std::endl;
-    std::cout<<"step = " << (step) << std::endl;
-    std::cout<<"T0 = " << (T0) << std::endl;
+//    // original waveform
+//    std::vector<std::complex<float>> buff(9960);
+//    size_t index = 0;
+//    const wave_table_class wave_table(wave_type, 1);
+// //    const size_t step = 1000;
+//     std::cout<<wave_table_len<<std::endl;
+//     const size_t step = wave_table_len / (usrp->get_rx_rate(channel) * T0);
+//     std::cout<<"wave_table_len = " << (wave_table_len) << std::endl;
+//     std::cout<<"step = " << (step) << std::endl;
+//     std::cout<<"T0 = " << (T0) << std::endl;
 
-    for (size_t n = 0; n < buff.size(); n++) {
-       std::cout <<n<<"th: "<< wave_table(index += step) << std::endl;
+//     for (size_t n = 0; n < buff.size(); n++) {
+//        std::cout <<n<<"th: "<< wave_table(index += step) << std::endl;
     
-    }
+//     }
 
 
     // set the center frequency
