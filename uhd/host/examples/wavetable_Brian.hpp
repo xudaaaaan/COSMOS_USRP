@@ -68,7 +68,7 @@ public:
                     std::cout<<_wave_table[i]<<endl;
                 }
             }
-
+            std::cout<<"read file flag: "<<reader.is_open()<<endl;
             std::cout<<"wavetable generated! - Brian"<<endl;
 
 
