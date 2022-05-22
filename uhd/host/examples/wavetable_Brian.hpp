@@ -69,6 +69,8 @@ public:
             }
 
             std::cout<<"wavetable generated! - Brian"<<endl;
+            std::cout<<_wave_table[0]<<endl;
+            std::cout<<_wave_table[4]<<endl;
 
 
 
