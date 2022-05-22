@@ -30,7 +30,7 @@ public:
         if (wave_type == "OFDM") {
 
             // file name
-            string fileIn = "../Brian/Signal/cosmos_BW_40MHz_Duration_1us.txt";  
+            string fileIn = "Brian/Signal/cosmos_BW_40MHz_Duration_1us.txt";  
 
             // count row number
             ifstream rowCounter(fileIn);
