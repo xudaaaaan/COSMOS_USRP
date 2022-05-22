@@ -45,6 +45,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     size_t spb;
     double rate, freq, gain, wave_freq, bw, lo_offset;
     float ampl;
+    float T0 = 1e-6;
 
     // setup the program options
     po::options_description desc("Allowed options");
@@ -268,8 +269,9 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
         // pre-fill the buffer with the waveform
         const wave_table_class wave_table(wave_type, ampl);
-        const size_t step = 
-            std::lround(wave_freq / usrp->get_tx_rate() * wave_table_len);
+        // const size_t step = 
+        //     std::lround(wave_freq / usrp->get_tx_rate() * wave_table_len);
+        const size_t step = wave_table_len / (usrp->get_tx_rate() * T0);
         size_t index = 0;
 
         std::cout<<"size of buffer is: "<<buff.size()<<" and step is: " << step << std::endl;
