@@ -68,7 +68,7 @@ public:
                 }
             }
 
-
+            std::cout<<"wavetable generated! - Brian"<<endl;
 
 
 
