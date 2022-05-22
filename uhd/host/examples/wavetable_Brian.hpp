@@ -49,7 +49,6 @@ public:
 
             ifstream reader(fileIn);
             rows--; // the last row is blank, so delete it. 
-            std::cout<<rows<<std::endl;
 
             // assign data type
             double real_wave_table_tmp;
