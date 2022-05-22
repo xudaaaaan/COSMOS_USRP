@@ -30,11 +30,11 @@ public:
         if (wave_type == "OFDM") {
 
             // file name
-            string fileIn = "../build/examples/cosmos_BW_40MHz_Duration_1us.txt";  
+            string fileIn = "./Brian/Signal/cosmos_BW_40MHz_Duration_1us.txt";  
 
             // count row number
             ifstream rowCounter(fileIn);
-            int rows = 0;
+            size_t rows = 0;
             string line; // trash
             if(rowCounter.is_open())
             {
