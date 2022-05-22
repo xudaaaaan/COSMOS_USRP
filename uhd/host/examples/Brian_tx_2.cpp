@@ -277,8 +277,6 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         std::cout<<"size of buffer is: "<<buff.size()<<" and step is: " << step << std::endl;
         for (size_t n = 0; n < buff.size(); n++) {
             buff[n] = wave_table(index += step);
-            std::cout<<"index = " << (index) << std::endl;
-            std::cout<<"step = " << (step) << std::endl;
         }
 
 
