@@ -271,7 +271,8 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         const wave_table_class wave_table(wave_type, ampl);
         // const size_t step = 
         //     std::lround(wave_freq / usrp->get_tx_rate() * wave_table_len);
-        const size_t step = wave_table_len / (usrp->get_tx_rate() * T0);
+        // const size_t step = wave_table_len / (usrp->get_tx_rate() * T0);
+        const size_t step = 50
         size_t index = 0;
 
         std::cout<<"size of buffer is: "<<buff.size()<<" and step is: " << step << std::endl;
