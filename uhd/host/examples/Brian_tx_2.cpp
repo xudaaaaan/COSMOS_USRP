@@ -91,7 +91,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("ref", po::value<std::string>(&ref)->default_value("external"), "clock reference (internal, external, mimo, gpsdo)")
         ("spb", po::value<size_t>(&spb)->default_value(0), "samples per buffer, 0 for default")
         ("subdev", po::value<std::string>(&subdev)->default_value("A:AB"), "subdevice specification, use A:AB for Tx")
-        ("wave-type", po::value<std::string>(&wave_type)->default_value("SINE"), "waveform type (SINE)")
+        ("wave-type", po::value<std::string>(&wave_type)->default_value("OFDM"), "waveform type (SINE)")
         ("wave-freq", po::value<double>(&wave_freq)->default_value(1e6), "waveform frequency in Hz")
         ("wirefmt", po::value<std::string>(&wirefmt)->default_value("sc16"), "specify the over-the-wire sample mode")
 

@@ -65,7 +65,6 @@ public:
 
                     _wave_table[i] = 
                         std::complex<float>(ampl * real_wave_table[i], ampl * imag_wave_table[i]);
-                    std::cout<<_wave_table[i]<<endl;
                 }
             }
             std::cout<<"read file flag: "<<reader.is_open()<<endl;

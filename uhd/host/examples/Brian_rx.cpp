@@ -11,7 +11,7 @@
 //
 
 #include <uhd/exception.hpp>
-// #include "wavetable_Brian.hpp"
+#include "wavetable_Brian.hpp"
 #include <uhd/types/tune_request.hpp>
 #include <uhd/usrp/multi_usrp.hpp>
 #include <uhd/utils/safe_main.hpp>
@@ -259,40 +259,28 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
         ("ant", po::value<std::string>(&ant)->default_value("AB"), "antenna selection")
         ("args", po::value<std::string>(&args)->default_value("addr=10.38.14.2"), "multi uhd device address args")
-        
         ("bw", po::value<double>(&bw), "analog frontend filter bandwidth in Hz")
-
         ("channel", po::value<size_t>(&channel)->default_value(0), "which channel to use")
         ("continue", "don't abort on a bad packet")
-        
         ("duration", po::value<double>(&total_time)->default_value(0), "total number of seconds to receive")
-
         ("file", po::value<std::string>(&file)->default_value("usrp_samples.dat"), "name of the file to write binary samples to")
         ("freq", po::value<double>(&freq)->default_value(80e6), "IF center frequency in Hz")
-        
         ("gain", po::value<double>(&gain)->default_value(6), "gain for the RF chain")
-
         ("lo-offset", po::value<double>(&lo_offset)->default_value(0.0),
             "Offset for frontend LO in Hz (optional)")
-        
-        ("nsamps", po::value<size_t>(&total_num_samps)->default_value(10000), "total number of samples to receive (requested)")
-                
+        ("nsamps", po::value<size_t>(&total_num_samps)->default_value(10000), "total number of samples to receive (requested)")     
         ("pps", po::value<std::string>(&pps)->default_value("external"), "PPS source (internal, external, mimo, gpsdo)")
         ("progress", "periodically display short-term bandwidth")
-
         ("rate", po::value<double>(&rate)->default_value(10e6), "rate of incoming samples")
         ("ref", po::value<std::string>(&ref)->default_value("external"), "reference source (internal, external, mimo)")
-        
         ("null", "Determine if run the code and save data to file. Add 'null' when you don't want to save the data. ")
         ("setup", po::value<double>(&setup_time)->default_value(1.0), "seconds of setup time")
         ("sizemap", "track packet size and display breakdown on exit")
         ("spb", po::value<size_t>(&spb)->default_value(10000), "samples per buffer")
         ("subdev", po::value<std::string>(&subdev)->default_value("B:AB"), "subdevice specification")
         ("stats", "show average bandwidth on exit")
-        
         ("type", po::value<std::string>(&type)->default_value("double"), "sample type: double, float, or short")
-        
-        ("wave-type", po::value<std::string>(&wave_type)->default_value("SINE"), "waveform type (SINE)")
+        ("wave-type", po::value<std::string>(&wave_type)->default_value("OFDM"), "waveform type (SINE)")
         ("wave-freq", po::value<double>(&wave_freq)->default_value(1e6), "waveform frequency in Hz")
         ("wirefmt", po::value<std::string>(&wirefmt)->default_value("sc16"), "wire format (sc8, sc16 or s16)")
         
@@ -375,13 +363,14 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
 
-    // original waveform
-  //  size_t index = 0;
-  //  const wave_table_class wave_table(wave_type, 1);
-  //  const size_t step = 1000;
-  //  for (size_t n = 0; n < rate/wave_freq; n++) {
-  //      std::cout << wave_table(index += step) << std::endl;
-  //  }
+   // original waveform
+   size_t index = 0;
+   const wave_table_class wave_table(wave_type, 1);
+//    const size_t step = 1000;
+   const size_t step = wave_table_len / (usrp->get_tx_rate() * T0);
+   for (size_t n = 0; n < rate/wave_freq; n++) {
+       std::cout << wave_table(index += step) << std::endl;
+   }
 
 
     // set the center frequency
