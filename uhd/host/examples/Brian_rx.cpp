@@ -375,10 +375,10 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     std::cout<<"step = " << (step) << std::endl;
     std::cout<<"T0 = " << (T0) << std::endl;
 
-    // for (size_t n = 0; n < buff.size(); n++) {
-    //    std::cout <<n<<"th: "<< wave_table(index += step) << std::endl;
-    // 
-    // }
+    for (size_t n = 0; n < buff.size(); n++) {
+       std::cout <<n<<"th: "<< wave_table(index += step) << std::endl;
+    
+    }
 
 
     // set the center frequency
