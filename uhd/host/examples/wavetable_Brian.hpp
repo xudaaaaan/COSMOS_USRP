@@ -14,7 +14,7 @@
 #include <fstream>
 
 // static const size_t wave_table_len = 8192;
-static const size_t wave_table_len = 50000;
+static const size_t wave_table_len = 200;
 
 using namespace std;
 
