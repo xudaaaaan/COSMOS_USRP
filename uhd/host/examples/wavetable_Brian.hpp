@@ -21,7 +21,7 @@ using namespace std;
 class wave_table_class
 {
 public:
-    wave_table_class(const std::string& wave_type, const float ampl)
+    wave_table_class(const std::string& wave_type, const float ampl, std::string signal_file)
         : _wave_table(wave_table_len)
     {
         // compute real wave table with 1.0 amplitude
@@ -30,7 +30,7 @@ public:
         if (wave_type == "OFDM") {
 
             // file name
-            string fileIn = "cosmos_BW_50MHz_Duration_1us.txt";  
+            string fileIn = signal_file;  
 
             // count row number
             ifstream rowCounter(fileIn);

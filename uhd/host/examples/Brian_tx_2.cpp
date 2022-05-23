@@ -89,6 +89,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("pps", po::value<std::string>(&pps)->default_value("external"), "PPS source (internal, external, mimo, gpsdo)")
         ("rate", po::value<double>(&rate)->default_value(10e6), "rate of outgoing samples")
         ("ref", po::value<std::string>(&ref)->default_value("external"), "clock reference (internal, external, mimo, gpsdo)")
+        ("signal-file", po::value<std::string>(&signal_file)->default_value("cosmos_BW_50MHz_Duration_2us"), "signal txt file name")
         ("spb", po::value<size_t>(&spb)->default_value(0), "samples per buffer, 0 for default")
         ("subdev", po::value<std::string>(&subdev)->default_value("A:AB"), "subdevice specification, use A:AB for Tx")
         ("wave-type", po::value<std::string>(&wave_type)->default_value("OFDM"), "waveform type (SINE)")
@@ -268,7 +269,8 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
         // pre-fill the buffer with the waveform
-        const wave_table_class wave_table(wave_type, ampl);
+        signal_file = signal_file + ".txt";
+        const wave_table_class wave_table(wave_type, ampl, signal_file);
         // const size_t step = 
         //     std::lround(wave_freq / usrp->get_tx_rate() * wave_table_len);
         // const size_t step = wave_table_len / (usrp->get_tx_rate() * T0);
