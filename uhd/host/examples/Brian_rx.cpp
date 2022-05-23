@@ -247,9 +247,11 @@ bool check_locked_sensor(std::vector<std::string> sensor_names,
 int UHD_SAFE_MAIN(int argc, char* argv[])
 {
     // variables to be set by po
-    std::string args, wave_type, file, type, ant, subdev, ref, wirefmt, pps;
+    std::string args, file, type, ant, subdev, ref, wirefmt, pps;
+    // std::string wave_type;
     size_t channel, total_num_samps, spb;
-    double rate, freq, gain, bw, total_time, setup_time, lo_offset, wave_freq;
+    double rate, freq, gain, bw, total_time, setup_time, lo_offset;
+    // double wave_freq;
     // float T0 = 1e-6;
 
     // setup the program options
