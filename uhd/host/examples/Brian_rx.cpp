@@ -11,7 +11,7 @@
 //
 
 #include <uhd/exception.hpp>
-#include "wavetable_Brian.hpp"
+// #include "wavetable_Brian.hpp"
 #include <uhd/types/tune_request.hpp>
 #include <uhd/usrp/multi_usrp.hpp>
 #include <uhd/utils/safe_main.hpp>
@@ -250,7 +250,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     std::string args, wave_type, file, type, ant, subdev, ref, wirefmt, pps;
     size_t channel, total_num_samps, spb;
     double rate, freq, gain, bw, total_time, setup_time, lo_offset, wave_freq;
-    float T0 = 1e-6;
+    // float T0 = 1e-6;
 
     // setup the program options
     po::options_description desc("Allowed options");
@@ -281,8 +281,8 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("subdev", po::value<std::string>(&subdev)->default_value("B:AB"), "subdevice specification")
         ("stats", "show average bandwidth on exit")
         ("type", po::value<std::string>(&type)->default_value("double"), "sample type: double, float, or short")
-        ("wave-type", po::value<std::string>(&wave_type)->default_value("OFDM"), "waveform type (SINE)")
-        ("wave-freq", po::value<double>(&wave_freq)->default_value(1e6), "waveform frequency in Hz")
+        // ("wave-type", po::value<std::string>(&wave_type)->default_value("OFDM"), "waveform type (SINE)")
+        // ("wave-freq", po::value<double>(&wave_freq)->default_value(1e6), "waveform frequency in Hz")
         ("wirefmt", po::value<std::string>(&wirefmt)->default_value("sc16"), "wire format (sc8, sc16 or s16)")
         
         
