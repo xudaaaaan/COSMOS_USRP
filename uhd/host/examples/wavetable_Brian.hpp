@@ -14,7 +14,7 @@
 #include <fstream>
 
 // static const size_t wave_table_len = 8192;
-static const size_t wave_table_len = 1000;
+static const size_t wave_table_len = 200;
 
 using namespace std;
 
@@ -30,7 +30,7 @@ public:
         if (wave_type == "OFDM") {
 
             // file name
-            string fileIn = "cosmos_BW_50MHz_Duration_5us.txt";  
+            string fileIn = "cosmos_BW_50MHz_Duration_1us.txt";  
 
             // count row number
             ifstream rowCounter(fileIn);
