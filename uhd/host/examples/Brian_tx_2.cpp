@@ -40,12 +40,13 @@ void sig_int_handler(int)
 int UHD_SAFE_MAIN(int argc, char* argv[])
 {
     // variables to be set by po
-    std::string args, wave_type, ant, subdev, ref, pps, wirefmt, channel_list;
+    std::string args, wave_type, ant, subdev, ref, pps, wirefmt, channel_list, signal_file;
     uint64_t total_num_samps;
     size_t spb;
     double rate, freq, gain, wave_freq, bw, lo_offset;
     float ampl;
     float T0 = 1e-6;
+    
 
     // setup the program options
     po::options_description desc("Allowed options");
