@@ -45,7 +45,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     size_t spb;
     double rate, freq, gain, wave_freq, bw, lo_offset;
     float ampl;
-    float T0 = 1e-6;
+    // float T0 = 1e-6;
     
 
     // setup the program options
