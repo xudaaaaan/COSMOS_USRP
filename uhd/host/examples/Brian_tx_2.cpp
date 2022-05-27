@@ -285,10 +285,10 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
             buff[n] = wave_table(index += step);
         }
 
-        step = 5;
+        size_t step_tmp = 5;
         index = 0;
         for (size_t n = 0; n < 10; n++) {
-            std::cout<< wave_table(index += step)<<sttd::endl;
+            std::cout<< wave_table(index += step_tmp)<<std::endl;
         }
 
 
