@@ -131,6 +131,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
     //// ====== Select Sub-device (always has default value) ======
+        if (vm.count("subdev"))
             usrp->set_tx_subdev_spec(subdev);   // A:AB for Tx, and B:AB for Rx, check the "X310 probe" note in Samsung Notes
 
 
@@ -217,6 +218,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
             // set the antenna (always has default value)
+            if (vm.count("ant"))
                 usrp->set_tx_antenna(ant, channel_nums[ch_idx]);
         }
 
@@ -281,6 +283,12 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         std::cout<<"size of buffer is: "<<buff.size()<<" and step is: " << step << std::endl;
         for (size_t n = 0; n < buff.size(); n++) {
             buff[n] = wave_table(index += step);
+        }
+
+        step = 5;
+        index = 0;
+        for (size_t n = 0; n < 10; n++) {
+            std::cout<< wave_table(index += step)<<sttd::endl;
         }
 
 
