@@ -254,7 +254,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
     index = 0;
     for (size_t nn = 0; nn < 10; nn++) {
-        std::cout<<wave_table(index += step)<<std:endl;
+        std::cout<<wave_table(index += step)<<std::endl;
         //std::cout<< n <<":"  << buff[n] << endl;  // buffer containing waveform
     }
 

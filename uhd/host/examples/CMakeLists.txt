@@ -31,6 +31,7 @@ set(example_sources
 
     Brian_tx_2.cpp
     Brian_rx.cpp
+    tx_waveforms4.cpp
 )
 
 if(ENABLE_RFNOC)
