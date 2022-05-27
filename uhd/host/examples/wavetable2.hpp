@@ -14,8 +14,8 @@
 #include <fstream>
 
 //static const size_t wave_table_len = 2500; // will have to assume this value can be varied
-static const size_t wave_table_len = 500; // will have to assume this value can be varied
-//static const size_t wave_table_len = 250; // will have to assume this value can be varied
+//static const size_t wave_table_len = 500; // will have to assume this value can be varied
+static const size_t wave_table_len = 250; // will have to assume this value can be varied
 //static const size_t wave_table_len = 50000; // will have to assume this value can be varied
 //static const size_t wave_table_len = 25000; // will have to assume this value can be varied
 
@@ -33,7 +33,7 @@ public:
 //               string fileIn = "MIMO_Drone_signal_100MS_100MHz_SIMO_signal500us.txt";
 //               string fileIn = "MIMO_Drone_100MS_100MHz_SIMO_500usv2space.txt";  
 //		string fileIn = "MIMO_Drone_50MS_50MHz_SIMO_500usspacev2.txt";
-		string fileIn = "MIMO_Drone_100MS_100MHz_SISO_5us.txt";  
+		string fileIn = "MIMO_Drone_50MS_50MHz_SISO_5us.txt";  
 
                 // open text file for OFDM waveform  03/02/20 dsig6 is the best
                 //ifstream reader("dsig.txt");              // 50mss46mhz_20us_1000
@@ -42,7 +42,6 @@ public:
                 //ifstream reader("dsig3.txt");             // 50Mss46mhz_50us_2500
                 //ifstream reader("dsig4.txt");             // 50Mss46mhz_50u_2500 less amplitude
                 //ifstream reader("dsig5.txt");               // 50Mss46mhz_50us_2000 02/26
-                
 				//ifstream reader("dsig6.txt");             // 50Mss46mhz_50us_46_8192  //step size .4
                 //ifstream reader("dsig7.txt");             // 50Mss46mhz_50us_46_2500
 			    //ifstream reader("dsig8.txt");             // 50Mss46mhz_10us_46_500x5rep
@@ -63,12 +62,12 @@ public:
                 }
 
                 ifstream reader(fileIn);
-                rows--; // the number of rows after counting is +1 s subtract 1
+                rows--; // the number of rows after counting is +1 s subtract 1 - one blank row at the end
                 int rand = 0;
                 //std::cin>>rand;
 
                 double inI;
-                double qinQ;
+                double inQ;
                 //int rows = 1000;
 		int columns = 2;
 
@@ -106,8 +105,8 @@ public:
 				{
 
 					real_wave_table[ii] = inI;
-					reader >> qinQ;
-					real_wave_table[qq] = qinQ;
+					reader >> inQ;
+					real_wave_table[qq] = inQ;
 
 
 					_wave_table[ii] =
