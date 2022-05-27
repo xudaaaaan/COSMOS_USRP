@@ -252,6 +252,14 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         //std::cout<< n <<":"  << buff[n] << endl;  // buffer containing waveform
     }
 
+    index = 0;
+    for (size_t nn = 0; nn < 10; nn++) {
+        std::cout<<wave_table(index += step)<<std:endl;
+        //std::cout<< n <<":"  << buff[n] << endl;  // buffer containing waveform
+    }
+
+
+
     std::cout << boost::format("Setting device timestamp to 0...") << std::endl;
     if (channel_nums.size() >= 1) {
         // Sync times

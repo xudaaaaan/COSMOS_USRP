@@ -14,8 +14,8 @@
 #include <fstream>
 
 //static const size_t wave_table_len = 2500; // will have to assume this value can be varied
-//static const size_t wave_table_len = 500; // will have to assume this value can be varied
-static const size_t wave_table_len = 250; // will have to assume this value can be varied
+static const size_t wave_table_len = 500; // will have to assume this value can be varied
+//static const size_t wave_table_len = 250; // will have to assume this value can be varied
 //static const size_t wave_table_len = 50000; // will have to assume this value can be varied
 //static const size_t wave_table_len = 25000; // will have to assume this value can be varied
 
@@ -33,7 +33,7 @@ public:
 //               string fileIn = "MIMO_Drone_signal_100MS_100MHz_SIMO_signal500us.txt";
 //               string fileIn = "MIMO_Drone_100MS_100MHz_SIMO_500usv2space.txt";  
 //		string fileIn = "MIMO_Drone_50MS_50MHz_SIMO_500usspacev2.txt";
-		string fileIn = "MIMO_Drone_50MS_50MHz_SISO_5us.txt";  
+		string fileIn = "MIMO_Drone_100MS_100MHz_SISO_5us.txt";  
 
                 // open text file for OFDM waveform  03/02/20 dsig6 is the best
                 //ifstream reader("dsig.txt");              // 50mss46mhz_20us_1000
