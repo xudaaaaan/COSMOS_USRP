@@ -43,7 +43,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     std::string args, wave_type, ant, subdev, ref, pps, wirefmt, channel_list, signal_file;
     uint64_t total_num_samps;
     size_t spb;
-    double rate, freq, gain, wave_freq, bw, lo_offset;
+    double rate, freq, gain, wave_freq, bw, lo_offset, max_freq;
     float ampl;
     // float T0 = 1e-6;
     
@@ -86,6 +86,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("int-n", "tune USRP with integer-N tuning")
         ("lo-offset", po::value<double>(&lo_offset)->default_value(0.0),
             "Offset for frontend LO in Hz (optional)")    
+        ("max-freq", po::value<double>(&max_freq)->default_value(20e6), "maximum waveform frequency in Hz for OFDM")
         ("nsamps", po::value<uint64_t>(&total_num_samps)->default_value(0), "total number of samples to transmit")
         ("pps", po::value<std::string>(&pps)->default_value("external"), "PPS source (internal, external, mimo, gpsdo)")
         ("rate", po::value<double>(&rate)->default_value(10e6), "rate of outgoing samples")
@@ -242,6 +243,9 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
     //// ====== Error when the waveform is not possible to generate ======
         // when the waveform frequency*2 > Tx sampling rate, can't generate wfm. 
+        if (wave_type == "OFDM")
+            wave_freq = max_freq;
+        
         if (std::abs(wave_freq) > usrp->get_tx_rate() / 2) {
             throw std::runtime_error("wave freq out of Nyquist zone");
         }
