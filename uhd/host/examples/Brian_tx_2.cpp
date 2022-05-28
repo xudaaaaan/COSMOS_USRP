@@ -294,7 +294,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
     //// ====== Set timestamp ======
         std::cout << boost::format("Setting device timestamp to 0...") << std::endl;
-        std::cout << channel_nums.size()<< std::endl;
+        std::cout << "channel num = " << channel_nums.size()<< std::endl;
         if (channel_nums.size() > 1) {
             // Sync times
             if (pps == "mimo") {
@@ -309,8 +309,10 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
                 // sleep a bit while the slave locks its time to the master
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             } else {
-                if (pps == "internal" or pps == "external" or pps == "gpsdo")
+                if (pps == "internal" or pps == "external" or pps == "gpsdo"){
                     usrp->set_time_source(pps);
+                    std::cout<<"pps set success"<<std::endl;
+                }
                 usrp->set_time_unknown_pps(uhd::time_spec_t(0.0));
                 std::this_thread::sleep_for(
                     std::chrono::seconds(1)); // wait for pps sync pulse
