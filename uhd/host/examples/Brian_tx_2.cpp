@@ -294,6 +294,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
     //// ====== Set timestamp ======
         std::cout << boost::format("Setting device timestamp to 0...") << std::endl;
+        std::cout << channel_nums.size()<< std::endl;
         if (channel_nums.size() > 1) {
             // Sync times
             if (pps == "mimo") {
