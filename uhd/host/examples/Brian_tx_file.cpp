@@ -53,7 +53,7 @@ void send_from_file(
 int UHD_SAFE_MAIN(int argc, char* argv[])
 {
     // variables to be set by po
-    std::string args, file, type, ant, subdev, ref, wirefmt, channel;
+    std::string args, file, type, ant, subdev, ref, pps, wirefmt, channel_list;
     size_t spb;
     double rate, freq, gain, bw, delay, lo_offset;
 
@@ -89,7 +89,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("ant", po::value<std::string>(&ant)->default_value("AB"), "antenna selection")
         ("args", po::value<std::string>(&args)->default_value("addr=10.38.14.1"), "multi uhd device address args")
         ("bw", po::value<double>(&bw), "analog frontend filter bandwidth in Hz")
-        ("channel", po::value<std::string>(&channel)->default_value("0"), "which channel to use")
+        ("channels", po::value<std::string>(&channel_list)->default_value("0"), "which channels to use (specify \"0\", \"1\", \"0,1\", etc)")
         ("delay", po::value<double>(&delay)->default_value(0.0), "specify a delay between repeated transmission of file (in seconds)")
         ("file", po::value<std::string>(&file)->default_value(""), "name of the file to read binary samples from")
         ("freq", po::value<double>(&freq)->default_value(80e6), "RF center frequency in Hz")
@@ -324,7 +324,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         else if (type == "short")
             cpu_format = "sc16";
         uhd::stream_args_t stream_args(cpu_format, wirefmt);
-        channel_nums.push_back(boost::lexical_cast<size_t>(channel));
+        channel_nums.push_back(boost::lexical_cast<size_t>(channel_list));
         stream_args.channels             = channel_nums;
         uhd::tx_streamer::sptr tx_stream = usrp->get_tx_stream(stream_args);
 
