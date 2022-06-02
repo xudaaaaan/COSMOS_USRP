@@ -11,6 +11,8 @@
 #include <uhd/utils/thread.hpp>
 #include <boost/format.hpp>
 #include <boost/program_options.hpp>
+#include <boost/math/special_functions/round.hpp>
+#include <boost/program_options.hpp>
 #include <chrono>
 #include <complex>
 #include <csignal>
