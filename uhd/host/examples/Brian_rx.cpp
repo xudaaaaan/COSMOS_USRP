@@ -332,24 +332,16 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     uhd::usrp::multi_usrp::sptr usrp = uhd::usrp::multi_usrp::make(args);
 
 
-    // Lock mboard clocks
-    if (vm.count("ref")) {
-        usrp->set_clock_source(ref);
-    }
-
-    // Lock 1pps signal
-    if (vm.count("pps")) {
-        usrp->set_time_source(pps);
-	std::cout<<"pps set success"<<std::endl;
-    }
-    
-
 
     // always select the subdevice first, the channel mapping affects the other settings
     if (vm.count("subdev"))
         usrp->set_rx_subdev_spec(subdev);
 
     std::cout << boost::format("Using Device: %s") % usrp->get_pp_string() << std::endl;
+    
+
+
+    
 
 
     // set the sample rate
@@ -364,6 +356,19 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
               << std::endl
               << std::endl;
 
+
+    // Lock mboard clocks
+    if (vm.count("ref")) {
+        usrp->set_clock_source(ref);
+    }
+
+    
+
+    // Lock 1pps signal
+    if (vm.count("pps")) {
+        usrp->set_time_source(pps);
+        std::cout<<"pps set success"<<std::endl;
+    }
 
 
 
