@@ -340,6 +340,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     // Lock 1pps signal
     if (vm.count("pps")) {
         usrp->set_time_source(pps);
+	std::cout<<"pps set success"<<std::endl;
     }
     
 
