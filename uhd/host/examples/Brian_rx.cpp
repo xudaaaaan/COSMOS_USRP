@@ -203,7 +203,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
 
 
     long long rx_tick = md.time_spec.to_ticks(200e6);
-    std::cout << "Metadata Here... " << rx_tick << std::endl;
+    std::cout << "Metadata Here... " << std::endl;
     std::cout << "  Starting tick = " << rx_tick 
                 << std::endl
                 << std::endl;
@@ -211,7 +211,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
     if (not null){
         strcpy(full_metafile_name, file.c_str());
         strcat(full_metafile_name, "_metadata.dat");
-        metadatafile.open(full_file_name, std::ofstream::binary);
+        metadatafile.open(full_metafile_name, std::ofstream::binary);
         metadatafile.write((char*)&rx_tick, sizeof(long long));
         metadatafile.close();
 
