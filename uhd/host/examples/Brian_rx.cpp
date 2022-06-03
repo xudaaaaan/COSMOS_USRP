@@ -94,7 +94,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
         // Track time and samps between updating the BW summary
         auto last_update = start_time;
         unsigned long long last_update_samps = 0;
-        std::cout << "starting timetamp = " << last_update << std::endl;
+        std::cout << "starting timetamp = " << start_time << std::endl;
 
 
     //// ====== Keep running until... ======
