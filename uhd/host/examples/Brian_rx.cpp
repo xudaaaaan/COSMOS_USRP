@@ -165,7 +165,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
         }
     }   // while ends
     const auto actual_stop_time = std::chrono::steady_clock::now();
-    std::cout << "starting tick = " << md.time_spec.to_ticks(200e6) << std::endl;
+    
 
 
 
@@ -533,6 +533,6 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
     // finished
     std::cout << std::endl << "Done!" << std::endl << std::endl;
-
+    std::cout << "starting tick = " << md.time_spec.to_ticks(200e6) << std::endl;
     return EXIT_SUCCESS;
 }
