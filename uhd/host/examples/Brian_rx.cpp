@@ -194,6 +194,10 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
                 std::cout << it->first << ":\t" << it->second << std::endl;
         }
     }
+
+
+
+    std::cout << "starting tick = " << md.time_spec.to_ticks(200e6) << std::endl;
 }
 
 typedef std::function<uhd::sensor_value_t(const std::string&)> get_sensor_fn_t;
@@ -533,6 +537,6 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
     // finished
     std::cout << std::endl << "Done!" << std::endl << std::endl;
-    std::cout << "starting tick = " << md.time_spec.to_ticks(200e6) << std::endl;
+    
     return EXIT_SUCCESS;
 }
