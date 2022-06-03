@@ -380,7 +380,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
         
         
-        std::cout << "starting timetamp = " << md.time_spec.get_real_secs() << std::endl;
+        std::cout << "starting tick = " << md.time_spec.to_ticks(200e6) << std::endl;
 
 
 
