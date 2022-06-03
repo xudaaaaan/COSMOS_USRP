@@ -68,17 +68,18 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
 
         uhd::rx_metadata_t md;
         std::vector<samp_type> buff(samps_per_buff);
-        std::ofstream outfile;
+        std::ofstream datafile;
         std::ofstream metadatafile;
         char full_file_name[200];
         char full_metafile_name[200];
         strcpy(full_file_name, file.c_str());
         strcat(full_file_name, ".dat");
         if (not null)
-            outfile.open(full_file_name, std::ofstream::binary);
-            // outfile.open(file.c_str(), std::ofstream::binary);
+            datafile.open(full_file_name, std::ofstream::binary);
+            // datafile.open(file.c_str(), std::ofstream::binary);
         bool overflow_message = true;
-        std::cout << boost::format("rx file name: %s") % full_file_name
+        std::cout << boost::format("Received data saved in file: %s") % full_file_name
+                << std::endl
                 << std::endl;
         // ?????? Set overflow-message to true no matter what?
 
@@ -155,8 +156,8 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
 
         num_total_samps += num_rx_samps;
 
-        if (outfile.is_open()) {
-            outfile.write((const char*)&buff.front(), num_rx_samps * sizeof(samp_type));
+        if (datafile.is_open()) {
+            datafile.write((const char*)&buff.front(), num_rx_samps * sizeof(samp_type));
         }
 
         if (bw_summary) {
@@ -180,8 +181,8 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
     stream_cmd.stream_mode = uhd::stream_cmd_t::STREAM_MODE_STOP_CONTINUOUS;
     rx_stream->issue_stream_cmd(stream_cmd);
 
-    if (outfile.is_open()) {
-        outfile.close();
+    if (datafile.is_open()) {
+        datafile.close();
     }
 
     if (stats) {
@@ -207,11 +208,17 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
     long long rx_tick = md.time_spec.to_ticks(200e6);
     std::cout << "starting tick = " << rx_tick << std::endl;
     
-    // if (not null){
-    //     metadatafile.open(file.c_str() + "_metadata.dat", std::ofstream::binary);
-    //     metadatafile.write((char*)&rx_tick, sizeof(long long));
-    //     metadatafile.close();
-    // }
+    if (not null){
+        strcpy(full_metafile_name, file.c_str());
+        strcat(full_metafile_name, "_metadata.dat");
+        metadatafile.open(full_file_name, std::ofstream::binary);
+        metadatafile.write((char*)&rx_tick, sizeof(long long));
+        metadatafile.close();
+        std::cout << boost::format("The corresponding Metadata is saved in file: %s") % full_metafile_name
+            << std::endl
+                << std::endl;
+    }
+    
 
 }
 
