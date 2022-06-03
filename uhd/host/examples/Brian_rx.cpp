@@ -71,8 +71,11 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
         std::ofstream outfile;
         std::ofstream metadatafile;
         if (not null)
-            outfile.open(file.c_str() + ".dat", std::ofstream::binary);
+            // outfile.open(file.c_str() + ".dat", std::ofstream::binary);
+            outfile.open(file.c_str(), std::ofstream::binary);
         bool overflow_message = true;
+        std::cout << boost::format("rx file name: %s...") % file.c_str()
+                << std::endl;
         // ?????? Set overflow-message to true no matter what?
 
 
@@ -200,11 +203,11 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
     long long rx_tick = md.time_spec.to_ticks(200e6);
     std::cout << "starting tick = " << rx_tick << std::endl;
     
-    if (not null){
-        metadatafile.open(file.c_str() + "_metadata.dat", std::ofstream::binary);
-        metadatafile.write((char*)&rx_tick, sizeof(long long));
-        metadatafile.close();
-    }
+    // if (not null){
+    //     metadatafile.open(file.c_str() + "_metadata.dat", std::ofstream::binary);
+    //     metadatafile.write((char*)&rx_tick, sizeof(long long));
+    //     metadatafile.close();
+    // }
 
 }
 
