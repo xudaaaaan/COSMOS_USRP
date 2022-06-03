@@ -364,6 +364,10 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
 
+    std::this_thread::sleep_for(std::chrono::seconds(5)); // test wait
+
+
+
     //// ====== Set up metadata ======
         // We start streaming a bit in the future to allow MIMO operation:
         uhd::tx_metadata_t md;
