@@ -372,12 +372,13 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         md.has_time_spec  = true;
 
         uhd::time_spec_t Ettus_const_value = uhd::time_spec_t(0.1);
+        std::cout << "Ettus timestamp value = " << Ettus_const_value::get_real_secs() << std::endl;
         // md.time_spec      = usrp->get_time_now() + uhd::time_spec_t(0.1);
-        md.time_spec = usrp->get_time_now() + Ettus_const_value;
+        // md.time_spec = usrp->get_time_now() + Ettus_const_value;
 
         
         
-        std::cout << "starting timetamp = " << md.time_spec << std::endl;
+        // std::cout << "starting timetamp = " << md.time_spec << std::endl;
 
 
 
