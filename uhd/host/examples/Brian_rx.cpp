@@ -70,6 +70,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
         std::vector<samp_type> buff(samps_per_buff);
         std::ofstream outfile;
         std::ofstream metadatafile;
+        std::string filename = file.c_str() + ".dat";
         if (not null)
             // outfile.open(file.c_str() + ".dat", std::ofstream::binary);
             outfile.open(file.c_str(), std::ofstream::binary);
