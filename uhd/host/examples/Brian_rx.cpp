@@ -78,9 +78,6 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
             datafile.open(full_file_name, std::ofstream::binary);
             // datafile.open(file.c_str(), std::ofstream::binary);
         bool overflow_message = true;
-        std::cout << boost::format("Received data saved in file: %s") % full_file_name
-                << std::endl
-                << std::endl;
         // ?????? Set overflow-message to true no matter what?
 
 
@@ -206,7 +203,10 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
 
 
     long long rx_tick = md.time_spec.to_ticks(200e6);
-    std::cout << "starting tick = " << rx_tick << std::endl;
+    std::cout << "Metadata Here... " << rx_tick << std::endl;
+    std::cout << "  Starting tick = " << rx_tick 
+                << std::endl
+                << std::endl;
     
     if (not null){
         strcpy(full_metafile_name, file.c_str());
@@ -214,9 +214,17 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
         metadatafile.open(full_file_name, std::ofstream::binary);
         metadatafile.write((char*)&rx_tick, sizeof(long long));
         metadatafile.close();
-        std::cout << boost::format("The corresponding Metadata is saved in file: %s") % full_metafile_name
-            << std::endl
+
+
+        std::cout << "===============================" << std::endl;
+        std::cout << boost::format("Received data saved in file: %s") % full_file_name
+                << std::endl
                 << std::endl;
+
+
+        std::cout << boost::format("The corresponding Metadata is saved in file: %s") % full_metafile_name
+                << std::endl;
+        std::cout << "===============================" << std::endl;
     }
     
 
