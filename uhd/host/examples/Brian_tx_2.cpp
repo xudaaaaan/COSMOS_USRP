@@ -375,9 +375,9 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         // md.time_spec      = usrp->get_time_now() + uhd::time_spec_t(0.1);
         md.time_spec = usrp->get_time_now() + Ettus_const_value;
 
-        long long start_tick = Ettus_const_value::to_ticks(200e6); 
         
-        std::cout << "starting tick = " << start_tick << std::endl;
+        
+        std::cout << "starting timetamp = " << md.time_spec << std::endl;
 
 
 
