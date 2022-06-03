@@ -95,7 +95,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
         auto last_update = start_time;
         unsigned long long last_update_samps = 0;
         md.time_spec      = usrp->get_time_now() + uhd::time_spec_t(0.1);
-        std::cout << "starting tick = " << md.time_spec.to_ticks(200e6) << std::endl;
+        
 
 
     //// ====== Keep running until... ======
@@ -165,6 +165,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
         }
     }   // while ends
     const auto actual_stop_time = std::chrono::steady_clock::now();
+    std::cout << "starting tick = " << md.time_spec.to_ticks(200e6) << std::endl;
 
 
 

@@ -384,7 +384,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
         
         
-        std::cout << "starting tick = " << md.time_spec.to_ticks(200e6) << std::endl;
+        
 
 
 
@@ -424,6 +424,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         // "EXIT_SUCCESS" and "0" both mean the program has executed successfully, 
         // but "EXIT_SUCCESS" is not requried to be equal to 0.
         std::cout << std::endl << "Done!" << std::endl << std::endl;
+        std::cout << "starting tick = " << md.time_spec.to_ticks(200e6) << std::endl;
         return EXIT_SUCCESS;
 }
 
