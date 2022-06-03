@@ -127,7 +127,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         std::cout << std::endl;
         std::cout << boost::format("Creating the usrp device with: %s...") % args
                 << std::endl;
-        // uhd is defined at "<uhd/usrp/multi_usrp.hpp>"   
+        // uhd is defined at "<uhd/usrp/multi_usrp.hpp>" and implemented in "uhd/lib/.cpp"   
         uhd::usrp::multi_usrp::sptr usrp = uhd::usrp::multi_usrp::make(args);
 
 
@@ -370,7 +370,14 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         md.start_of_burst = true;
         md.end_of_burst   = false;
         md.has_time_spec  = true;
-        md.time_spec      = usrp->get_time_now() + uhd::time_spec_t(0.1);
+
+        uhd::time_spec_t Ettus_const_value = uhd::time_spec_t(0.1);
+        // md.time_spec      = usrp->get_time_now() + uhd::time_spec_t(0.1);
+        md.time_spec = usrp->get_time_now() + Ettus_const_value;
+
+        long long start_tick = Ettus_const_value::to_ticks(200e6); 
+        
+        std::cout << "starting tick = " << start_tick << std::endl;
 
 
 

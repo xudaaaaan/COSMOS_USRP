@@ -161,7 +161,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
                 last_update       = now;
             }
         }
-    }
+    }   // while ends
     const auto actual_stop_time = std::chrono::steady_clock::now();
 
 
