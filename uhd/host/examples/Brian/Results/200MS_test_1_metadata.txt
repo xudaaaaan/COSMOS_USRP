@@ -1,0 +1,3 @@
+200MS_test_1_1.dat: shortest, 1st measurement (tick = 402852358)
+200MS_test_1_2.dat: shortest, 2nd measurement (tick = 402812571)
+200MS_test_1_3.dat: shortest, 3rd measurement (tick = 402824523)
