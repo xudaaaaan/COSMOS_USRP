@@ -71,11 +71,12 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
         std::ofstream outfile;
         std::ofstream metadatafile;
         char full_file_name[200];
+        char full_metafile_name[200];
         strcpy(full_file_name, file.c_str());
         strcat(full_file_name, ".dat");
         if (not null)
-            // outfile.open(file.c_str() + ".dat", std::ofstream::binary);
-            outfile.open(file.c_str(), std::ofstream::binary);
+            outfile.open(full_file_name, std::ofstream::binary);
+            // outfile.open(file.c_str(), std::ofstream::binary);
         bool overflow_message = true;
         std::cout << boost::format("rx file name: %s") % full_file_name
                 << std::endl;
