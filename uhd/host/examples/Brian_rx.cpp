@@ -362,17 +362,6 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         usrp->set_clock_source(ref);
     }
 
-    
-
-    // Lock 1pps signal
-    if (vm.count("pps")) {
-        usrp->set_time_source(pps);
-        std::cout<<"pps set success"<<std::endl;
-    }
-    usrp->set_time_unknown_pps(uhd::time_spec_t(0.0));
-    std::this_thread::sleep_for(
-	std::chrono::seconds(1));
-
 
 
 //    // original waveform
@@ -437,6 +426,17 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         usrp->set_rx_antenna(ant, channel);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(int64_t(1000 * setup_time)));
+
+
+
+    // Lock 1pps signal
+    if (vm.count("pps")) {
+        usrp->set_time_source(pps);
+        std::cout<<"pps set success"<<std::endl;
+    }
+    usrp->set_time_unknown_pps(uhd::time_spec_t(0.0));
+    std::this_thread::sleep_for(
+	    std::chrono::seconds(1));
 
 
     // check Ref and LO Lock detect
