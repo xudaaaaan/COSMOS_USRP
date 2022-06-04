@@ -228,8 +228,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     // fixing step @ 491.52 with iround
     const size_t step = 493;// 493 is best
     std::cout<<"Fixing step function @ "<<step<<std::endl;
-    int rand=0;
-    //std::cin >> rand;
+
 
     // create a transmit streamer
     // linearly map channels (index0 = channel0, index1 = channel1, ...)
@@ -246,7 +245,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
     // pre-fill the buffer with the waveform
     std::cout<<"size of buffer "<<buff.size()<<" and step " << step << std::endl;
-    //std::cin >> rand;
+
     for (size_t n = 0; n < buff.size(); n++) {
         buff[n] = wave_table(index += step);
         //std::cout<< n <<":"  << buff[n] << endl;  // buffer containing waveform
@@ -325,9 +324,18 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     std::cout << "Press Ctrl + C to stop streaming...\n\npress any key to continue" << std::endl;
 
 
-    // DEBUG
-    rand=0;
-    //std::cin >> rand;
+    //// ====== Setup Streaming ======
+        uhd::stream_cmd_t stream_cmd(uhd::stream_cmd_t::STREAM_MODE_START_CONTINUOUS);
+
+        stream_cmd.stream_now = false;
+        stream_cmd.time_spec  = uhd::time_spec_t(usrp->get_time_now() + uhd::time_spec_t(1.0));
+
+        tx_stream->issue_stream_cmd(stream_cmd);
+    
+
+
+
+
 
     // /////////////////////////////
     // Streaming occurs here

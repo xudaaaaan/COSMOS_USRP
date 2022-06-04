@@ -86,8 +86,13 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
                                         ? uhd::stream_cmd_t::STREAM_MODE_START_CONTINUOUS
                                         : uhd::stream_cmd_t::STREAM_MODE_NUM_SAMPS_AND_DONE);
         stream_cmd.num_samps  = size_t(num_requested_samples);
-        stream_cmd.stream_now = true;
-        stream_cmd.time_spec  = uhd::time_spec_t();
+
+        // stream_cmd.stream_now = true;
+        // stream_cmd.time_spec  = uhd::time_spec_t();
+
+        stream_cmd.stream_now = false;
+        stream_cmd.time_spec  = uhd::time_spec_t(usrp->get_time_now() + uhd::time_spec_t(1.0));
+
         rx_stream->issue_stream_cmd(stream_cmd);
 
         typedef std::map<size_t, size_t> SizeMap;
@@ -95,6 +100,8 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
         const auto start_time = std::chrono::steady_clock::now();
         const auto stop_time =
             start_time + std::chrono::milliseconds(int64_t(1000 * time_requested));
+
+
 
     //// ====== Setup timestamps ======
         // Track time and samps between updating the BW summary

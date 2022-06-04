@@ -363,8 +363,6 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
 
-    
-
 
 
     //// ====== Set up metadata ======
@@ -373,24 +371,15 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         md.start_of_burst = true;
         md.end_of_burst   = false;
         md.has_time_spec  = true;
-
-        // uhd::time_spec_t Ettus_const_value;
-        // Ettus_const_value.time_spec_t(0.1);
-        
-        // std::cout << "Ettus timestamp value = " << uhd::time_spec_t(0.1).get_real_secs() << std::endl;
         md.time_spec      = usrp->get_time_now() + uhd::time_spec_t(0.1);
-        // md.time_spec = usrp->get_time_now() + Ettus_const_value;
-
-        
-        
-        
-
+     
 
 
     //// ====== Send data ======
     // Until the signal handler gets called or if we accumulate the number 
     // of samples that been specified (unless it's 0).
     uint64_t num_acc_samps = 0;
+    uhd::set_thread_priority(); //Added as suggested by Neel
     while (true) {
         // Break on the end of duration or CTRL-C
         if (stop_signal_called) {
