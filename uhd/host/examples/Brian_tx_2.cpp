@@ -362,6 +362,16 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     std::cout << "Press Ctrl + C to stop streaming..." << std::endl;
 
 
+    
+     //// ====== Setup Streaming ======
+        uhd::stream_cmd_t stream_cmd(uhd::stream_cmd_t::STREAM_MODE_START_CONTINUOUS);
+
+        stream_cmd.stream_now = false;
+        stream_cmd.time_spec  = uhd::time_spec_t(usrp->get_time_now() + uhd::time_spec_t(1.0));
+
+        tx_stream->issue_stream_cmd(stream_cmd);
+
+
 
 
 
