@@ -363,7 +363,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
     std::signal(SIGINT, &sig_int_handler);
-    std::cout << "Press Ctrl + C to stop streaming..." << std::endl;
+    std::cout << "Press Ctrl + C to stop streaming..." << std::endl << std::endl;
     
 
 
@@ -382,6 +382,9 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         //md.time_spec      = usrp->get_time_now() + uhd::time_spec_t(0.1);
         md.time_spec      = uhd::time_spec_t(5.0); // test if the Tx will not send until t = 10. 
         std::cout << "  Wait for less than " << md.time_spec.get_real_secs() << " seconds to start streaming..."
+                << std::endl
+                << std::endl;
+        std::cout<< "the meta data will not display untill the transmission is done. "
                 << std::endl
                 << std::endl;
      
