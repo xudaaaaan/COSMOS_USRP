@@ -72,7 +72,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
         std::ofstream metadatafile;
         
         size_t num_rx_samps = 0;
-        size_t idx = 1;
+        // size_t idx = 1;
 
         char full_file_name[200];
         char full_metafile_name[200];
@@ -124,7 +124,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
     // the requested number of samples were collected (if such a number was
     // given), or until Ctrl-C was pressed.
 
-    std::cout << "num_rx_samps = " << num_rx_samps << std::endl;
+    // std::cout << "num_rx_samps = " << num_rx_samps << std::endl;
 
     while (not stop_signal_called
            and (num_requested_samples != num_total_samps or num_requested_samples == 0)
@@ -134,7 +134,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
         num_rx_samps =
             rx_stream->recv(&buff.front(), buff.size(), md, 30.0, enable_size_map);
 
-        std::cout << "num_rx_samps = " << num_rx_samps << std::endl;
+        // std::cout << "num_rx_samps = " << num_rx_samps << std::endl;
 
         if (md.error_code == uhd::rx_metadata_t::ERROR_CODE_TIMEOUT) {
             std::cout << boost::format("Timeout while streaming") << std::endl;
@@ -192,18 +192,18 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
 
 
 
-        std::cout << "idx = " << idx++ << std::endl;
+        // std::cout << "idx = " << idx++ << std::endl;
         
     }   // while ends
     const auto actual_stop_time = std::chrono::steady_clock::now();
 
-    std::cout << "num_total_samps = " << num_total_samps << std::endl;
+    // std::cout << "num_total_samps = " << num_total_samps << std::endl;
     
 
 
 
-    stream_cmd.stream_mode = uhd::stream_cmd_t::STREAM_MODE_STOP_CONTINUOUS;
-    rx_stream->issue_stream_cmd(stream_cmd);
+    // stream_cmd.stream_mode = uhd::stream_cmd_t::STREAM_MODE_STOP_CONTINUOUS;
+    // rx_stream->issue_stream_cmd(stream_cmd);
 
     if (datafile.is_open()) {
         datafile.close();
@@ -409,7 +409,10 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
     // Lock 1pps signal
         usrp->set_time_source(pps);
-        std::cout<<"pps set success"<<std::endl;
+        std::cout<<std::endl;
+            std::cout<<"pps set success"
+                <<std::endl
+                <<std::endl;
         // usrp->set_time_unknown_pps(uhd::time_spec_t(0.0));  // set the next coming pps as t = 0;
         usrp->set_time_next_pps(uhd::time_spec_t(0.0));
         std::this_thread::sleep_for(

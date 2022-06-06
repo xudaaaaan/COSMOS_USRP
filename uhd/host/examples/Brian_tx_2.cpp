@@ -155,7 +155,10 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         std::cout << boost::format("Setting device timestamp to 0...") << std::endl;
         // Sync times
             usrp->set_time_source(pps);
-            std::cout<<"pps set success"<<std::endl;
+            std::cout<<std::endl;
+            std::cout<<"pps set success"
+                <<std::endl
+                <<std::endl;
             // usrp->set_time_unknown_pps(uhd::time_spec_t(0.0));  // set the next coming pps as t = 0;
             usrp->set_time_next_pps(uhd::time_spec_t(0.0));
             std::this_thread::sleep_for(
