@@ -87,11 +87,9 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
                                         : uhd::stream_cmd_t::STREAM_MODE_NUM_SAMPS_AND_DONE);
         stream_cmd.num_samps  = size_t(num_requested_samples);
 
-        // stream_cmd.stream_now = true;
-        // stream_cmd.time_spec  = uhd::time_spec_t();
-
         stream_cmd.stream_now = false;
         stream_cmd.time_spec  = uhd::time_spec_t(10.0);
+        rx_stream->issue_stream_cmd(stream_cmd);
 
         
 
@@ -107,7 +105,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
         // Track time and samps between updating the BW summary
         auto last_update = start_time;
         unsigned long long last_update_samps = 0;    
-        // md.time_spec = uhd::time_spec_t(5.0);    
+        md.time_spec = uhd::time_spec_t(15.0);    
 
 
     //// ====== Keep running until... ======
@@ -115,7 +113,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
     // the requested number of samples were collected (if such a number was
     // given), or until Ctrl-C was pressed.
 
-    rx_stream->issue_stream_cmd(stream_cmd);
+    
     while (not stop_signal_called
            and (num_requested_samples != num_total_samps or num_requested_samples == 0)
            and (time_requested == 0.0 or std::chrono::steady_clock::now() <= stop_time)) {
