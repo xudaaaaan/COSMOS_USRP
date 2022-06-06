@@ -30,10 +30,11 @@ def main():
 
     # Create an argument parser
     parser = argparse.ArgumentParser()
-    parser.add_argument("--node", type=str, default='srv1-in1', help="COSMOS-SB1 node name (i.e., srv1-in1)")
+    parser.add_argument("-n", "--node", type=str, default='srv1-in1', help="COSMOS-SB1 node name (i.e., srv1-in1)")
+    parser.add_argument("--comb", type=int, default=1, help="combination of the XY table positions")
     parser.add_argument("--x", type=int, default=0, help="x coordinate on XY table")
     parser.add_argument("--y", type=int, default=0, help="y coordinate on XY table")
-    parser.add_argument("--a", type=int, default=0, help="angle of the array on XY table")
+    parser.add_argument("--angle", type=int, default=0, help="angle of the array on XY table")
     # parser.add_argument("--t", dest='videotime', type=int, default=10, help="video duration")
     args = parser.parse_args()
 
@@ -42,7 +43,50 @@ def main():
     config.read('../../config/sivers.ini')
 
     xytable0 = mmwsdr.utils.XYTable(config[args.node]['table_name'], isdebug=isdebug)
-    xytable0.move(x=args.x, y=args.y, angle=args.a)
+
+    if not args.comb:
+        x = args.x
+        y = args.y
+        angle = args.angle
+    else:
+        if args.comb == 1 and args.node == "srv1-in1":  # For table 1:
+            x = 0
+            y = 0
+            angle = 0
+        elif args.comb == 2 and args.node == "srv1-in1":
+            x = 0
+            y = 1300
+            angle = 0
+        elif args.comb == 3 and args.node == "srv1-in1":
+            x = 0
+            y = 0
+            angle = 0
+        elif args.comb == 4 and args.node == "srv1-in1":
+            x = 0
+            y = 1300
+            angle = 0
+        elif args.comb == 1 and args.node == "srv1-in2":    # For table 2:
+            x = 1300
+            y = 0
+            angle = 0
+        elif args.comb == 2 and args.node == "srv1-in2":
+            x = 1300
+            y = 0
+            angle = 0
+        elif args.comb == 3 and args.node == "srv1-in2":
+            x = 1300
+            y = 1300
+            angle = 0
+        elif args.comb == 4 and args.node == "srv1-in2":
+            x = 1300
+            y = 1300
+            angle = 0
+        else:
+            KeyboardInterrupt
+            
+
+
+    xytable0.move(x, y, angle)
 
 
     # t = threading.Thread(target=xytable0.video(t=args.videotime))
