@@ -114,8 +114,10 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
         // Track time and samps between updating the BW summary
         auto last_update = start_time;
         unsigned long long last_update_samps = 0;    
-        md.time_spec = uhd::time_spec_t(5.0);    
-
+        /*
+            The following parameter is only for read, not for write into
+            md.time_spec = uhd::time_spec_t(5.0);
+        */
 
     //// ====== Keep running until... ======
     // Until either time expired (if a duration was given), until
@@ -335,7 +337,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("gain", po::value<double>(&gain)->default_value(6), "gain for the RF chain")
         ("lo-offset", po::value<double>(&lo_offset)->default_value(0.0),
             "Offset for frontend LO in Hz (optional)")
-        ("nsamps", po::value<size_t>(&total_num_samps)->default_value(10000), "total number of samples to receive (requested)")     
+        ("nsamps", po::value<size_t>(&total_num_samps)->default_value(0), "total number of samples to receive (requested)")     
         ("pps", po::value<std::string>(&pps)->default_value("external"), "PPS source (internal, external, mimo, gpsdo)")
         ("progress", "periodically display short-term bandwidth")
         ("rate", po::value<double>(&rate)->default_value(10e6), "rate of incoming samples")
