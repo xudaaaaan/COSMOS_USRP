@@ -80,10 +80,7 @@ def main():
         elif args.comb == 4 and args.node == "srv1-in2":
             x = 1300
             y = 1300
-            angle = 0
-        else:
-            KeyboardInterrupt
-            
+            angle = 0            
 
 
     xytable0.move(x, y, angle)
