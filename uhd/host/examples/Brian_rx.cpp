@@ -72,6 +72,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
         std::ofstream metadatafile;
         
         size_t num_rx_samps = 0;
+        size_t idx = 1;
 
         char full_file_name[200];
         char full_metafile_name[200];
@@ -185,6 +186,12 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
                 last_update       = now;
             }
         }
+
+
+
+
+        std::cout << "idx = " << idx++ << std::endl;
+        
     }   // while ends
     const auto actual_stop_time = std::chrono::steady_clock::now();
 
