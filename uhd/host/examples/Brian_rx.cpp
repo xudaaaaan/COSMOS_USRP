@@ -107,7 +107,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
         // Track time and samps between updating the BW summary
         auto last_update = start_time;
         unsigned long long last_update_samps = 0;    
-        md.time_spec = uhd::time_spec_t(5.0);    
+        // md.time_spec = uhd::time_spec_t(5.0);    
 
 
     //// ====== Keep running until... ======
