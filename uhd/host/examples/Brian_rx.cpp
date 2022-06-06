@@ -71,7 +71,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
         std::ofstream datafile;
         std::ofstream metadatafile;
         
-        size_t num_rx_samps
+        size_t num_rx_samps;
 
         char full_file_name[200];
         char full_metafile_name[200];
