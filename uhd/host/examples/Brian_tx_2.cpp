@@ -421,7 +421,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         std::cout << std::endl << "Done!" << std::endl << std::endl;
         std::cout << "Metadata Here... " << std::endl;
         std::cout << "  Streaming starting tick = " << md.time_spec.to_ticks(200e6) << std::endl;
-        std::cout << "  Streaming starting sec = " << md.time_spec.to_real_sec() 
+        std::cout << "  Streaming starting sec = " << md.time_spec.get_real_sec() 
                     << std::endl
                     << std::endl;
         return EXIT_SUCCESS;
