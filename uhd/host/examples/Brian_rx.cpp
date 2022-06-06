@@ -118,7 +118,6 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
     while (not stop_signal_called
            and (num_requested_samples != num_total_samps or num_requested_samples == 0)
            and (time_requested == 0.0 or std::chrono::steady_clock::now() <= stop_time)) {
-        std::cout<<"total time is: "<<time_requested<<std::endl;
         const auto now = std::chrono::steady_clock::now();
 
         size_t num_rx_samps =
