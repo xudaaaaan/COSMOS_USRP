@@ -121,7 +121,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
 
 
 
-    std::cout << "  Wait for less than " << time_to_recv.get_real_sec() << " seconds to start streaming..."
+    std::cout << "  Wait for less than " << time_to_recv.get_real_secs() << " seconds to start streaming..."
                 << std::endl
                 << std::endl;
 
