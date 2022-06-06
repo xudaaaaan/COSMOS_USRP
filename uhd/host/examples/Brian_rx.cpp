@@ -107,7 +107,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
         // Track time and samps between updating the BW summary
         auto last_update = start_time;
         unsigned long long last_update_samps = 0;    
-        // md.time_spec = uhd::time_spec_t(15.0);    
+        md.time_spec = uhd::time_spec_t(5.0);    
 
 
     //// ====== Keep running until... ======
@@ -182,8 +182,8 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
 
 
 
-    stream_cmd.stream_mode = uhd::stream_cmd_t::STREAM_MODE_STOP_CONTINUOUS;
-    rx_stream->issue_stream_cmd(stream_cmd);
+    // stream_cmd.stream_mode = uhd::stream_cmd_t::STREAM_MODE_STOP_CONTINUOUS;
+    // rx_stream->issue_stream_cmd(stream_cmd);
 
     if (datafile.is_open()) {
         datafile.close();
@@ -224,12 +224,12 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
 
 
         std::cout << "===============================" << std::endl;
-        std::cout << boost::format("Received data saved in file: %s") % full_file_name
+        std::cout << boost::format("Data is saved in file: %s") % full_file_name
                 << std::endl
                 << std::endl;
 
 
-        std::cout << boost::format("The corresponding Metadata is saved in file: %s") % full_metafile_name
+        std::cout << boost::format("Metadata is saved in file: %s") % full_metafile_name
                 << std::endl;
         std::cout << "===============================" << std::endl;
     }
