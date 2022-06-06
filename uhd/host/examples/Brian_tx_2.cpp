@@ -151,6 +151,36 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
 
+    //// ====== Set timestamp and pps ======
+        std::cout << boost::format("Setting device timestamp to 0...") << std::endl;
+        if (channel_nums.size() >= 1) {
+            // Sync times
+            if (pps == "mimo") {
+                UHD_ASSERT_THROW(usrp->get_num_mboards() == 2);
+
+                // make mboard 1 a slave over the MIMO Cable
+                usrp->set_time_source("mimo", 1);
+
+                // set time on the master (mboard 0)
+                usrp->set_time_now(uhd::time_spec_t(0.0), 0);
+
+                // sleep a bit while the slave locks its time to the master
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            } else {
+                if (pps == "internal" or pps == "external" or pps == "gpsdo"){
+                    usrp->set_time_source(pps);
+                    std::cout<<"pps set success"<<std::endl;
+                }
+                usrp->set_time_unknown_pps(uhd::time_spec_t(0.0));  // set the next coming pps as t = 0;
+                std::this_thread::sleep_for(
+                    std::chrono::seconds(1)); // wait for pps sync pulse
+            }
+        } else {
+            usrp->set_time_now(0.0);
+        }
+
+
+
     //// ====== Lock mboard reference clock source (always has default value) ======
         usrp->set_clock_source(ref);
         std::cout<<boost::format("The reference clock for motherboard is: %s...") % ref
@@ -186,12 +216,20 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         for (size_t ch_idx = 0; ch_idx < channel_nums.size(); ch_idx++) {
             std::cout << boost::format("Setting TX Freq: %f MHz...") % (freq / 1e6)
                     << std::endl;
+            
             std::cout << boost::format("Setting TX LO Offset: %f MHz...") % (lo_offset / 1e6)
                     << std::endl;
-            uhd::tune_request_t tune_request(freq, lo_offset);
-            if (vm.count("int-n"))
-                tune_request.args = uhd::device_addr_t("mode_n=integer");
-            usrp->set_tx_freq(tune_request, channel_nums[ch_idx]);
+
+            // start timed command with tuen: 
+            usrp->clear_command_time();
+            usrp->set_command_time(usrp->get_time_now() + uhd::time_spec_t(0.1));  //operate any command after "set_command_time" at t = current time + 0.1sec;
+                // timed command content:
+                uhd::tune_request_t tune_request(freq, lo_offset);
+                if (vm.count("int-n"))
+                    tune_request.args = uhd::device_addr_t("mode_n=integer");
+                usrp->set_tx_freq(tune_request, channel_nums[ch_idx]);
+                std::this_thread::sleep_for(std::chrono::milliseconds(110)); //sleep 110ms (~10ms after retune occurs) to allow LO to lock
+
             std::cout << boost::format("Actual TX Freq: %f MHz...")
                             % (usrp->get_tx_freq(channel_nums[ch_idx]) / 1e6)
                     << std::endl
@@ -297,33 +335,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         // }
 
 
-    //// ====== Set timestamp and pps ======
-        std::cout << boost::format("Setting device timestamp to 0...") << std::endl;
-        if (channel_nums.size() >= 1) {
-            // Sync times
-            if (pps == "mimo") {
-                UHD_ASSERT_THROW(usrp->get_num_mboards() == 2);
-
-                // make mboard 1 a slave over the MIMO Cable
-                usrp->set_time_source("mimo", 1);
-
-                // set time on the master (mboard 0)
-                usrp->set_time_now(uhd::time_spec_t(0.0), 0);
-
-                // sleep a bit while the slave locks its time to the master
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            } else {
-                if (pps == "internal" or pps == "external" or pps == "gpsdo"){
-                    usrp->set_time_source(pps);
-                    std::cout<<"pps set success"<<std::endl;
-                }
-                usrp->set_time_unknown_pps(uhd::time_spec_t(0.0));
-                std::this_thread::sleep_for(
-                    std::chrono::seconds(1)); // wait for pps sync pulse
-            }
-        } else {
-            usrp->set_time_now(0.0);
-        }
+    
 
     //// ====== Check Ref and LO Lock detect ======
         std::vector<std::string> sensor_names;
@@ -374,7 +386,8 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         md.start_of_burst = true;
         md.end_of_burst   = false;
         md.has_time_spec  = true;
-        md.time_spec      = usrp->get_time_now() + uhd::time_spec_t(0.1);
+        //md.time_spec      = usrp->get_time_now() + uhd::time_spec_t(0.1);
+        md.time_spec      = uhd::time_spec_t(10); // test if the Tx will not send until t = 10. 
      
 
 
