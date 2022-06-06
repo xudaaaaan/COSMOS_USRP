@@ -242,7 +242,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
                 << std::endl;
 
 
-        std::cout <t("Metadata is saved in file: %s") % full_metafile_name
+        std::cout << boost::format("Metadata is saved in file: %s") % full_metafile_name
                 << std::endl;
         std::cout << "===============================" << std::endl;
     }
