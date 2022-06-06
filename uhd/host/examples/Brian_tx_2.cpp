@@ -190,6 +190,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         std::cout << boost::format("Setting TX Rate: %f Msps...") % (rate / 1e6) << std::endl;
         usrp->set_tx_rate(rate);
         std::cout << boost::format("Actual TX Rate: %f Msps...") % (usrp->get_tx_rate() / 1e6)
+                << std::endl
                 << std::endl;
 
 

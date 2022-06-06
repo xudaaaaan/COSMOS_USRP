@@ -35,7 +35,6 @@ def main():
     parser.add_argument("--x", type=int, default=0, help="x coordinate on XY table")
     parser.add_argument("--y", type=int, default=0, help="y coordinate on XY table")
     parser.add_argument("--angle", type=int, default=0, help="angle of the array on XY table")
-    # parser.add_argument("--t", dest='videotime', type=int, default=10, help="video duration")
     args = parser.parse_args()
 
     # Create a configuration parser

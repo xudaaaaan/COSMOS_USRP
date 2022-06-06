@@ -421,10 +421,6 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
     // set the sample rate
-    if (rate <= 0.0) {
-        std::cerr << "Please specify a valid sample rate" << std::endl;
-        return ~0;
-    }
     std::cout << boost::format("Setting RX Rate: %f Msps...") % (rate / 1e6) << std::endl;
     usrp->set_rx_rate(rate, channel);
     std::cout << boost::format("Actual RX Rate: %f Msps...")

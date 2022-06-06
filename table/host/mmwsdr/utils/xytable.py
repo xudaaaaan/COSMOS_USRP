@@ -150,6 +150,41 @@ class XYTable(object):
 
             return self.xy_status, self.rotator_status, self.current_position, self.target_position
 
+
+    def check(self):
+        """
+
+        :param x:
+        :type x:
+        :param y:
+        :type y:
+        :param angle:
+        :type angle:
+        :return:
+        :rtype:
+        """
+
+        params = {'name': self.table + '.sb1.cosmos-lab.org'}
+        try:
+            r = requests.get(url=self.main_url + 'status', params=params)
+            r.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            raise SystemExit(err)
+        else:
+            # Success: print new position of the xytable
+            json_data = json.loads(json.dumps(xmltodict.parse(r.content)))
+            table_data = json_data['response']['action']['xy_table']
+            self.xy_status = table_data['@xy_status']
+            self.rotator_status = table_data['@rotator_status']
+            current_pos = table_data['current_position']
+            self.current_position = [current_pos['@x'], current_pos['@y'], current_pos['@angle']]
+
+            if self.isdebug:
+                print("The current position: {}".format(self.current_position))
+
+            return self.xy_status, self.rotator_status, self.current_position
+
+
     def stop(self):
         """
 
