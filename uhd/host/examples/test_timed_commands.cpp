@@ -143,9 +143,12 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
               << std::endl;
     std::cout << boost::format(" Difference between stream time and first packet: %f us")
                      % ((md.time_spec - stream_time).get_real_secs() * 1e6)
+                    << std::endl
+                    << std::endl;
     std::cout << boost::format(" Difference between stream time and first packet: %f ticks")
                      % ((md.time_spec - stream_time).to_ticks(200e6))
-              << std::endl;
+                    << std::endl
+                    << std::endl;
 
     // finished
     std::cout << std::endl << "Done!" << std::endl << std::endl;
