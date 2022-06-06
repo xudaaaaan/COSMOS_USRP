@@ -153,19 +153,15 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
     //// ====== Set timestamp and pps ======
         std::cout << boost::format("Setting device timestamp to 0...") << std::endl;
-        if (channel_nums.size() >= 1) {
-            // Sync times
-            if (pps == "external"){
-                usrp->set_time_source(pps);
-                std::cout<<"pps set success"<<std::endl;
-            }
-                usrp->set_time_unknown_pps(uhd::time_spec_t(0.0));  // set the next coming pps as t = 0;
-                std::this_thread::sleep_for(
-                    std::chrono::seconds(1)); // wait for pps sync pulse
+        // Sync times
+            usrp->set_time_source(pps);
+            std::cout<<"pps set success"<<std::endl;
+            // usrp->set_time_unknown_pps(uhd::time_spec_t(0.0));  // set the next coming pps as t = 0;
+            usrp->set_time_next_pps(uhd::time_spec_t(0.0));
+            std::this_thread::sleep_for(
+                std::chrono::seconds(1)); // wait for pps sync pulse
             
-        } else {
-            usrp->set_time_now(0.0);
-        }
+
 
 
 
@@ -378,7 +374,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         md.end_of_burst   = false;
         md.has_time_spec  = true;
         //md.time_spec      = usrp->get_time_now() + uhd::time_spec_t(0.1);
-        md.time_spec      = uhd::time_spec_t(20.0); // test if the Tx will not send until t = 10. 
+        md.time_spec      = uhd::time_spec_t(5.0); // test if the Tx will not send until t = 10. 
      
 
 

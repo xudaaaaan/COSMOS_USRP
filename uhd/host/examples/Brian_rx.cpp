@@ -85,10 +85,15 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
         uhd::stream_cmd_t stream_cmd((num_requested_samples == 0)
                                         ? uhd::stream_cmd_t::STREAM_MODE_START_CONTINUOUS
                                         : uhd::stream_cmd_t::STREAM_MODE_NUM_SAMPS_AND_DONE);
+        // Number of samples to receive
         stream_cmd.num_samps  = size_t(num_requested_samples);
 
+        // time to receive samples
         stream_cmd.stream_now = false;
-        stream_cmd.time_spec  = uhd::time_spec_t(10.0);
+        uhd::time_spec_t time_to_recv = uhd::time_spec_t(15.0);
+        stream_cmd.time_spec  = time_to_recv;
+
+
         rx_stream->issue_stream_cmd(stream_cmd);
 
         
@@ -105,7 +110,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
         // Track time and samps between updating the BW summary
         auto last_update = start_time;
         unsigned long long last_update_samps = 0;    
-        md.time_spec = uhd::time_spec_t(15.0);    
+        md.time_spec = uhd::time_spec_t(5.0);    
 
 
     //// ====== Keep running until... ======
@@ -384,14 +389,13 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
     // Lock 1pps signal
-    if (vm.count("pps")) {
         usrp->set_time_source(pps);
         std::cout<<"pps set success"<<std::endl;
-    }
-    usrp->set_time_unknown_pps(uhd::time_spec_t(0.0));  // set the next coming pps as t = 0;
-    std::this_thread::sleep_for(
-	    std::chrono::seconds(1));
-    
+        // usrp->set_time_unknown_pps(uhd::time_spec_t(0.0));  // set the next coming pps as t = 0;
+        usrp->set_time_next_pps(uhd::time_spec_t(0.0));
+        std::this_thread::sleep_for(
+            std::chrono::seconds(1)); // wait for pps sync pulse
+        
 
 
     // set the sample rate
