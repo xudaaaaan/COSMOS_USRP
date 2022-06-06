@@ -127,6 +127,8 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
         size_t num_rx_samps =
             rx_stream->recv(&buff.front(), buff.size(), md, 30.0, enable_size_map);
 
+        std::cout << "num_rc_samps = " << num_rx_samps << std::endl;
+
         if (md.error_code == uhd::rx_metadata_t::ERROR_CODE_TIMEOUT) {
             std::cout << boost::format("Timeout while streaming") << std::endl;
             break;
@@ -212,9 +214,11 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
     }
 
 
-    long long rx_tick = md.time_spec.to_ticks(200e6);
+    long long rx_starting_tick = md.time_spec.to_ticks(200e6);
+    double rx_starting_sec = md.time_spec.get_real_secs();
     std::cout << "Metadata Here... " << std::endl;
-    std::cout << "  Starting tick = " << rx_tick 
+    std::cout << "  Starting tick = " << rx_starting_tick << std::endl;
+    std::cout << "  Starting sec = " << rx_starting_sec 
                 << std::endl
                 << std::endl;
     
