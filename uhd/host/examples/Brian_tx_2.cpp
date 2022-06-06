@@ -216,13 +216,13 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         for (size_t ch_idx = 0; ch_idx < channel_nums.size(); ch_idx++) {
             std::cout << boost::format("Setting TX Freq: %f MHz...") % (freq / 1e6)
                     << std::endl;
-            
             std::cout << boost::format("Setting TX LO Offset: %f MHz...") % (lo_offset / 1e6)
                     << std::endl;
 
-            // start timed command with tuen: 
+            // start timed command with tune: 
             usrp->clear_command_time();
-            usrp->set_command_time(usrp->get_time_now() + uhd::time_spec_t(0.1));  //operate any command after "set_command_time" at t = current time + 0.1sec;
+            // usrp->set_command_time(usrp->get_time_now() + uhd::time_spec_t(0.1));  //operate any command after "set_command_time" at t = current time + 0.1sec;
+            usrp->set_command_time(uhd::time_spec_t(2.0));  //operate any command after "set_command_time" at t = 2.0 sec;
                 // timed command content:
                 uhd::tune_request_t tune_request(freq, lo_offset);
                 if (vm.count("int-n"))
@@ -230,6 +230,9 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
                 usrp->set_tx_freq(tune_request, channel_nums[ch_idx]);
                 std::this_thread::sleep_for(std::chrono::milliseconds(110)); //sleep 110ms (~10ms after retune occurs) to allow LO to lock
 
+            usrp->clear_command_time();
+
+            
             std::cout << boost::format("Actual TX Freq: %f MHz...")
                             % (usrp->get_tx_freq(channel_nums[ch_idx]) / 1e6)
                     << std::endl
@@ -387,7 +390,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         md.end_of_burst   = false;
         md.has_time_spec  = true;
         //md.time_spec      = usrp->get_time_now() + uhd::time_spec_t(0.1);
-        md.time_spec      = uhd::time_spec_t(5.0); // test if the Tx will not send until t = 10. 
+        md.time_spec      = uhd::time_spec_t(10.0); // test if the Tx will not send until t = 10. 
      
 
 

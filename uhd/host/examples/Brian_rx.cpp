@@ -91,7 +91,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
         // stream_cmd.time_spec  = uhd::time_spec_t();
 
         stream_cmd.stream_now = false;
-        stream_cmd.time_spec  = uhd::time_spec_t(usrp->get_time_now() + uhd::time_spec_t(1.0));
+        stream_cmd.time_spec  = uhd::time_spec_t(10.0);
 
         rx_stream->issue_stream_cmd(stream_cmd);
 
@@ -106,9 +106,8 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
     //// ====== Setup timestamps ======
         // Track time and samps between updating the BW summary
         auto last_update = start_time;
-        unsigned long long last_update_samps = 0;
-        md.time_spec      = usrp->get_time_now() + uhd::time_spec_t(0.1);
-        
+        unsigned long long last_update_samps = 0;    
+        md.time_spec = uhd::time_spec_t(15.0);    
 
 
     //// ====== Keep running until... ======
@@ -384,6 +383,14 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     
 
 
+    // Lock 1pps signal
+    if (vm.count("pps")) {
+        usrp->set_time_source(pps);
+        std::cout<<"pps set success"<<std::endl;
+    }
+    usrp->set_time_unknown_pps(uhd::time_spec_t(0.0));  // set the next coming pps as t = 0;
+    std::this_thread::sleep_for(
+	    std::chrono::seconds(1));
     
 
 
@@ -430,10 +437,20 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
                   << std::endl;
         std::cout << boost::format("Setting RX LO Offset: %f MHz...") % (lo_offset / 1e6)
                   << std::endl;
-        uhd::tune_request_t tune_request(freq, lo_offset);
-        if (vm.count("int-n"))
-            tune_request.args = uhd::device_addr_t("mode_n=integer");
-        usrp->set_rx_freq(tune_request, channel);
+
+        // start timed command with tune: 
+        usrp->clear_command_time();
+        usrp->set_command_time(uhd::time_spec_t(2.0));  //operate any command after "set_command_time" at t = 2.0 sec;
+            // timed command content:
+            uhd::tune_request_t tune_request(freq, lo_offset);
+            if (vm.count("int-n"))
+                tune_request.args = uhd::device_addr_t("mode_n=integer");
+            usrp->set_rx_freq(tune_request, channel_nums[ch_idx]);
+            std::this_thread::sleep_for(std::chrono::milliseconds(110)); //sleep 110ms (~10ms after retune occurs) to allow LO to lock
+
+        usrp->clear_command_time();
+
+        
         std::cout << boost::format("Actual RX Freq: %f MHz...")
                          % (usrp->get_rx_freq(channel) / 1e6)
                   << std::endl
@@ -472,14 +489,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
 
-    // Lock 1pps signal
-    if (vm.count("pps")) {
-        usrp->set_time_source(pps);
-        std::cout<<"pps set success"<<std::endl;
-    }
-    usrp->set_time_unknown_pps(uhd::time_spec_t(0.0));  // set the next coming pps as t = 0;
-    std::this_thread::sleep_for(
-	    std::chrono::seconds(1));
+    
 
 
     // check Ref and LO Lock detect
