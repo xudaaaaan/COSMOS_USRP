@@ -70,6 +70,9 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
         std::vector<samp_type> buff(samps_per_buff);
         std::ofstream datafile;
         std::ofstream metadatafile;
+        
+        size_t num_rx_samps
+
         char full_file_name[200];
         char full_metafile_name[200];
         strcpy(full_file_name, file.c_str());
@@ -118,16 +121,17 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
     // the requested number of samples were collected (if such a number was
     // given), or until Ctrl-C was pressed.
 
-    
+    std::cout << "num_rx_samps = " << num_rx_samps << std::endl;
+
     while (not stop_signal_called
            and (num_requested_samples != num_total_samps or num_requested_samples == 0)
            and (time_requested == 0.0 or std::chrono::steady_clock::now() <= stop_time)) {
         const auto now = std::chrono::steady_clock::now();
 
-        size_t num_rx_samps =
+        num_rx_samps =
             rx_stream->recv(&buff.front(), buff.size(), md, 30.0, enable_size_map);
 
-        std::cout << "num_rc_samps = " << num_rx_samps << std::endl;
+        std::cout << "num_rx_samps = " << num_rx_samps << std::endl;
 
         if (md.error_code == uhd::rx_metadata_t::ERROR_CODE_TIMEOUT) {
             std::cout << boost::format("Timeout while streaming") << std::endl;
@@ -183,6 +187,8 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
         }
     }   // while ends
     const auto actual_stop_time = std::chrono::steady_clock::now();
+
+    std::cout << "num_total_samps = " << num_total_samps << std::endl;
     
 
 
@@ -236,7 +242,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
                 << std::endl;
 
 
-        std::cout << boost::format("Metadata is saved in file: %s") % full_metafile_name
+        std::cout <t("Metadata is saved in file: %s") % full_metafile_name
                 << std::endl;
         std::cout << "===============================" << std::endl;
     }
