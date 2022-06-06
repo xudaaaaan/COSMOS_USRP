@@ -387,7 +387,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         md.end_of_burst   = false;
         md.has_time_spec  = true;
         //md.time_spec      = usrp->get_time_now() + uhd::time_spec_t(0.1);
-        md.time_spec      = uhd::time_spec_t(5); // test if the Tx will not send until t = 10. 
+        md.time_spec      = uhd::time_spec_t(10.0); // test if the Tx will not send until t = 10. 
      
 
 
