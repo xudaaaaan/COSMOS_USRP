@@ -44,9 +44,10 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     std::string args, wave_type, ant, subdev, ref, pps, wirefmt, channel_list, file;
     uint64_t total_num_samps;
     size_t spb;
-    double rate, freq, gain, wave_freq, bw, lo_offset, max_freq;
+    double rate, freq, gain, bw, lo_offset, max_freq;
     float ampl;
     // float T0 = 1e-6;
+    // double wave_freq;
     
 
     // setup the program options
@@ -96,7 +97,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("spb", po::value<size_t>(&spb)->default_value(0), "samples per buffer, 0 for default")
         ("subdev", po::value<std::string>(&subdev)->default_value("A:AB"), "subdevice specification, use A:AB for Tx")
         ("wave-type", po::value<std::string>(&wave_type)->default_value("OFDM"), "waveform type (SINE)")
-        ("wave-freq", po::value<double>(&wave_freq)->default_value(1e6), "waveform frequency in Hz")
+        // ("wave-freq", po::value<double>(&wave_freq)->default_value(1e6), "waveform frequency in Hz")
         ("wirefmt", po::value<std::string>(&wirefmt)->default_value("sc16"), "specify the over-the-wire sample mode")
 
     ;
@@ -273,19 +274,19 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
     //// ====== Error when the waveform is not possible to generate ======
         // when the waveform frequency*2 > Tx sampling rate, can't generate wfm. 
-        if (wave_type == "OFDM")
-            wave_freq = max_freq;
+        // if (wave_type == "OFDM")
+        //     wave_freq = max_freq;
         
-        if (std::abs(wave_freq) > usrp->get_tx_rate() / 2) {
-            throw std::runtime_error("wave freq out of Nyquist zone");
-        }
+        // if (std::abs(wave_freq) > usrp->get_tx_rate() / 2) {
+        //     throw std::runtime_error("wave freq out of Nyquist zone");
+        // }
 
         // This step is to make sure there are more than half of the signal
         // points have been sampled within each signal duration (which is 
         // determined by the waveform frequency accordingly). --> still Nyquist Sampling Law
-        if (usrp->get_tx_rate() / std::abs(wave_freq) > wave_table_len / 2) {
-            throw std::runtime_error("wave freq too small for table");
-        }
+        // if (usrp->get_tx_rate() / std::abs(wave_freq) > wave_table_len / 2) {
+        //     throw std::runtime_error("wave freq too small for table");
+        // }
 
 
 
