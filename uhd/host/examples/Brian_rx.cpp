@@ -341,7 +341,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("continue", "don't abort on a bad packet")
         ("duration", po::value<double>(&total_time)->default_value(0), "total number of seconds to receive")
         ("file", po::value<std::string>(&file)->default_value("usrp_samples.dat"), "name of the file to write binary samples to")
-        ("freq", po::value<double>(&freq)->default_value(80e6), "IF center frequency in Hz")
+        ("freq", po::value<double>(&freq)->default_value(100e6), "IF center frequency in Hz")
         ("gain", po::value<double>(&gain)->default_value(6), "gain for the RF chain")
         ("lo-offset", po::value<double>(&lo_offset)->default_value(0.0),
             "Offset for frontend LO in Hz (optional)")
