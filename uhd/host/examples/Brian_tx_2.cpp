@@ -83,7 +83,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("bw", po::value<double>(&bw), "analog frontend filter bandwidth in Hz")
         ("channels", po::value<std::string>(&channel_list)->default_value("0"), "which channels to use (specify \"0\", \"1\", \"0,1\", etc)")
         ("file", po::value<std::string>(&file)->default_value(""), "signal txt file name")
-        ("freq", po::value<double>(&freq)->default_value(80e6), "IF center frequency in Hz")
+        ("freq", po::value<double>(&freq)->default_value(100e6), "IF center frequency in Hz")
         ("gain", po::value<double>(&gain)->default_value(0), "gain for the RF chain")
         ("int-n", "tune USRP with integer-N tuning")
         ("lo-offset", po::value<double>(&lo_offset)->default_value(0.0),
@@ -91,7 +91,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("max-freq", po::value<double>(&max_freq)->default_value(20e6), "maximum waveform frequency in Hz for OFDM")
         ("nsamps", po::value<uint64_t>(&total_num_samps)->default_value(0), "total number of samples to transmit")
         ("pps", po::value<std::string>(&pps)->default_value("external"), "PPS source (internal, external, mimo, gpsdo)")
-        ("rate", po::value<double>(&rate)->default_value(10e6), "rate of outgoing samples")
+        ("rate", po::value<double>(&rate)->default_value(200e6), "rate of outgoing samples")
         ("ref", po::value<std::string>(&ref)->default_value("external"), "clock reference (internal, external, mimo, gpsdo)")
         ("spb", po::value<size_t>(&spb)->default_value(0), "samples per buffer, 0 for default")
         ("subdev", po::value<std::string>(&subdev)->default_value("A:AB"), "subdevice specification, use A:AB for Tx")
@@ -419,7 +419,11 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         // "EXIT_SUCCESS" and "0" both mean the program has executed successfully, 
         // but "EXIT_SUCCESS" is not requried to be equal to 0.
         std::cout << std::endl << "Done!" << std::endl << std::endl;
-        std::cout << "starting tick = " << md.time_spec.to_ticks(200e6) << std::endl;
+        std::cout << "Metadata Here... " << std::endl;
+        std::cout << "  Streaming starting tick = " << md.time_spec.to_ticks(200e6) << std::endl;
+        std::cout << "  Streaming starting sec = " << md.time_spec.to_real_sec() 
+                    << std::endl
+                    << std::endl;
         return EXIT_SUCCESS;
 }
 

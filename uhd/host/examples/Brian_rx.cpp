@@ -119,6 +119,14 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
             md.time_spec = uhd::time_spec_t(5.0);
         */
 
+
+
+    std::cout << "  Wait for less than " << time_to_recv.get_real_sec() << " seconds to start streaming..."
+                << std::endl
+                << std::endl;
+
+
+
     //// ====== Keep running until... ======
     // Until either time expired (if a duration was given), until
     // the requested number of samples were collected (if such a number was
@@ -232,8 +240,8 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
     long long rx_starting_tick = md.time_spec.to_ticks(200e6);
     double rx_starting_sec = md.time_spec.get_real_secs();
     std::cout << "Metadata Here... " << std::endl;
-    std::cout << "  Starting tick = " << rx_starting_tick << std::endl;
-    std::cout << "  Starting sec = " << rx_starting_sec 
+    std::cout << "  Streaming starting tick = " << rx_starting_tick << std::endl;
+    std::cout << "  Streaming starting sec = " << rx_starting_sec 
                 << std::endl
                 << std::endl;
     
@@ -340,7 +348,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("nsamps", po::value<size_t>(&total_num_samps)->default_value(0), "total number of samples to receive (requested)")     
         ("pps", po::value<std::string>(&pps)->default_value("external"), "PPS source (internal, external, mimo, gpsdo)")
         ("progress", "periodically display short-term bandwidth")
-        ("rate", po::value<double>(&rate)->default_value(10e6), "rate of incoming samples")
+        ("rate", po::value<double>(&rate)->default_value(200e6), "rate of incoming samples")
         ("ref", po::value<std::string>(&ref)->default_value("external"), "reference source (internal, external, mimo)")
         ("null", "Determine if run the code and save data to file. Add 'null' when you don't want to save the data. ")
         ("setup", po::value<double>(&setup_time)->default_value(1.0), "seconds of setup time")
