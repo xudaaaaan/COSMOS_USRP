@@ -615,7 +615,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     (usrp,                        \
         cpufmt,                   \
         wirefmt,                  \
-        rx_channels,                 \
+        // rx_channels,            
         file,                     \
         spb,                      \
         total_num_samps,          \
