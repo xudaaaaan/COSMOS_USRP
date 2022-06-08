@@ -719,7 +719,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         tx_sensor_names = tx_usrp->get_tx_sensor_names(tx_sensor_chan);
 
                     std::cout << std::endl;
-                    std::cout << boost::format("Test: Tx sensor name: %s") % tx_sensor_names
+                    std::cout << "Test: Tx sensor name: " << tx_sensor_names[0]
                             << std::endl;
 
         if (std::find(tx_sensor_names.begin(), tx_sensor_names.end(), "lo_locked")
@@ -734,7 +734,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         rx_sensor_names = rx_usrp->get_rx_sensor_names(rx_sensor_chan);
 
                     std::cout << std::endl;
-                    std::cout << boost::format("Test: Rx sensor name: %s") % rx_sensor_names
+                    std::cout << "Test: Rx sensor name: " << rx_sensor_names[0]
                             << std::endl;
 
         if (std::find(rx_sensor_names.begin(), rx_sensor_names.end(), "lo_locked")
@@ -754,7 +754,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
             uhd::sensor_value_t ref_locked = tx_usrp->get_mboard_sensor("ref_locked", 0);
 
                         std::cout << std::endl;
-                        std::cout << boost::format("Test: Tx sensor name: %s") % tx_sensor_names
+                        std::cout << "Test: Tx mboard sensor name: " << tx_sensor_names[0]
                                 << std::endl;
 
             std::cout << boost::format("Checking Tx: %s ...") % ref_locked.to_pp_string()
@@ -769,7 +769,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
             uhd::sensor_value_t ref_locked = rx_usrp->get_mboard_sensor("ref_locked", 0);
 
                         std::cout << std::endl;
-                        std::cout << boost::format("Test: Rx sensor name: %s") % tx_sensor_names
+                        std::cout << "Test: Rx mboard sensor name: " << rx_sensor_names[0]
                                 << std::endl;
 
             std::cout << boost::format("Checking Rx: %s ...") % ref_locked.to_pp_string()
