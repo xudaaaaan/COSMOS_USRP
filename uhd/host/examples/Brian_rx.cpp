@@ -46,12 +46,11 @@ template <typename samp_type>
 void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual) device
     const std::string& cpu_format,
     const std::string& wire_format,
-    // const std::string& channel,
     const std::string& file,
     size_t samps_per_buff,
     unsigned long long num_requested_samples,
     double time_requested       = 0.0,
-    double start_streaming_time,
+    double start_streaming_time = 15.0,
     bool bw_summary             = false,
     bool stats                  = false,
     bool null                   = false,
