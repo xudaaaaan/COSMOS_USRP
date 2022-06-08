@@ -521,7 +521,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         std::this_thread::sleep_for(
             std::chrono::milliseconds(200)); // wait for pps sync pulse
 
-        std::cout << "Current time is: " << std::chrono::steady_clock::now() << std::endl;
+        std::cout << "Current time is: " << tx_usrp->get_time_now.get_real_secs() << std::endl;
         rx_usrp->set_time_unknown_pps(uhd::time_spec_t(0.0));  // set the next coming pps as t = 0;
         // usrp->set_time_next_pps(uhd::time_spec_t(0.0));
         std::this_thread::sleep_for(
