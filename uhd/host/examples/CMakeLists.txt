@@ -24,6 +24,9 @@ set(example_sources
     tx_timed_samples.cpp
     tx_waveforms.cpp
     txrx_loopback_to_file.cpp
+    
+    Brian_txrx.cpp
+
     usrp_list_sensors.cpp
     latency_test.cpp
     gpio.cpp
