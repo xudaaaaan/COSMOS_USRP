@@ -628,7 +628,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         continue_on_bad_packet,   \
         channel_nums)
     // recv to file
-    if (wirefmt == "s16") {
+    if (wirefmt == "sc16") {
         if (type == "double")
             recv_to_file<double> recv_to_file_args("f64");
         else if (type == "float")
