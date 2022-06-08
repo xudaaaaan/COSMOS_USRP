@@ -656,7 +656,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
     //// ====== Wait for Setup ======
-        std::this_thread::sleep_for(std::chrono::seconds(1 * setup_time)); // allow for some setup time
+        std::this_thread::sleep_for(std::chrono::seconds(int64_t(1 * setup_time))); // allow for some setup time
 
 
 
@@ -811,21 +811,18 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
                 enable_size_map,        \
                 continue_on_bad_packet, \
                 rx_channel_nums)
-
-
-
-    if (data_type == "double")
-        recv_to_file<std::complex<double>> recv_to_file_args("fc64");
-    else if (data_type == "float")
-        recv_to_file<std::complex<float>> recv_to_file_args("fc32");
-    else if (data_type == "short")
-        recv_to_file<std::complex<short>> recv_to_file_args("sc16");
-    else {
-        // clean up transmit worker
-        stop_signal_called = true;
-        transmit_thread.join_all();
-        throw std::runtime_error("Unknown type " + data_type);
-    }
+            if (data_type == "double")
+                recv_to_file<std::complex<double>> recv_to_file_args("fc64");
+            else if (data_type == "float")
+                recv_to_file<std::complex<float>> recv_to_file_args("fc32");
+            else if (data_type == "short")
+                recv_to_file<std::complex<short>> recv_to_file_args("sc16");
+            else {
+                // clean up transmit worker
+                stop_signal_called = true;
+                transmit_thread.join_all();
+                throw std::runtime_error("Unknown type " + data_type);
+            }
 
     // clean up transmit worker
     stop_signal_called = true;
