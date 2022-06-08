@@ -30,12 +30,12 @@ public:
         if (wave_type == "OFDM") {
 
             // file name
-            string fileIn = signal_file;  
+            std::string fileIn = signal_file;  
 
             // count row number
-            ifstream rowCounter(fileIn);
+            std::ifstream rowCounter(fileIn);
             size_t rows = 0;
-            string line; // trash
+            std::string line; // trash
             if(rowCounter.is_open())
             {
                 while(!rowCounter.eof())
@@ -47,7 +47,7 @@ public:
                 rowCounter.close();
             }
 
-            ifstream reader(fileIn);
+            std::ifstream reader(fileIn);
             rows--; // the last row is blank, so delete it. 
 
             // assign data type
@@ -67,7 +67,7 @@ public:
                         std::complex<float>(ampl * real_wave_table[i], ampl * imag_wave_table[i]);
                 }
             }
-            std::cout<<"read file flag: "<<reader.is_open()<<endl;
+            std::cout<<"read file flag: "<<reader.is_open()<<std::endl;
             std::cout<<"wavetable generated! - Brian"<<endl;
 
 
