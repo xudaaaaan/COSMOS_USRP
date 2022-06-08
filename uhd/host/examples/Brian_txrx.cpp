@@ -59,7 +59,7 @@ std::string generate_out_filename(
  * A function to be used as a boost::thread_group thread for transmitting
  **********************************************************************/
 void transmit_worker(std::vector<std::complex<float>> buff,
-    wave_table_class wave_table,
+    wave_table_class_Brian wave_table,
     uhd::tx_streamer::sptr tx_streamer,
     uhd::tx_metadata_t md,  // metadata
     size_t step,
