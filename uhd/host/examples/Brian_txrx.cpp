@@ -97,7 +97,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
     // const std::string& channel,
     const std::string& data_file,
     size_t samps_per_buff,
-    unsigned long long  num_requested_samples,
+    size_t  num_requested_samples,
     double time_requested       = 0.0,
     double start_streaming_time = 15.0,
     bool bw_summary             = false,
@@ -107,7 +107,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
     bool continue_on_bad_packet = false,
     std::vector<size_t> rx_channel_nums = 0)
 {
-    unsigned long long  num_total_samps = 0;   // number of samples have received so far
+    size_t  num_total_samps = 0;   // number of samples have received so far
 
     //// ====== Create a receive streamer ======
         uhd::stream_args_t stream_args(cpu_format, wire_format);
@@ -524,16 +524,16 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     //// ====== Set the sample rate (always has default value) ======
         // set the Tx sample rate
         std::cout << boost::format("Setting Tx Rate: %f Msps...") % (tx_rate / 1e6) << std::endl;
-        tx_usrp->set_tx_rate(tx_rate, tx_channels);  // remove the channels parameters or not?
+        tx_usrp->set_tx_rate(tx_rate);  // remove the channels parameters or not?
         std::cout << boost::format("Actual Tx Rate: %f Msps...")
-                        % (tx_usrp->get_tx_rate(tx_channels) / 1e6)
+                        % (tx_usrp->get_tx_rate() / 1e6)
                 << std::endl;
 
         // set the Rx sample rate
         std::cout << boost::format("Setting Rx Rate: %f Msps...") % (rx_rate / 1e6) << std::endl;
-        rx_usrp->set_rx_rate(rx_rate, rx_channels);  // remove the channels parameters or not?
+        rx_usrp->set_rx_rate(rx_rate);  // remove the channels parameters or not?
         std::cout << boost::format("Actual Rx Rate: %f Msps...")
-                        % (rx_usrp->get_rx_rate(rx_channels) / 1e6)
+                        % (rx_usrp->get_rx_rate() / 1e6)
                 << std::endl;
 
 
@@ -558,7 +558,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
                     uhd::tune_request_t tx_tune_request(freq, tx_lo_offset);
                     if (vm.count("tx-int-n"))
                         tx_tune_request.args = uhd::device_addr_t("mode_n=integer");
-                    usrp->set_tx_freq(tx_tune_request, channel);
+                    tx_usrp->set_tx_freq(tx_tune_request, channel);
                     std::this_thread::sleep_for(std::chrono::milliseconds(110)); //sleep 110ms (~10ms after retune occurs) to allow LO to lock
 
             tx_usrp->clear_command_time();
