@@ -37,12 +37,12 @@ def main():
 
     
     print("Checking XY table 1 position..,")
-    xytable1.status()
+    xytable1.check()
 
     print(" ")
 
     print("Checking XY table 2 position..,")
-    xytable2.status()
+    xytable2.check()
 
 
     # t = threading.Thread(target=xytable0.video(t=args.videotime))
