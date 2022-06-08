@@ -31,7 +31,7 @@ def main():
     # Create an argument parser
     parser = argparse.ArgumentParser()
     parser.add_argument("-n", "--node", type=str, default='srv1-in1', help="COSMOS-SB1 node name (i.e., srv1-in1)")
-    parser.add_argument("-g", "--group", type=str, default='y', help="if use para group, then control 2 XY tables together")
+    parser.add_argument("-g", "--group", type=str, help="if use para group, then control 2 XY tables together")
     parser.add_argument("-c", "--comb", type=int, default=1, help="combination of the XY table positions")
     parser.add_argument("--x", type=int, default=0, help="x coordinate on XY table")
     parser.add_argument("--y", type=int, default=0, help="y coordinate on XY table")
@@ -44,7 +44,7 @@ def main():
 
     
 
-    if args.group == "y":
+    if args.group == "yes":
         xytable1 = mmwsdr.utils.XYTable(config["srv1-in1"]['table_name'], isdebug=isdebug)
         xytable2 = mmwsdr.utils.XYTable(config["srv1-in2"]['table_name'], isdebug=isdebug)
         if args.comb == 1:
@@ -77,7 +77,7 @@ def main():
             a2 = 0
         xytable1.move(x1, y1, a1)
         xytable2.move(x2, y2, a2)
-    elif args.group == "n":
+    elif args.group == "no":
         xytable0 = mmwsdr.utils.XYTable(config[args.node]['table_name'], isdebug=isdebug)
         if not args.comb:
             x = args.x
@@ -120,7 +120,7 @@ def main():
                     a = 0         
         xytable0.move(x, y, a)
     else:
-        raise Exception("Please specify the parameter group by y or n")
+        raise Exception("Please specify the parameter group by yes or no")
 
     
 
