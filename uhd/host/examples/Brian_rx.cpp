@@ -460,9 +460,9 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     //// ====== Set the sample rate (always has default value) ======
         // set the Rx sample rate
         std::cout << boost::format("Setting Rx Rate: %f Msps...") % (rate / 1e6) << std::endl;
-        usrp->set_rx_rate(rate, channels);  // remove the channels parameters or not?
+        usrp->set_rx_rate(rate);  // remove the channels parameters or not?
         std::cout << boost::format("Actual Rx Rate: %f Msps...")
-                        % (usrp->get_rx_rate(channels) / 1e6)
+                        % (usrp->get_rx_rate() / 1e6)
                 << std::endl;
               
 
