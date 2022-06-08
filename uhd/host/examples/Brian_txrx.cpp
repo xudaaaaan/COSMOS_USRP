@@ -605,7 +605,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
             std::cout << boost::format("Timed command: Setting Rx Freq: %f MHz...") 
                     % (freq / 1e6) << std::endl;
             std::cout << boost::format("Timed command: Setting Rx LO Offset: %f MHz...") 
-                    % (lo_offset / 1e6) << std::endl;
+                    % (rx_lo_offset / 1e6) << std::endl;
 
 
             // start timed command with tune: 
