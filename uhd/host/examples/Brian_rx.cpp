@@ -57,7 +57,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
     bool null                   = false,
     bool enable_size_map        = false,
     bool continue_on_bad_packet = false,
-    std::vector<size_t> rx_channel_nums = 0)
+    std::vector<size_t> rx_channel_nums)
 {
     unsigned long long num_total_samps = 0;
 

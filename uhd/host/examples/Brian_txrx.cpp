@@ -99,7 +99,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
     size_t samps_per_buff,
     unsigned long long  num_requested_samples,
     double time_requested       = 0.0,
-    double start_streaming_time,
+    double start_streaming_time = 15.0,
     bool bw_summary             = false,
     bool stats                  = false,
     bool null                   = false,
@@ -115,8 +115,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
         uhd::rx_streamer::sptr rx_stream = usrp->get_rx_stream(stream_args);
 
         uhd::rx_metadata_t rx_md;
-        std::vector<std::vector<samp_type>> buffs(
-            rx_channel_nums.size(), std::vector<samp_type>(samps_per_buff));
+        std::vector<samp_type> buff(samps_per_buff);
 
         std::ofstream datafile;
         std::ofstream metadatafile;
@@ -180,7 +179,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
             const auto now = std::chrono::steady_clock::now();
 
             num_rx_samps = 
-                rx_stream->recv(&buff.front(), buff.size(), md, 30.0);
+                rx_stream->recv(&buff.front(), buff.size(), rx_md, 30.0);
 
             // Define error cases
                 // - 1 - 
@@ -467,7 +466,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     //// ====== Detect which channels to use ======
         // if build error: split is not member of boost, then add library:
         // #include <boost/algorithm/string.hpp>
-        
+
         // Tx channel
         std::vector<std::string> tx_channel_strings;
         std::vector<size_t> tx_channel_nums;
