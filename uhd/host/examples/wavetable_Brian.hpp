@@ -16,12 +16,12 @@
 // static const size_t wave_table_len = 8192;
 static const size_t wave_table_len = 500;
 
-using namespace std;
+// using namespace std;
 
-class wave_table_class
+class wave_table_class_Brian
 {
 public:
-    wave_table_class(const std::string& wave_type, const float ampl, std::string signal_file)
+    wave_table_class_Brian(const std::string& wave_type, const float ampl, std::string signal_file)
         : _wave_table(wave_table_len)
     {
         // compute real wave table with 1.0 amplitude

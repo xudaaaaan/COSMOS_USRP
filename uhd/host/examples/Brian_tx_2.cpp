@@ -268,7 +268,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
     //// ====== Pre-compute wavetable ======
         signal_file = signal_file + ".txt";
-        const wave_table_class wave_table(wave_type, ampl, signal_file);
+        const wave_table_class_Brian wave_table(wave_type, ampl, signal_file);
         const size_t step = 1;
         size_t index = 0;
 

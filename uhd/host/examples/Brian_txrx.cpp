@@ -5,8 +5,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-// #include "wavetable_Brian.hpp"
-#include "wavetable.hpp"
+
+// #include "wavetable.hpp"
+#include "wavetable_Brian.hpp"
 #include <uhd/exception.hpp>
 #include <uhd/types/tune_request.hpp>
 #include <uhd/usrp/multi_usrp.hpp>
@@ -662,7 +663,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
     //// ====== Pre-compute wavetable ======
         signal_file = signal_file + ".txt";
-        const wave_table_class wave_table(wave_type, ampl, signal_file);
+        const wave_table_class_Brian wave_table(wave_type, ampl, signal_file);
         const size_t step = 1;
         size_t index = 0;
 
