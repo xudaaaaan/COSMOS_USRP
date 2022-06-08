@@ -170,7 +170,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
 
         // --- prints ---
             std::cout<<std::endl;
-            std::cout << "  Wait for less than " << time_to_recv.get_real_secs() << " seconds to start Rx streaming..."
+            std::cout << "Wait for less than " << time_to_recv.get_real_secs() << " seconds to start Rx streaming..."
                 << std::endl;
         // --------------
 
@@ -365,7 +365,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
             "Offset for frontend LO in Hz (optional)")   
         ("tx-rate", po::value<double>(&tx_rate)->default_value(200e6), "rate of transmit outgoing samples")
         ("tx-signal", po::value<std::string>(&signal_file)->default_value("cosmos_-100MHz_to_100MHz_SR_200MS"), "signal txt file name")
-        ("tx-start", po::value<double>(&tx_start)->default_value(10.0), "Tx starts streaming time")
+        ("tx-start", po::value<double>(&tx_start)->default_value(8.0), "Tx starts streaming time")
         ("tx-subdev", po::value<std::string>(&tx_subdev)->default_value("A:AB"), "transmit subdevice specification")
         ("wave-type", po::value<std::string>(&wave_type)->default_value("OFDM"), "waveform type (CONST, SQUARE, RAMP, SINE)")
         
@@ -522,7 +522,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
             std::chrono::milliseconds(200)); // wait for pps sync pulse
 
         std::cout << "Current time is: " << tx_usrp->get_time_now(0).get_real_secs() << std::endl;
-        rx_usrp->set_time_unknown_pps(uhd::time_spec_t(0.0));  // set the next coming pps as t = 0;
+        rx_usrp->set_time_unknown_pps(uhd::time_spec_t(3.0));  // set the next coming pps as t = 0;
         // usrp->set_time_next_pps(uhd::time_spec_t(0.0));
         std::this_thread::sleep_for(
             std::chrono::seconds(1)); // wait for pps sync pulse
