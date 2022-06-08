@@ -44,7 +44,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     std::string args, wave_type, ant, subdev, ref, pps, wirefmt, channels, signal_file;
     // uint64_t total_num_samps;
     size_t spb;
-    double rate, freq, gain, bw, lo_offset, start;
+    double rate, freq, gain, bw, lo_offset, start, setup_time;
     float ampl;
     // float T0 = 1e-6;
     // double wave_freq, max_freq;
