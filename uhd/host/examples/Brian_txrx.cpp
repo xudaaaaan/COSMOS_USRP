@@ -518,6 +518,10 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         rx_usrp->set_time_source(pps);
         
         tx_usrp->set_time_unknown_pps(uhd::time_spec_t(0.0));  // set the next coming pps as t = 0;
+        std::this_thread::sleep_for(
+            std::chrono::milliseconds(200)); // wait for pps sync pulse
+
+        std::cout << "Current time is: " << std::chrono::steady_clock::now() << std::endl;
         rx_usrp->set_time_unknown_pps(uhd::time_spec_t(0.0));  // set the next coming pps as t = 0;
         // usrp->set_time_next_pps(uhd::time_spec_t(0.0));
         std::this_thread::sleep_for(
@@ -531,6 +535,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     
     //// ====== Set the sample rate (always has default value) ======
         // set the Tx sample rate
+        std::cout<<std::endl;
         std::cout << boost::format("Setting Tx Rate: %f Msps...") % (tx_rate / 1e6) << std::endl;
         tx_usrp->set_tx_rate(tx_rate);  // remove the channels parameters or not?
         std::cout << boost::format("Actual Tx Rate: %f Msps...")
@@ -538,6 +543,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
                 << std::endl;
 
         // set the Rx sample rate
+        std::cout<<std::endl;
         std::cout << boost::format("Setting Rx Rate: %f Msps...") % (rx_rate / 1e6) << std::endl;
         rx_usrp->set_rx_rate(rx_rate);  // remove the channels parameters or not?
         std::cout << boost::format("Actual Rx Rate: %f Msps...")
@@ -559,6 +565,9 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
                     % (tx_lo_offset / 1e6) << std::endl;            
 
             // start timed command with tune: 
+            std::cout<<std::endl;
+            std::cout << "Setting Tx Freq and LO offset as: " << freq/1e6 << " MHz and " 
+                    << tx_lo_offset/1e6 << "MHz" << std::endl;
             tx_usrp->clear_command_time();
             tx_usrp->set_command_time(uhd::time_spec_t(4.0));  //operate any command after "set_command_time" at t sec;           
             
@@ -573,7 +582,6 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
             // print setting results
-            std::cout<<std::endl;
             std::cout << boost::format("Actual Tx Freq: %f MHz...")
                             % (tx_usrp->get_tx_freq(channel) / 1e6)
                     << std::endl;
