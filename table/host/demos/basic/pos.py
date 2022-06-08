@@ -28,20 +28,21 @@ def main():
     # Parameters
     isdebug = True
 
-    # Create an argument parser
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-n", "--node", type=str, default='srv1-in1', help="COSMOS-SB1 node name (i.e., srv1-in1)")
-    args = parser.parse_args()
-
     # Create a configuration parser
     config = configparser.ConfigParser()
     config.read('../../config/sivers.ini')
 
-    xytable0 = mmwsdr.utils.XYTable(config[args.node]['table_name'], isdebug=isdebug)
+    xytable1 = mmwsdr.utils.XYTable(config["srv1-in1"]['table_name'], isdebug=isdebug)
+    xytable2 = mmwsdr.utils.XYTable(config["srv1-in2"]['table_name'], isdebug=isdebug)
 
     
+    print("Checking XY table 1 position..,")
+    xytable1.check()
 
-    xytable0.check()
+    print(" ")
+
+    print("Checking XY table 2 position..,")
+    xytable2.check()
 
 
     # t = threading.Thread(target=xytable0.video(t=args.videotime))
