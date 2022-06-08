@@ -827,7 +827,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         //     }
 
         recv_to_file<std::complex<double>>(
-            rx_usrp, "fc64", wirefmt, rx_channels, data_file, spb, \
+            rx_usrp, "fc64", wirefmt, data_file, spb, \
             total_num_samps, total_time, rx_start, bw_summary, \
             stats, null, enable_size_map, continue_on_bad_packet, rx_channel_nums);
 
