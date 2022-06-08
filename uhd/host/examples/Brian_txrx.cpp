@@ -631,7 +631,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
             // set the rf gain (always has default value)
             std::cout<<std::endl;
-            std::cout << boost::format("Setting Rx Gain: %f dB...") % gain << std::endl;
+            std::cout << boost::format("Setting Rx Gain: %f dB...") % rx_gain << std::endl;
             rx_usrp->set_rx_gain(rx_gain, channel);
             std::cout << boost::format("Actual Rx Gain: %f dB...")
                             % rx_usrp->get_rx_gain(channel)
