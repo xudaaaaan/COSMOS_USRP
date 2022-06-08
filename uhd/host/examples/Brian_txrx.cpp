@@ -791,7 +791,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     //// ====== Start Tx ======
     boost::thread_group transmit_thread;
     transmit_thread.create_thread(boost::bind(
-        &transmit_worker, tx_buff, wave_table, tx_stream, tx_md, step, index, tx_size_channels));
+        &transmit_worker, tx_buff, wave_table_Brian, tx_stream, tx_md, step, index, tx_size_channels));
 
 
 

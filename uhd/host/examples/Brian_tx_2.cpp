@@ -293,7 +293,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     //// ====== Pre-fill the buffer ======
         std::cout<<"size of buffer is: "<<buff.size()<<" and step is: " << step << std::endl;
         for (size_t n = 0; n < buff.size(); n++) 
-            buff[n] = wave_table(index += step);
+            buff[n] = wave_table_Brian(index += step);
 
 
 
