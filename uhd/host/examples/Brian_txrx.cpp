@@ -796,34 +796,41 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
     //// ====== Start Rx ======
-        #define recv_to_file_args(cpufmt)
-            (rx_usrp,                   \
-                cpufmt,                 \
-                wirefmt,                \
-                rx_channels,            \
-                data_file,              \
-                spb,                    \
-                total_num_samps,        \
-                total_time,             \
-                rx_start,               \
-                bw_summary,             \
-                stats,                  \
-                null,                   \
-                enable_size_map,        \
-                continue_on_bad_packet, \
-                rx_channel_nums)
-            if (data_type == "double")
-                recv_to_file<std::complex<double>> recv_to_file_args("fc64");
-            else if (data_type == "float")
-                recv_to_file<std::complex<float>> recv_to_file_args("fc32");
-            else if (data_type == "short")
-                recv_to_file<std::complex<short>> recv_to_file_args("sc16");
-            else {
-                // clean up transmit worker
-                stop_signal_called = true;
-                transmit_thread.join_all();
-                throw std::runtime_error("Unknown type " + data_type);
-            }
+        // #define recv_to_file_args(cpufmt)
+        //     (rx_usrp,                   \
+        //         cpufmt,                 \
+        //         wirefmt,                \
+        //         rx_channels,            \
+        //         data_file,              \
+        //         spb,                    \
+        //         total_num_samps,        \
+        //         total_time,             \
+        //         rx_start,               \
+        //         bw_summary,             \
+        //         stats,                  \
+        //         null,                   \
+        //         enable_size_map,        \
+        //         continue_on_bad_packet, \
+        //         rx_channel_nums)
+                
+        //     if (data_type == "double")
+        //         recv_to_file<std::complex<double>> recv_to_file_args("fc64");
+        //     else if (data_type == "float")
+        //         recv_to_file<std::complex<float>> recv_to_file_args("fc32");
+        //     else if (data_type == "short")
+        //         recv_to_file<std::complex<short>> recv_to_file_args("sc16");
+        //     else {
+        //         // clean up transmit worker
+        //         stop_signal_called = true;
+        //         transmit_thread.join_all();
+        //         throw std::runtime_error("Unknown type " + data_type);
+        //     }
+
+        recv_to_file<std::complex<double>>(
+            rx_usrp, "fc64", wirefmt, rx_channels, data_file, spb, \
+            total_num_samps, total_time, rx_start, bw_summary, \
+            stats, null, enable_size_map, continue_on_bad_packet, rx_channel_nums);
+
 
     // clean up transmit worker
     stop_signal_called = true;
