@@ -813,11 +813,11 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
     if (data_type == "double")
-        recv_to_file<std::complex<double>> recv_to_file_args("f64");
+        recv_to_file<std::complex<double>> recv_to_file_args("fc64");
     else if (data_type == "float")
-        recv_to_file<std::complex<float>> recv_to_file_args("f32");
+        recv_to_file<std::complex<float>> recv_to_file_args("fc32");
     else if (data_type == "short")
-        recv_to_file<std::complex<short>> recv_to_file_args("s16");
+        recv_to_file<std::complex<short>> recv_to_file_args("sc16");
     else {
         // clean up transmit worker
         stop_signal_called = true;

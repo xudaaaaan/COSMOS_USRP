@@ -611,24 +611,11 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         bool continue_on_bad_packet = vm.count("continue") > 0;
 
 */
-#define recv_to_file_args(cpufmt) \
-    (usrp,                        \
-        cpufmt,                   \
-        wirefmt,                  \
-        // rx_channels,            
-        file,                     \
-        spb,                      \
-        total_num_samps,          \
-        total_time,               \
-        rx_start,                 \
-        bw_summary,               \
-        stats,                    \
-        null,                     \
-        enable_size_map,          \
-        continue_on_bad_packet,   \
-        channel_nums)
+#define recv_to_file_args(cpufmt) (usrp, cpufmt, wirefmt, file, spb, total_num_samps,\
+            total_time, rx_start, bw_summary, stats, null, enable_size_map, \
+            continue_on_bad_packet, channel_nums)
     // recv to file
-    if (wirefmt == "sc16") {
+    if (wirefmt == "s16") {
         if (type == "double")
             recv_to_file<double> recv_to_file_args("f64");
         else if (type == "float")
