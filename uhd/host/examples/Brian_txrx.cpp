@@ -94,7 +94,7 @@ template <typename samp_type>
 void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual) device
     const std::string& cpu_format,
     const std::string& wire_format,
-    const size_t& channel,
+    // const std::string& channel,
     const std::string& data_file,
     size_t samps_per_buff,
     unsigned long long  num_requested_samples,
@@ -201,7 +201,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
                                 "  Dropped samples will not be written to the file.\n"
                                 "  Please modify this example for your purposes.\n"
                                 "  This message will not appear again.\n")
-                                % (usrp->get_rx_rate(channel) * sizeof(samp_type) / 1e6);
+                                % (usrp->get_rx_rate() * sizeof(samp_type) / 1e6);
                     }
                     continue;
                 }

@@ -46,7 +46,7 @@ template <typename samp_type>
 void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual) device
     const std::string& cpu_format,
     const std::string& wire_format,
-    const size_t& channel,
+    // const std::string& channel,
     const std::string& file,
     size_t samps_per_buff,
     unsigned long long num_requested_samples,
@@ -56,15 +56,15 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
     bool stats                  = false,
     bool null                   = false,
     bool enable_size_map        = false,
-    bool continue_on_bad_packet = false)
+    bool continue_on_bad_packet = false,
+    std::vector<size_t> rx_channel_nums)
 {
     unsigned long long num_total_samps = 0;
 
     //// ====== Create a receive streamer ======
         uhd::stream_args_t stream_args(cpu_format, wire_format);
         std::vector<size_t> channel_nums;
-        channel_nums.push_back(channel);
-        stream_args.channels = channel_nums;
+        stream_args.channels = rx_channel_nums;
         uhd::rx_streamer::sptr rx_stream = usrp->get_rx_stream(stream_args);
 
         uhd::rx_metadata_t md;
@@ -153,7 +153,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
                                 "  Dropped samples will not be written to the file.\n"
                                 "  Please modify this example for your purposes.\n"
                                 "  This message will not appear again.\n")
-                                % (usrp->get_rx_rate(channel) * sizeof(samp_type) / 1e6);
+                                % (usrp->get_rx_rate() * sizeof(samp_type) / 1e6);
                     }
                     continue;
                 }
@@ -318,9 +318,9 @@ bool check_locked_sensor(std::vector<std::string> sensor_names,
 int UHD_SAFE_MAIN(int argc, char* argv[])
 {
     // variables to be set by po
-    std::string args, file, type, ant, subdev, ref, wirefmt, pps;
+    std::string args, file, type, ant, subdev, ref, wirefmt, pps, rx_channels;
     // std::string wave_type;
-    size_t channels, total_num_samps, spb;
+    size_t total_num_samps, spb;
     double rate, freq, gain, bw, total_time, setup_time, lo_offset, rx_start;
     // double wave_freq;
     // float T0 = 1e-6;
@@ -334,7 +334,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("ant", po::value<std::string>(&ant)->default_value("AB"), "antenna selection")
         ("args", po::value<std::string>(&args)->default_value("addr=10.38.14.2"), "multi uhd device address args")
         ("bw", po::value<double>(&bw), "analog frontend filter bandwidth in Hz")
-        ("channels", po::value<size_t>(&channels)->default_value(0), "which channel to use")
+        ("channels", po::value<std::string>(&rx_channels)->default_value("0"), "which channels to use (specify \"0\", \"1\", \"0,1\", etc)")
         ("continue", "don't abort on a bad packet")
         ("duration", po::value<double>(&total_time)->default_value(0), "total number of seconds to receive")
         ("file", po::value<std::string>(&file)->default_value("usrp_samples.dat"), "name of the file to write binary samples to")
@@ -421,7 +421,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     //// ====== Detect which channels to use ======
         std::vector<std::string> channel_strings;
         std::vector<size_t> channel_nums;
-        boost::split(channel_strings, channels, boost::is_any_of("\"',"));
+        boost::split(channel_strings, rx_channels, boost::is_any_of("\"',"));
         for (size_t ch_idx = 0; ch_idx < channel_strings.size(); ch_idx++) {
             size_t chan = std::stoi(channel_strings[ch_idx]);
             if (chan >= usrp->get_rx_num_channels())
@@ -615,7 +615,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     (usrp,                        \
         cpufmt,                   \
         wirefmt,                  \
-        channels,                 \
+        rx_channels,                 \
         file,                     \
         spb,                      \
         total_num_samps,          \
@@ -625,7 +625,8 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         stats,                    \
         null,                     \
         enable_size_map,          \
-        continue_on_bad_packet)
+        continue_on_bad_packet,   \
+        channel_nums)
     // recv to file
     if (wirefmt == "s16") {
         if (type == "double")
