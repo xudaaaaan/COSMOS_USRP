@@ -32,7 +32,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-n", "--node", type=str, default='srv1-in1', help="COSMOS-SB1 node name (i.e., srv1-in1)")
     parser.add_argument("-g", "--group", help="if use para group, then control 2 XY tables together")
-    parser.add_argument("--comb", type=int, default=1, help="combination of the XY table positions")
+    parser.add_argument("-c", "--comb", type=int, default=1, help="combination of the XY table positions")
     parser.add_argument("--x", type=int, default=0, help="x coordinate on XY table")
     parser.add_argument("--y", type=int, default=0, help="y coordinate on XY table")
     parser.add_argument("--a", type=int, default=0, help="angle of the array on XY table")
