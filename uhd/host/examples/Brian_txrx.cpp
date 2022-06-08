@@ -14,7 +14,7 @@
 #include <uhd/utils/safe_main.hpp>
 #include <uhd/utils/static.hpp>
 #include <uhd/utils/thread.hpp>
-#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string.hpp>   // to solve error: split is not member of boost
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
 #include <boost/math/special_functions/round.hpp>
@@ -23,7 +23,7 @@
 #include <csignal>
 #include <fstream>
 #include <iostream>
-#include <thread>
+#include <thread>   // to solve error: this_thread and std::chrono is not declared
 
 namespace po = boost::program_options;
 

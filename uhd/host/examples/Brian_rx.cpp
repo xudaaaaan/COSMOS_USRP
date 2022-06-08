@@ -25,7 +25,7 @@
 #include <csignal>
 #include <fstream>
 #include <iostream>
-#include <thread>
+#include <thread>   // to solve error: this_thread and std::chrono is not declared
 
 namespace po = boost::program_options;
 
