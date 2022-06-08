@@ -16,6 +16,7 @@
 #include <uhd/usrp/multi_usrp.hpp>
 #include <uhd/utils/safe_main.hpp>
 #include <uhd/utils/thread.hpp>
+#include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/program_options.hpp>
@@ -418,6 +419,8 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
     //// ====== Detect which channels to use ======
+        // if build error: split is not member of boost, then add library:
+        // #include <boost/algorithm/string.hpp>
         std::vector<std::string> channel_strings;
         std::vector<size_t> channel_nums;
         boost::split(channel_strings, rx_channels, boost::is_any_of("\"',"));

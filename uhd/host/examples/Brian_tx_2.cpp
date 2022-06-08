@@ -151,6 +151,8 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
     //// ====== Detect which channels to use ======
+        // if build error: split is not member of boost, then add library:
+        // #include <boost/algorithm/string.hpp>
         std::vector<std::string> channel_strings;
         std::vector<size_t> channel_nums;
         boost::split(channel_strings, channels, boost::is_any_of("\"',"));
