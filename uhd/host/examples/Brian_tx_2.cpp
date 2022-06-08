@@ -260,7 +260,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
     //// ====== Wait for Setup ======
-        std::this_thread::sleep_for(std::chrono::seconds(1 * setup_time)); // allow for some setup time
+        std::this_thread::sleep_for(std::chrono::seconds(int64_t(1 * setup_time))); // allow for some setup time
 
 
 
