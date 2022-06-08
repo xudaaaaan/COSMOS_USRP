@@ -522,16 +522,19 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
             std::chrono::milliseconds(200)); // wait for pps sync pulse
 
         std::cout << "Current Tx time is: " << tx_usrp->get_time_now(0).get_real_secs() << std::endl;
-        rx_usrp->set_time_unknown_pps(uhd::time_spec_t(3.0));  // set the next coming pps as t = 0;
+        rx_usrp->set_time_unknown_pps(uhd::time_spec_t(2.0));  // set the next coming pps as t = 0;
         // usrp->set_time_next_pps(uhd::time_spec_t(0.0));
         std::this_thread::sleep_for(
             std::chrono::seconds(1)); // wait for pps sync pulse
 
         std::cout << "Verification: " << std::endl;
-        std::cout << "  Current Tx time is: " << tx_usrp->get_time_now(0).get_real_secs() << std::endl;
-        std::cout << "  Current Rx time is: " << rx_usrp->get_time_now(0).get_real_secs() << std::endl;
-        double txrx_diff = (tx_usrp->get_time_now(0) - rx_usrp->get_time_now(0)).get_real_secs();
-        std::cout << "Difference = " << txrx_diff << ", which should be very small (<1 at least)." << std::endl;
+        double tx_time_now = tx_usrp->get_time_now(0).get_real_secs();
+        double rx_time_now = rx_usrp->get_time_now(0).get_real_secs();
+        std::cout << "  Current Tx time is: " << tx_time_now << std::endl;
+        std::cout << "  Current Rx time is: " << rx_time_now << std::endl;
+        double txrx_diff = rx_time_now - tx_time_now;
+        std::cout << "Difference = " << txrx_diff << ", which should be very small (<1 at least)." 
+            << std::endl;
         
         std::cout << std::endl;
         std::cout<<"t=0 timestamp set."
