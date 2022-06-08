@@ -5,8 +5,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-#include "wavetable_Brian.hpp"
-// #include "wavetable.hpp"
+// #include "wavetable_Brian.hpp"
+#include "wavetable.hpp"
 #include <uhd/exception.hpp>
 #include <uhd/types/tune_request.hpp>
 #include <uhd/usrp/multi_usrp.hpp>
@@ -322,7 +322,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
 int UHD_SAFE_MAIN(int argc, char* argv[])
 {
     // transmit variables to be set by po
-    std::string tx_args, wave_type, tx_ant, tx_subdev, ref, wirefmt, tx_channels, signal_file;
+    std::string tx_args, wave_type, tx_ant, tx_subdev, tx_channels, signal_file;
     double tx_rate, tx_gain, tx_bw, tx_lo_offset, tx_start;
     float ampl;
 
@@ -573,7 +573,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
             // set the rf gain (always has default value)
             std::cout<<std::endl;
-            std::cout << boost::format("Setting Tx Gain: %f dB...") % gain << std::endl;
+            std::cout << boost::format("Setting Tx Gain: %f dB...") % tx_gain << std::endl;
             tx_usrp->set_tx_gain(tx_gain, channel);
             std::cout << boost::format("Actual Tx Gain: %f dB...")
                             % tx_usrp->get_tx_gain(channel)
