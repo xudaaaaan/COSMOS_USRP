@@ -555,7 +555,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
             uhd::sensor_value_t ref_locked = usrp->get_mboard_sensor("ref_locked", 0);
 
                         std::cout << std::endl;
-                        std::cout << boost::format("Test: Rx sensor name: %s") % tx_sensor_names
+                        std::cout << boost::format("Test: Rx sensor name: %s") % rx_sensor_names
                                 << std::endl;
 
             std::cout << boost::format("Checking Rx: %s ...") % ref_locked.to_pp_string()
