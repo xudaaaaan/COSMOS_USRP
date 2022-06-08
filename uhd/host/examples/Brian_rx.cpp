@@ -349,7 +349,6 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("rate", po::value<double>(&rate)->default_value(200e6), "rate of incoming samples")
         ("ref", po::value<std::string>(&ref)->default_value("external"), "reference source (internal, external, mimo)")
         ("null", "Determine if run the code and save data to file. Add 'null' when you don't want to save the data. ")
-        ("settling-time", po::value<double>(&settling_time)->default_value(15.0), "seconds of time to start streaming")
         ("setup", po::value<double>(&setup_time)->default_value(1.0), "seconds of setup time")
         ("sizemap", "track packet size and display breakdown on exit")
         ("skip-lo", "skip checking LO lock status")
@@ -527,7 +526,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
     //// ====== Wait for Setup ======
-        std::this_thread::sleep_for(std::chrono::seconds(1 * setup_time)); // allow for some setup time
+        std::this_thread::sleep_for(std::chrono::seconds(int64_t(1 * setup_time))); // allow for some setup time
 
 
 
