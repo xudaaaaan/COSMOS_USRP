@@ -364,7 +364,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("tx-lo-offset", po::value<double>(&tx_lo_offset)->default_value(0.0),
             "Offset for frontend LO in Hz (optional)")   
         ("tx-rate", po::value<double>(&tx_rate)->default_value(200e6), "rate of transmit outgoing samples")
-        ("tx-signal", po::value<std::string>(&signal_file)->default_value("cosmos_-100MHz_to_100MHz_SR_200MS"), "signal txt file name")
+        ("tx-signal", po::value<std::string>(&signal_file)->default_value("cosmos_-100MHz_to_100MHz_SR_200MS_norm_5"), "signal txt file name")
         ("tx-start", po::value<double>(&tx_start)->default_value(8.0), "Tx starts streaming time")
         ("tx-subdev", po::value<std::string>(&tx_subdev)->default_value("A:AB"), "transmit subdevice specification")
         ("wave-type", po::value<std::string>(&wave_type)->default_value("OFDM"), "waveform type (CONST, SQUARE, RAMP, SINE)")
