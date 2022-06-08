@@ -68,7 +68,7 @@ public:
                 }
             }
             std::cout<<"read file flag: "<<reader.is_open()<<std::endl;
-            std::cout<<"wavetable generated! - Brian"<<endl;
+            std::cout<<"wavetable generated! - Brian"<<std::endl;
 
 
 
