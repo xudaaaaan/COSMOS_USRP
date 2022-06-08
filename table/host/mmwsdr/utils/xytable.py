@@ -177,10 +177,15 @@ class XYTable(object):
             self.xy_status = table_data['@xy_status']
             self.rotator_status = table_data['@rotator_status']
             current_pos = table_data['current_position']
+            target_pos = table_data['target_position']
             self.current_position = [current_pos['@x'], current_pos['@y'], current_pos['@angle']]
+            self.target_position = [target_pos['@x'], target_pos['@y'], target_pos['@angle']]
 
             if self.isdebug:
                 print("The current position: {}".format(self.current_position))
+                print("The target position: {}".format(self.target_position))
+                print("The array status is: {}".format(self.xy_status))
+                print("The rotor status is: {}".format(self.rotator_status))
 
             return self.xy_status, self.rotator_status, self.current_position
 
