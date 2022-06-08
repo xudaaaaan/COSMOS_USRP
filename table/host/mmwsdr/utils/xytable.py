@@ -147,8 +147,6 @@ class XYTable(object):
             if self.isdebug:
                 print("The current position: {}".format(self.current_position))
                 print("The target position: {}".format(self.target_position))
-                print("The array status is: {}".format(self.xy_status))
-                print("The rotor status is: {}".format(self.rotator_status))
 
             return self.xy_status, self.rotator_status, self.current_position, self.target_position
 
