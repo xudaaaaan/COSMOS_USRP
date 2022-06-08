@@ -41,13 +41,13 @@ void sig_int_handler(int)
 int UHD_SAFE_MAIN(int argc, char* argv[])
 {
     // variables to be set by po
-    std::string args, wave_type, ant, subdev, ref, pps, wirefmt, channel_list, file;
-    uint64_t total_num_samps;
+    std::string args, wave_type, ant, subdev, ref, pps, wirefmt, channels, signal_file;
+    // uint64_t total_num_samps;
     size_t spb;
-    double rate, freq, gain, bw, lo_offset, max_freq;
+    double rate, freq, gain, bw, lo_offset, start;
     float ampl;
     // float T0 = 1e-6;
-    // double wave_freq;
+    // double wave_freq, max_freq;
     
 
     // setup the program options
@@ -82,18 +82,20 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("args", po::value<std::string>(&args)->default_value("addr=10.38.14.1"), 
             "single uhd device address args, and it can be IP address. Default value is the Tx USRP. ")
         ("bw", po::value<double>(&bw), "analog frontend filter bandwidth in Hz")
-        ("channels", po::value<std::string>(&channel_list)->default_value("0"), "which channels to use (specify \"0\", \"1\", \"0,1\", etc)")
-        ("file", po::value<std::string>(&file)->default_value(""), "signal txt file name")
+        ("channels", po::value<std::string>(&channels)->default_value("0"), "which channels to use (specify \"0\", \"1\", \"0,1\", etc)")
         ("freq", po::value<double>(&freq)->default_value(100e6), "IF center frequency in Hz")
         ("gain", po::value<double>(&gain)->default_value(0), "gain for the RF chain")
         ("int-n", "tune USRP with integer-N tuning")
         ("lo-offset", po::value<double>(&lo_offset)->default_value(0.0),
             "Offset for frontend LO in Hz (optional)")    
-        ("max-freq", po::value<double>(&max_freq)->default_value(20e6), "maximum waveform frequency in Hz for OFDM")
-        ("nsamps", po::value<uint64_t>(&total_num_samps)->default_value(0), "total number of samples to transmit")
+        // ("max-freq", po::value<double>(&max_freq)->default_value(20e6), "maximum waveform frequency in Hz for OFDM")
+        // ("nsamps", po::value<uint64_t>(&total_num_samps)->default_value(0), "total number of samples to transmit")
         ("pps", po::value<std::string>(&pps)->default_value("external"), "PPS source (internal, external, mimo, gpsdo)")
         ("rate", po::value<double>(&rate)->default_value(200e6), "rate of outgoing samples")
         ("ref", po::value<std::string>(&ref)->default_value("external"), "clock reference (internal, external, mimo, gpsdo)")
+        ("setup", po::value<double>(&setup_time)->default_value(1.0), "seconds of setup time")
+        ("signal", po::value<std::string>(&signal_file)->default_value("cosmos_-100MHz_to_100MHz_SR_200MS"), "signal txt file name")
+        ("start", po::value<double>(&start)->default_value(5.0), "start streaming time")
         ("spb", po::value<size_t>(&spb)->default_value(0), "samples per buffer, 0 for default")
         ("subdev", po::value<std::string>(&subdev)->default_value("A:AB"), "subdevice specification, use A:AB for Tx")
         ("wave-type", po::value<std::string>(&wave_type)->default_value("OFDM"), "waveform type (SINE)")
@@ -118,7 +120,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     
     //// ====== Print the help message ======
         if (vm.count("help")) {
-            std::cout << boost::format("UHD TX Waveforms %s") % desc << std::endl;
+            std::cout << boost::format("UHD Tx sending OFDM by WiDeS %s") % desc << std::endl;
             return ~0;
         }
 
@@ -134,159 +136,139 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
     //// ====== Select Sub-device (always has default value) ======
-        if (vm.count("subdev"))
-            usrp->set_tx_subdev_spec(subdev);   // A:AB for Tx, and B:AB for Rx, check the "X310 probe" note in Samsung Notes
+        usrp->set_tx_subdev_spec(subdev);   // A:AB for Tx, and B:AB for Rx, check the "X310 probe" note in Samsung Notes
 
-
-    //// ====== Detect which channels to use ======
-        std::vector<std::string> channel_strings;
-        std::vector<size_t> channel_nums;
-        boost::split(channel_strings, channel_list, boost::is_any_of("\"',"));
-        for (size_t ch_idx = 0; ch_idx < channel_strings.size(); ch_idx++) {
-            size_t chan = std::stoi(channel_strings[ch_idx]);
-            if (chan >= usrp->get_tx_num_channels())
-                throw std::runtime_error("Invalid channel(s) specified.");
-            else
-                channel_nums.push_back(std::stoi(channel_strings[ch_idx]));
-        }
-
-
-
-    //// ====== Set timestamp and pps ======
-        std::cout << boost::format("Setting device timestamp to 0...") << std::endl;
-        // Sync times
-            usrp->set_time_source(pps);
-            std::cout<<std::endl;
-            std::cout<<"pps set success"
-                <<std::endl
-                <<std::endl;
-            // usrp->set_time_unknown_pps(uhd::time_spec_t(0.0));  // set the next coming pps as t = 0;
-            usrp->set_time_next_pps(uhd::time_spec_t(0.0));
-            std::this_thread::sleep_for(
-                std::chrono::seconds(1)); // wait for pps sync pulse
-            
-
-
-
-
-    //// ====== Lock mboard reference clock source (always has default value) ======
-        usrp->set_clock_source(ref);
-        std::cout<<boost::format("The reference clock for motherboard is: %s...") % ref
-                    <<std::endl;
 
 
     //// ====== Print Device Info ======
         // "get_pp_string" will return:
         //  1. USRP clock device;
         //  2. board amount, and their references;
-        std::cout << boost::format("Using Device: %s") % usrp->get_pp_string() << std::endl;
-
-
-
-    //// ====== Set the sample rate ======
-        if (not vm.count("rate")) {
-            std::cerr << "Please specify the sample rate with --rate" << std::endl;
-            return ~0;
-        }
-        std::cout << boost::format("Setting TX Rate: %f Msps...") % (rate / 1e6) << std::endl;
-        usrp->set_tx_rate(rate);
-        std::cout << boost::format("Actual TX Rate: %f Msps...") % (usrp->get_tx_rate() / 1e6)
-                << std::endl
+        std::cout << std::endl;
+        std::cout << boost::format("Using TX Device: %s") % usrp->get_pp_string()
                 << std::endl;
+        
+
+
+    //// ====== Detect which channels to use ======
+        std::vector<std::string> channel_strings;
+        std::vector<size_t> channel_nums;
+        boost::split(channel_strings, channels, boost::is_any_of("\"',"));
+        for (size_t ch_idx = 0; ch_idx < channel_strings.size(); ch_idx++) {
+            size_t chan = std::stoi(channel_strings[ch_idx]);
+            if (chan >= usrp->get_tx_num_channels())
+                throw std::runtime_error("Invalid Tx channel(s) specified.");
+            else
+                channel_nums.push_back(std::stoi(channel_strings[ch_idx]));
+        }
 
 
 
-    //// ====== Set the center frequency (always has default value) ======
-            // std::cerr << "Please specify the center frequency with --freq" << std::endl;
-            // return ~0;
+    //// ====== Set mboard reference clock source (always has default value) ======
+        usrp->set_clock_source(ref);
+
+        std::cout << std::endl;
+        std::cout<<boost::format("The reference clock for the Tx is: %s...") % ref
+                    <<std::endl;
+
+
+
+    //// ====== Reset timestamp and pps (always has default value) ======
+        std::cout << boost::format("Setting device timestamp to 0 for the next unknown PPS edge...") << std::endl;
+
+        usrp->set_time_source(pps);
+        usrp->set_time_unknown_pps(uhd::time_spec_t(0.0));  // set the next coming pps as t = 0;
+        // usrp->set_time_next_pps(uhd::time_spec_t(0.0));
+        std::this_thread::sleep_for(
+            std::chrono::seconds(1)); // wait for pps sync pulse
+        
+        std::cout<<std::endl;
+        std::cout<<"t=0 timestamp set."
+            <<std::endl;   
+
+
+
+    //// ====== Set the sample rate (always has default value) ======
+        // set the Tx sample rate
+        std::cout << boost::format("Setting Tx Rate: %f Msps...") % (rate / 1e6) << std::endl;
+        usrp->set_tx_rate(rate, channels);  // remove the channels parameters or not?
+        std::cout << boost::format("Actual Tx Rate: %f Msps...")
+                        % (usrp->get_tx_rate(channels) / 1e6)
+                << std::endl;
+                
 
 
     //// ====== Configure each channel ======
         for (size_t ch_idx = 0; ch_idx < channel_nums.size(); ch_idx++) {
-            std::cout << boost::format("Setting TX Freq: %f MHz...") % (freq / 1e6)
-                    << std::endl;
-            std::cout << boost::format("Setting TX LO Offset: %f MHz...") % (lo_offset / 1e6)
-                    << std::endl;
+
+            size_t channel = channel_nums[ch_idx];
+
+            std::cout<<std::endl;
+            std::cout << boost::format("Timed command: Setting Tx Freq: %f MHz...") 
+                    % (freq / 1e6) << std::endl;
+            std::cout << boost::format("Timed command: Setting Tx LO Offset: %f MHz...") 
+                    % (lo_offset / 1e6) << std::endl;
 
             // start timed command with tune: 
             usrp->clear_command_time();
-            // usrp->set_command_time(usrp->get_time_now() + uhd::time_spec_t(0.1));  //operate any command after "set_command_time" at t = current time + 0.1sec;
-            usrp->set_command_time(uhd::time_spec_t(2.0));  //operate any command after "set_command_time" at t = 2.0 sec;
-                // timed command content:
+            usrp->set_command_time(uhd::time_spec_t(4.0));  //operate any command after "set_command_time" at t sec;
+            
+            // timed command content:
                 uhd::tune_request_t tune_request(freq, lo_offset);
                 if (vm.count("int-n"))
                     tune_request.args = uhd::device_addr_t("mode_n=integer");
-                usrp->set_tx_freq(tune_request, channel_nums[ch_idx]);
+                usrp->set_tx_freq(tune_request, channel);
                 std::this_thread::sleep_for(std::chrono::milliseconds(110)); //sleep 110ms (~10ms after retune occurs) to allow LO to lock
 
             usrp->clear_command_time();
 
 
-            std::cout << boost::format("Actual TX Freq: %f MHz...")
-                            % (usrp->get_tx_freq(channel_nums[ch_idx]) / 1e6)
-                    << std::endl
+            // print setting results
+            std::cout<<std::endl;
+            std::cout << boost::format("Actual Tx Freq: %f MHz...")
+                            % (usrp->get_tx_freq(channel) / 1e6)
                     << std::endl;
+                    
 
 
             // set the rf gain (always has default value)
-                std::cout << boost::format("Setting TX Gain: %f dB...") % gain << std::endl;
-                usrp->set_tx_gain(gain, channel_nums[ch_idx]);
-                std::cout << boost::format("Actual TX Gain: %f dB...")
-                                % usrp->get_tx_gain(channel_nums[ch_idx])
-                        << std::endl
-                        << std::endl;
+            std::cout<<std::endl;
+            std::cout << boost::format("Setting Tx Gain: %f dB...") % gain << std::endl;
+            usrp->set_tx_gain(gain, channel);
+            std::cout << boost::format("Actual Tx Gain: %f dB...")
+                            % usrp->get_tx_gain(channel)
+                    << std::endl;
+                    
 
 
             // set the analog frontend filter bandwidth
             if (vm.count("bw")) {
-                std::cout << boost::format("Setting TX Bandwidth: %f MHz...") % (bw / 1e6)
+                std::cout<<std::endl;
+                std::cout << boost::format("Setting Tx Bandwidth: %f MHz...") % (bw / 1e6)
                         << std::endl;
-                usrp->set_tx_bandwidth(bw, channel_nums[ch_idx]);
-                std::cout << boost::format("Actual TX Bandwidth: %f MHz...")
-                                % usrp->get_tx_bandwidth(channel_nums[ch_idx] / 1e6)
-                        << std::endl
+                usrp->set_tx_bandwidth(bw, channel);
+                std::cout << boost::format("Actual Tx Bandwidth: %f MHz...")
+                                % usrp->get_tx_bandwidth(channel / 1e6)
                         << std::endl;
             }
 
 
             // set the antenna (always has default value)
-            if (vm.count("ant"))
-                usrp->set_tx_antenna(ant, channel_nums[ch_idx]);
+            usrp->set_tx_antenna(ant, channel);
         }
 
 
 
-    std::this_thread::sleep_for(std::chrono::seconds(1)); // allow for some setup time
+    //// ====== Wait for Setup ======
+        std::this_thread::sleep_for(std::chrono::seconds(1 * setup_time)); // allow for some setup time
 
 
 
-    // // for the const wave, set the wave freq for small samples per period
-    // if (wave_freq == 0) {
-    //     if (wave_type == "CONST") {
-    //         wave_freq = usrp->get_tx_rate() / 2;
-    //     } else {
-    //         throw std::runtime_error(
-    //             "wave freq cannot be 0 with wave type other than CONST");
-    //     }
-    // }
-
-
-
-    //// ====== Error when the waveform is not possible to generate ======
-        // when the waveform frequency*2 > Tx sampling rate, can't generate wfm. 
-        // if (wave_type == "OFDM")
-        //     wave_freq = max_freq;
-        
-        // if (std::abs(wave_freq) > usrp->get_tx_rate() / 2) {
-        //     throw std::runtime_error("wave freq out of Nyquist zone");
-        // }
-
-        // This step is to make sure there are more than half of the signal
-        // points have been sampled within each signal duration (which is 
-        // determined by the waveform frequency accordingly). --> still Nyquist Sampling Law
-        // if (usrp->get_tx_rate() / std::abs(wave_freq) > wave_table_len / 2) {
-        //     throw std::runtime_error("wave freq too small for table");
-        // }
+    //// ====== Pre-compute wavetable ======
+        signal_file = signal_file + ".txt";
+        const wave_table_class wave_table(wave_type, ampl, signal_file);
+        const size_t step = 1;
+        size_t index = 0;
 
 
 
@@ -299,94 +281,78 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
     //// ====== Allocate a buffer which we re-use for each channel ======
-        if (spb == 0) {
+        if (spb == 0) 
             spb = tx_stream->get_max_num_samps() * 10;
-        }
         std::vector<std::complex<float>> buff(spb);
         std::vector<std::complex<float>*> buffs(channel_nums.size(), &buff.front());
 
 
-        // pre-fill the buffer with the waveform
-        file = file + ".txt";
-        const wave_table_class wave_table(wave_type, ampl, file);
-        // const size_t step = 
-        //     std::lround(wave_freq / usrp->get_tx_rate() * wave_table_len);
-        // const size_t step = wave_table_len / (usrp->get_tx_rate() * T0);
-        const size_t step = 1;
-        size_t index = 0;
-
+        
+    //// ====== Pre-fill the buffer ======
         std::cout<<"size of buffer is: "<<buff.size()<<" and step is: " << step << std::endl;
-        for (size_t n = 0; n < buff.size(); n++) {
+        for (size_t n = 0; n < buff.size(); n++) 
             buff[n] = wave_table(index += step);
-        }
-
-        // size_t step_tmp = 5;
-        // index = 0;
-        // for (size_t n = 0; n < 10; n++) {
-        //     std::cout<< wave_table(index += step_tmp)<<std::endl;
-        // }
-
-
-    
-
-    //// ====== Check Ref and LO Lock detect ======
-        std::vector<std::string> sensor_names;
-        const size_t tx_sensor_chan = channel_nums.empty() ? 0 : channel_nums[0];
-        sensor_names                = usrp->get_tx_sensor_names(tx_sensor_chan);
-        if (std::find(sensor_names.begin(), sensor_names.end(), "lo_locked")
-            != sensor_names.end()) {
-            uhd::sensor_value_t lo_locked = usrp->get_tx_sensor("lo_locked", tx_sensor_chan);
-            std::cout << boost::format("Checking TX: %s ...") % lo_locked.to_pp_string()
-                    << std::endl;
-            UHD_ASSERT_THROW(lo_locked.to_bool());
-        }
-        const size_t mboard_sensor_idx = 0;
-        sensor_names = usrp->get_mboard_sensor_names(mboard_sensor_idx);
-        if ((ref == "mimo")
-            and (std::find(sensor_names.begin(), sensor_names.end(), "mimo_locked")
-                    != sensor_names.end())) {
-            uhd::sensor_value_t mimo_locked =
-                usrp->get_mboard_sensor("mimo_locked", mboard_sensor_idx);
-            std::cout << boost::format("Checking TX: %s ...") % mimo_locked.to_pp_string()
-                    << std::endl;
-            UHD_ASSERT_THROW(mimo_locked.to_bool());
-        }
-        if ((ref == "external")
-            and (std::find(sensor_names.begin(), sensor_names.end(), "ref_locked")
-                    != sensor_names.end())) {
-            uhd::sensor_value_t ref_locked =
-                usrp->get_mboard_sensor("ref_locked", mboard_sensor_idx);
-            std::cout << boost::format("Checking TX: %s ...") % ref_locked.to_pp_string()
-                    << std::endl;
-            UHD_ASSERT_THROW(ref_locked.to_bool());
-        }
-
-
-    std::signal(SIGINT, &sig_int_handler);
-    std::cout << "Press Ctrl + C to stop streaming..." << std::endl << std::endl;
-    
-
-
-
-
 
 
 
 
     //// ====== Set up metadata ======
-        // We start streaming a bit in the future to allow MIMO operation:
         uhd::tx_metadata_t md;
         md.start_of_burst = true;
         md.end_of_burst   = false;
         md.has_time_spec  = true;
-        //md.time_spec      = usrp->get_time_now() + uhd::time_spec_t(0.1);
-        md.time_spec      = uhd::time_spec_t(5.0); // test if the Tx will not send until t = 10. 
-        std::cout << "  Wait for less than " << md.time_spec.get_real_secs() << " seconds to start streaming..."
-                << std::endl
+        md.time_spec      = uhd::time_spec_t(start); // test if the Tx will not send until t = 10. 
+
+        std::cout<<std::endl;
+        std::cout << "Wait for less than " << md.time_spec.get_real_secs() << " seconds to start streaming..."
                 << std::endl;
-        std::cout<< "the meta data will not display untill the transmission is done. "
-                << std::endl
+        std::cout<< "The meta data will not display untill the transmission is done. "
                 << std::endl;
+
+
+    
+
+    //// ====== Check Ref and LO Lock detect ======
+        // LO locking check
+        std::vector<std::string> sensor_names;
+        const size_t tx_sensor_chan = channel_nums.empty() ? 0 : channel_nums[0];   // in this case, the value is still 0
+        sensor_names                = usrp->get_tx_sensor_names(tx_sensor_chan);
+        if (std::find(sensor_names.begin(), sensor_names.end(), "lo_locked")
+            != sensor_names.end()) {
+            uhd::sensor_value_t lo_locked = usrp->get_tx_sensor("lo_locked", tx_sensor_chan);
+            std::cout << boost::format("Checking Tx: %s ...") % lo_locked.to_pp_string()
+                    << std::endl;
+            UHD_ASSERT_THROW(lo_locked.to_bool());
+        }
+
+        // Reference Clock
+        const size_t mboard_sensor_idx = 0;
+        sensor_names = usrp->get_mboard_sensor_names(mboard_sensor_idx);
+        if ((ref == "external")
+            and (std::find(sensor_names.begin(), sensor_names.end(), "ref_locked")
+                    != sensor_names.end())) {
+            uhd::sensor_value_t ref_locked =
+                usrp->get_mboard_sensor("ref_locked", mboard_sensor_idx);
+            std::cout << boost::format("Checking Tx: %s ...") % ref_locked.to_pp_string()
+                    << std::endl;
+            UHD_ASSERT_THROW(ref_locked.to_bool());
+        }
+
+
+
+    //// ====== Tx streaming mode ======
+        std::signal(SIGINT, &sig_int_handler);
+        std::cout << "Press Ctrl + C to stop streaming..." << std::endl << std::endl;
+    
+
+
+
+
+
+
+
+
+    
      
 
 
@@ -398,10 +364,6 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     while (true) {
         // Break on the end of duration or CTRL-C
         if (stop_signal_called) {
-            break;
-        }
-        // Break when we've received nsamps
-        if (total_num_samps > 0 and num_acc_samps >= total_num_samps) {
             break;
         }
 

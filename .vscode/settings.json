@@ -70,6 +70,7 @@
         "typeinfo": "cpp",
         "valarray": "cpp",
         "variant": "cpp",
-        "brian_tx_file": "cpp"
+        "brian_tx_file": "cpp",
+        "*.ipp": "cpp"
     }
 }

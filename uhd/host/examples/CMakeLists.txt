@@ -32,6 +32,7 @@ set(example_sources
     Brian_tx_2.cpp
     Brian_tx_file.cpp
     Brian_rx.cpp
+    Brian_txrx.cpp
     tx_waveforms4.cpp
 )
 
