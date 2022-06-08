@@ -87,7 +87,7 @@ void transmit_worker(std::vector<std::complex<float>> buff,
     md.end_of_burst = true;
     tx_streamer->send("", 0, md);
 
-    std::cout<<std::endl;
+    std::cout << std::endl;
     std::cout << "Tx Metadata Here... " << std::endl;
     std::cout << "  Streaming starting tick = " << md.time_spec.to_ticks(200e6) << std::endl;
     std::cout << "  Streaming starting sec = " << md.time_spec.get_real_secs() 
@@ -169,8 +169,8 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
 
 
         // --- prints ---
-            std::cout<<std::endl;
-            std::cout << "Wait for less than " << time_to_recv.get_real_secs() << " seconds to start Rx streaming..."
+            std::cout << std::endl;
+            std::cout << "Rx: Wait for less than " << time_to_recv.get_real_secs() << " seconds to start streaming..."
                 << std::endl;
         // --------------
 
@@ -192,7 +192,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
             // Define error cases
                 // - 1 - 
                 if (rx_md.error_code == uhd::rx_metadata_t::ERROR_CODE_TIMEOUT) {
-                    std::cout<<std::endl;
+                    std::cout << std::endl;
                     std::cout << boost::format("Timeout while streaming") << std::endl;
                     break;
                 }
@@ -284,7 +284,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
     //// ====== Process Metadata ======
         long long rx_starting_tick = rx_md.time_spec.to_ticks(200e6);
         double rx_starting_sec = rx_md.time_spec.get_real_secs();
-        std::cout<<std::endl;
+        std::cout << std::endl;
         std::cout << "Rx Metadata Here... " << std::endl;
         std::cout << "  Streaming starting tick = " << rx_starting_tick << std::endl;
         std::cout << "  Streaming starting sec = " << rx_starting_sec 
@@ -297,7 +297,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
             metadatafile.write((char*)&rx_starting_tick, sizeof(long long));
             metadatafile.close();
 
-            std::cout<<std::endl;
+            std::cout << std::endl;
             std::cout << "===============================" << std::endl;
             std::cout << boost::format("Data is saved in file: %s") % full_file_name
                     << std::endl
@@ -307,7 +307,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
             std::cout << boost::format("Metadata is saved in file: %s") % full_metafile_name
                     << std::endl;
             std::cout << "===============================" << std::endl;
-            std::cout<<std::endl;
+            std::cout << std::endl;
             std::cout<< "Rx done!" <<std::endl;
 
         }
@@ -533,7 +533,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         double txrx_diff = (tx_usrp->get_time_now(0) - rx_usrp->get_time_now(0)).get_real_secs();
         std::cout << "Difference = " << txrx_diff << ", which should be very small (<1 at least)." << std::endl;
         
-        std::cout<<std::endl;
+        std::cout << std::endl;
         std::cout<<"t=0 timestamp set."
             <<std::endl;
 
@@ -541,7 +541,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     
     //// ====== Set the sample rate (always has default value) ======
         // set the Tx sample rate
-        std::cout<<std::endl;
+        std::cout << std::endl;
         std::cout << boost::format("Setting Tx Rate: %f Msps...") % (tx_rate / 1e6) << std::endl;
         tx_usrp->set_tx_rate(tx_rate);  // remove the channels parameters or not?
         std::cout << boost::format("Actual Tx Rate: %f Msps...")
@@ -549,7 +549,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
                 << std::endl;
 
         // set the Rx sample rate
-        std::cout<<std::endl;
+        std::cout << std::endl;
         std::cout << boost::format("Setting Rx Rate: %f Msps...") % (rx_rate / 1e6) << std::endl;
         rx_usrp->set_rx_rate(rx_rate);  // remove the channels parameters or not?
         std::cout << boost::format("Actual Rx Rate: %f Msps...")
@@ -564,7 +564,8 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
             size_t channel = tx_channel_nums[ch_idx];
                 
-            std::cout<<std::endl;
+            std::cout << std::endl;
+            std::cout << std::endl;
             std::cout << "----------------------------" <<std::endl;
             std::cout << boost::format("Timed command: Setting Tx Freq: %f MHz...") 
                     % (freq / 1e6) << std::endl;
@@ -572,7 +573,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
                     % (tx_lo_offset / 1e6) << std::endl;            
 
             // start timed command with tune: 
-            std::cout<<std::endl;
+            std::cout << std::endl;
             tx_usrp->clear_command_time();
             tx_usrp->set_command_time(uhd::time_spec_t(4.0));  //operate any command after "set_command_time" at t sec;           
             
@@ -593,7 +594,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
             std::cout << "----------------------------" <<std::endl;
 
             // set the rf gain (always has default value)
-            std::cout<<std::endl;
+            std::cout << std::endl;
             std::cout << boost::format("Setting Tx Gain: %f dB...") % tx_gain << std::endl;
             tx_usrp->set_tx_gain(tx_gain, channel);
             std::cout << boost::format("Actual Tx Gain: %f dB...")
@@ -603,7 +604,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
             // set the analog frontend filter bandwidth
             if (vm.count("tx-bw")) {
-                std::cout<<std::endl;
+                std::cout << std::endl;
                 std::cout << boost::format("Setting Tx Bandwidth: %f MHz...") % (tx_bw / 1e6)
                         << std::endl;
                 tx_usrp->set_tx_bandwidth(tx_bw, channel);
@@ -622,7 +623,8 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
             size_t channel = rx_channel_nums[ch_idx];
                 
-            std::cout<<std::endl;
+            std::cout << std::endl;
+            std::cout << std::endl;
             std::cout << "----------------------------" <<std::endl;
             std::cout << boost::format("Timed command: Setting Rx Freq: %f MHz...") 
                     % (freq / 1e6) << std::endl;
@@ -645,7 +647,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
             // print setting results
-            std::cout<<std::endl;
+            std::cout << std::endl;
             std::cout << boost::format("Actual Rx Freq: %f MHz...")
                             % (rx_usrp->get_rx_freq(channel) / 1e6)
                     << std::endl;
@@ -653,7 +655,8 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
             // set the rf gain (always has default value)
-            std::cout<<std::endl;
+            std::cout << std::endl;
+            std::cout << std::endl;
             std::cout << boost::format("Setting Rx Gain: %f dB...") % rx_gain << std::endl;
             rx_usrp->set_rx_gain(rx_gain, channel);
             std::cout << boost::format("Actual Rx Gain: %f dB...")
@@ -663,7 +666,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
             // set the analog frontend filter bandwidth
             if (vm.count("rx-bw")) {
-                std::cout<<std::endl;
+                std::cout << std::endl;
                 std::cout << boost::format("Setting Rx Bandwidth: %f MHz...") % (rx_bw / 1e6)
                         << std::endl;
                 rx_usrp->set_rx_bandwidth(rx_bw, channel);
@@ -715,19 +718,6 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
     
-    //// ====== Set up metadata ======
-        uhd::tx_metadata_t tx_md;
-        tx_md.start_of_burst = true;
-        tx_md.end_of_burst   = false;
-        tx_md.has_time_spec  = true;
-        tx_md.time_spec      = uhd::time_spec_t(tx_start); // test if the Tx will not send until t = 10. 
-
-        std::cout<<std::endl;
-        std::cout << "Tx: Wait for less than " << tx_md.time_spec.get_real_secs() << " seconds to start streaming..."
-                << std::endl;
-
-
-
     //// ====== Check Ref and LO Lock detect ======
         // LO locking check
         std::vector<std::string> tx_sensor_names, rx_sensor_names;
@@ -737,6 +727,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         if (std::find(tx_sensor_names.begin(), tx_sensor_names.end(), "lo_locked")
             != tx_sensor_names.end()) {
             uhd::sensor_value_t lo_locked = tx_usrp->get_tx_sensor("lo_locked", tx_sensor_chan);
+            std::cout << std::endl;
             std::cout << boost::format("Checking Tx: %s ...") % lo_locked.to_pp_string()
                     << std::endl;
             UHD_ASSERT_THROW(lo_locked.to_bool());
@@ -748,6 +739,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         if (std::find(rx_sensor_names.begin(), rx_sensor_names.end(), "lo_locked")
             != rx_sensor_names.end()) {
             uhd::sensor_value_t lo_locked = rx_usrp->get_rx_sensor("lo_locked", rx_sensor_chan);
+            std::cout << std::endl;
             std::cout << boost::format("Checking Rx: %s ...") % lo_locked.to_pp_string()
                     << std::endl;
             UHD_ASSERT_THROW(lo_locked.to_bool());
@@ -760,6 +752,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
             and (std::find(tx_sensor_names.begin(), tx_sensor_names.end(), "ref_locked")
                     != tx_sensor_names.end())) {
             uhd::sensor_value_t ref_locked = tx_usrp->get_mboard_sensor("ref_locked", 0);
+            std::cout << std::endl;
             std::cout << boost::format("Checking Tx: %s ...") % ref_locked.to_pp_string()
                     << std::endl;
             UHD_ASSERT_THROW(ref_locked.to_bool());
@@ -770,10 +763,24 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
             and (std::find(rx_sensor_names.begin(), rx_sensor_names.end(), "ref_locked")
                     != rx_sensor_names.end())) {
             uhd::sensor_value_t ref_locked = rx_usrp->get_mboard_sensor("ref_locked", 0);
+            std::cout << std::endl;
             std::cout << boost::format("Checking Rx: %s ...") % ref_locked.to_pp_string()
                     << std::endl;
             UHD_ASSERT_THROW(ref_locked.to_bool());
         }
+
+
+
+    //// ====== Set up metadata ======
+        uhd::tx_metadata_t tx_md;
+        tx_md.start_of_burst = true;
+        tx_md.end_of_burst   = false;
+        tx_md.has_time_spec  = true;
+        tx_md.time_spec      = uhd::time_spec_t(tx_start); // test if the Tx will not send until t = 10. 
+
+        std::cout << std::endl;
+        std::cout << "Tx: Wait for less than " << tx_md.time_spec.get_real_secs() << " seconds to start streaming..."
+                << std::endl;
 
 
 
