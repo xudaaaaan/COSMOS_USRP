@@ -67,6 +67,7 @@ public:
                         std::complex<float>(ampl * real_wave_table[i], ampl * imag_wave_table[i]);
                 }
             }
+            std::cout<<std::endl;
             std::cout<<"read file flag: "<<reader.is_open()<<std::endl;
             std::cout<<"wavetable generated! - Brian"<<std::endl;
 

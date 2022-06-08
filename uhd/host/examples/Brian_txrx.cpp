@@ -521,11 +521,17 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         std::this_thread::sleep_for(
             std::chrono::milliseconds(200)); // wait for pps sync pulse
 
-        std::cout << "Current time is: " << tx_usrp->get_time_now(0).get_real_secs() << std::endl;
+        std::cout << "Current Tx time is: " << tx_usrp->get_time_now(0).get_real_secs() << std::endl;
         rx_usrp->set_time_unknown_pps(uhd::time_spec_t(3.0));  // set the next coming pps as t = 0;
         // usrp->set_time_next_pps(uhd::time_spec_t(0.0));
         std::this_thread::sleep_for(
             std::chrono::seconds(1)); // wait for pps sync pulse
+
+        std::cout << "Verification: " << std::endl;
+        std::cout << "  Current Tx time is: " << tx_usrp->get_time_now(0).get_real_secs() << std::endl;
+        std::cout << "  Current Rx time is: " << rx_usrp->get_time_now(0).get_real_secs() << std::endl;
+        double txrx_diff = (tx_usrp->get_time_now(0) - rx_usrp->get_time_now(0)).get_real_secs();
+        std::cout << "Difference = " << txrx_diff << ", which should be very small (<1 at least)." << std::endl;
         
         std::cout<<std::endl;
         std::cout<<"t=0 timestamp set."
@@ -559,6 +565,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
             size_t channel = tx_channel_nums[ch_idx];
                 
             std::cout<<std::endl;
+            std::cout << "----------------------------" <<std::endl;
             std::cout << boost::format("Timed command: Setting Tx Freq: %f MHz...") 
                     % (freq / 1e6) << std::endl;
             std::cout << boost::format("Timed command: Setting Tx LO Offset: %f MHz...") 
@@ -566,8 +573,6 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
             // start timed command with tune: 
             std::cout<<std::endl;
-            std::cout << "Setting Tx Freq and LO offset as: " << freq/1e6 << " MHz and " 
-                    << tx_lo_offset/1e6 << "MHz" << std::endl;
             tx_usrp->clear_command_time();
             tx_usrp->set_command_time(uhd::time_spec_t(4.0));  //operate any command after "set_command_time" at t sec;           
             
@@ -585,7 +590,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
             std::cout << boost::format("Actual Tx Freq: %f MHz...")
                             % (tx_usrp->get_tx_freq(channel) / 1e6)
                     << std::endl;
-
+            std::cout << "----------------------------" <<std::endl;
 
             // set the rf gain (always has default value)
             std::cout<<std::endl;
@@ -618,6 +623,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
             size_t channel = rx_channel_nums[ch_idx];
                 
             std::cout<<std::endl;
+            std::cout << "----------------------------" <<std::endl;
             std::cout << boost::format("Timed command: Setting Rx Freq: %f MHz...") 
                     % (freq / 1e6) << std::endl;
             std::cout << boost::format("Timed command: Setting Rx LO Offset: %f MHz...") 
@@ -632,7 +638,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
                     uhd::tune_request_t rx_tune_request(freq, rx_lo_offset);
                     if (vm.count("rx-int-n"))
                         rx_tune_request.args = uhd::device_addr_t("mode_n=integer");
-                    rx_usrp->set_tx_freq(rx_tune_request, channel);
+                    rx_usrp->set_rx_freq(rx_tune_request, channel);
                     std::this_thread::sleep_for(std::chrono::milliseconds(110)); //sleep 110ms (~10ms after retune occurs) to allow LO to lock
 
             rx_usrp->clear_command_time();
@@ -643,6 +649,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
             std::cout << boost::format("Actual Rx Freq: %f MHz...")
                             % (rx_usrp->get_rx_freq(channel) / 1e6)
                     << std::endl;
+            std::cout << "----------------------------" <<std::endl;
 
 
             // set the rf gain (always has default value)
@@ -697,11 +704,6 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
             spb = tx_stream->get_max_num_samps() * 10;
         std::vector<std::complex<float>> tx_buff(spb);
         int tx_size_channels = tx_channel_nums.size();  // not sure what it is
-
-                        std::cout << std::endl;
-                        std::cout << "Test: tx_size_channels =  " << tx_size_channels
-                                << std::endl;
-
         std::vector<std::complex<float>*> buffs(tx_size_channels, &tx_buff.front());
     
 
@@ -721,7 +723,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         tx_md.time_spec      = uhd::time_spec_t(tx_start); // test if the Tx will not send until t = 10. 
 
         std::cout<<std::endl;
-        std::cout << "Wait for less than " << tx_md.time_spec.get_real_secs() << " seconds to start Tx streaming..."
+        std::cout << "Tx: Wait for less than " << tx_md.time_spec.get_real_secs() << " seconds to start streaming..."
                 << std::endl;
 
 
@@ -731,10 +733,6 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         std::vector<std::string> tx_sensor_names, rx_sensor_names;
         const size_t tx_sensor_chan = tx_channel_nums.empty() ? 0 : tx_channel_nums[0];   // in this case, the value is still 0
         tx_sensor_names = tx_usrp->get_tx_sensor_names(tx_sensor_chan);
-
-                    std::cout << std::endl;
-                    // std::cout << "Test: Tx sensor name: " << tx_sensor_names[0]
-                    //         << std::endl;
 
         if (std::find(tx_sensor_names.begin(), tx_sensor_names.end(), "lo_locked")
             != tx_sensor_names.end()) {
@@ -746,10 +744,6 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
         const size_t rx_sensor_chan = rx_channel_nums.empty() ? 0 : rx_channel_nums[0];   // in this case, the value is still 0
         rx_sensor_names = rx_usrp->get_rx_sensor_names(rx_sensor_chan);
-
-                    std::cout << std::endl;
-                    // std::cout << "Test: Rx sensor name: " << rx_sensor_names[0]
-                    //         << std::endl;
 
         if (std::find(rx_sensor_names.begin(), rx_sensor_names.end(), "lo_locked")
             != rx_sensor_names.end()) {
@@ -766,11 +760,6 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
             and (std::find(tx_sensor_names.begin(), tx_sensor_names.end(), "ref_locked")
                     != tx_sensor_names.end())) {
             uhd::sensor_value_t ref_locked = tx_usrp->get_mboard_sensor("ref_locked", 0);
-
-                        std::cout << std::endl;
-                        // std::cout << "Test: Tx mboard sensor name: " << tx_sensor_names[0]
-                        //         << std::endl;
-
             std::cout << boost::format("Checking Tx: %s ...") % ref_locked.to_pp_string()
                     << std::endl;
             UHD_ASSERT_THROW(ref_locked.to_bool());
@@ -781,11 +770,6 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
             and (std::find(rx_sensor_names.begin(), rx_sensor_names.end(), "ref_locked")
                     != rx_sensor_names.end())) {
             uhd::sensor_value_t ref_locked = rx_usrp->get_mboard_sensor("ref_locked", 0);
-
-                        std::cout << std::endl;
-                        // std::cout << "Test: Rx mboard sensor name: " << rx_sensor_names[0]
-                        //         << std::endl;
-
             std::cout << boost::format("Checking Rx: %s ...") % ref_locked.to_pp_string()
                     << std::endl;
             UHD_ASSERT_THROW(ref_locked.to_bool());
