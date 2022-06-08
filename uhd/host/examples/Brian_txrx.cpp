@@ -86,6 +86,12 @@ void transmit_worker(std::vector<std::complex<float>> buff,
     // send a mini EOB packet
     md.end_of_burst = true;
     tx_streamer->send("", 0, md);
+
+    std::cout<<std::endl;
+    std::cout << "Tx Metadata Here... " << std::endl;
+    std::cout << "  Streaming starting tick = " << md.time_spec.to_ticks(200e6) << std::endl;
+    std::cout << "  Streaming starting sec = " << md.time_spec.get_real_secs() 
+                << std::endl;
 }
 
 
@@ -164,7 +170,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
 
         // --- prints ---
             std::cout<<std::endl;
-            std::cout << "  Wait for less than " << time_to_recv.get_real_secs() << " seconds to start streaming..."
+            std::cout << "  Wait for less than " << time_to_recv.get_real_secs() << " seconds to start Rx streaming..."
                 << std::endl;
         // --------------
 
@@ -279,7 +285,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
         long long rx_starting_tick = rx_md.time_spec.to_ticks(200e6);
         double rx_starting_sec = rx_md.time_spec.get_real_secs();
         std::cout<<std::endl;
-        std::cout << "Metadata Here... " << std::endl;
+        std::cout << "Rx Metadata Here... " << std::endl;
         std::cout << "  Streaming starting tick = " << rx_starting_tick << std::endl;
         std::cout << "  Streaming starting sec = " << rx_starting_sec 
                     << std::endl;
@@ -707,9 +713,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         tx_md.time_spec      = uhd::time_spec_t(tx_start); // test if the Tx will not send until t = 10. 
 
         std::cout<<std::endl;
-        std::cout << "Wait for less than " << tx_md.time_spec.get_real_secs() << " seconds to start streaming..."
-                << std::endl;
-        std::cout<< "The meta data will not display untill the transmission is done. "
+        std::cout << "Wait for less than " << tx_md.time_spec.get_real_secs() << " seconds to start Tx streaming..."
                 << std::endl;
 
 
