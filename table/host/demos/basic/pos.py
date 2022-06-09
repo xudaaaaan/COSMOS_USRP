@@ -36,14 +36,16 @@ def main():
     xytable2 = mmwsdr.utils.XYTable(config["srv1-in2"]['table_name'], isdebug=isdebug)
 
     
-    print("Checking XY table 1 position..,")
+    print(" ")
+    print("Checking XY table 1 position...")
     xytable1.check()
 
     print(" ")
 
-    print("Checking XY table 2 position..,")
+    print("Checking XY table 2 position...")
     xytable2.check()
 
+    print(" ")
 
     # t = threading.Thread(target=xytable0.video(t=args.videotime))
     # t.start()
