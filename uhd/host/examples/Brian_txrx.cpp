@@ -87,11 +87,11 @@ void transmit_worker(std::vector<std::complex<float>> buff,
     md.end_of_burst = true;
     tx_streamer->send("", 0, md);
 
-    std::cout << std::endl;
-    std::cout << "Tx Metadata Here... " << std::endl;
-    std::cout << "  Streaming starting tick = " << md.time_spec.to_ticks(200e6) << std::endl;
-    std::cout << "  Streaming starting sec = " << md.time_spec.get_real_secs() 
-                << std::endl;
+    // std::cout << std::endl;
+    // std::cout << "Tx Metadata Here... " << std::endl;
+    // std::cout << "  Streaming starting tick = " << md.time_spec.to_ticks(200e6) << std::endl;
+    // std::cout << "  Streaming starting sec = " << md.time_spec.get_real_secs() 
+    //             << std::endl;
 }
 
 
@@ -281,7 +281,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
     }
 
 
-    //// ====== Process Metadata ======
+    //// ====== Save Rx Metadata ======
         long long rx_starting_tick = rx_md.time_spec.to_ticks(200e6);
         double rx_starting_sec = rx_md.time_spec.get_real_secs();
         std::cout << std::endl;
@@ -303,11 +303,6 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
                     << std::endl
                     << std::endl;
 
-
-            std::cout << boost::format("Metadata is saved in file: %s") % full_metafile_name
-                    << std::endl;
-            std::cout << "===============================" << std::endl;
-            std::cout << std::endl;
             std::cout<< "Rx done!" <<std::endl;
 
         }
@@ -343,6 +338,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     std::string pps, ref, wirefmt;
     double freq, setup_time;
     size_t spb;
+    char full_metafile_name[200];
     
 
     // setup the program options
@@ -809,11 +805,36 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
             continue_on_bad_packet, rx_channel_nums);
 
 
+
+    //// ====== Save Tx Metadata ======
+        long long tx_starting_tick = tx_md.time_spec.to_ticks(200e6);
+        double tx_starting_sec = tx_md.time_spec.get_real_secs();
+        std::cout << std::endl;
+        std::cout << "Tx Metadata Here... " << std::endl;
+        std::cout << "  Streaming starting tick = " << tx_starting_tick << std::endl;
+        std::cout << "  Streaming starting sec = " << tx_starting_sec 
+                    << std::endl;
+        
+        if (not null){
+            strcpy(full_metafile_name, data_file.c_str());
+            strcat(full_metafile_name, "_metadata.dat");
+            metadatafile.open(full_metafile_name, std::ofstream::binary);
+            metadatafile.write((char*)&tx_starting_tick, sizeof(long long));
+            metadatafile.close();
+
+            std::cout << boost::format("Metadata is saved in file: %s") % full_metafile_name
+                    << std::endl;
+            std::cout << "===============================" << std::endl;
+            std::cout << std::endl;
+            std::cout<< "Tx done!" <<std::endl;
+
+        }
+
+
     // clean up transmit worker
     stop_signal_called = true;
     transmit_thread.join_all();
 
     // finished
-    std::cout << std::endl << "Tx Done!" << std::endl << std::endl;
     return EXIT_SUCCESS;
 }
