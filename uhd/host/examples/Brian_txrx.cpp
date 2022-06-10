@@ -339,6 +339,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     double freq, setup_time;
     size_t spb;
     char full_metafile_name[200];
+    std::ofstream metadatafile;
     
 
     // setup the program options
