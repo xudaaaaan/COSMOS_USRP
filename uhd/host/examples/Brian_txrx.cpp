@@ -126,7 +126,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
         std::vector<samp_type> buff(samps_per_buff);
 
         std::ofstream datafile;
-        std::ofstream metadatafile;
+        std::ofstream rx_metadatafile;
 
         size_t num_rx_samps = 0;
 
@@ -179,111 +179,119 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
     // Until either time expired (if a duration was given), until
     // the requested number of samples were collected (if such a number was
     // given), or until Ctrl-C was pressed.
+        while (not stop_signal_called
+            and (num_requested_samples != num_total_samps or num_requested_samples == 0)
+            and (time_requested == 0.0 or std::chrono::steady_clock::now() <= stop_time))  {
+                
+                const auto now = std::chrono::steady_clock::now();
 
-    while (not stop_signal_called
-        and (num_requested_samples != num_total_samps or num_requested_samples == 0)
-        and (time_requested == 0.0 or std::chrono::steady_clock::now() <= stop_time))  {
-            
-            const auto now = std::chrono::steady_clock::now();
+                num_rx_samps = 
+                    rx_stream->recv(&buff.front(), buff.size(), rx_md, 30.0);
 
-            num_rx_samps = 
-                rx_stream->recv(&buff.front(), buff.size(), rx_md, 30.0);
-
-            // Define error cases
-                // - 1 - 
-                if (rx_md.error_code == uhd::rx_metadata_t::ERROR_CODE_TIMEOUT) {
-                    std::cout << std::endl;
-                    std::cout << boost::format("Timeout while streaming") << std::endl;
-                    break;
-                }
-
-                // - 2 - 
-                if (rx_md.error_code == uhd::rx_metadata_t::ERROR_CODE_OVERFLOW) {
-                    if (overflow_message) {
-                        overflow_message = false;
-                        std::cerr
-                            << boost::format(
-                                "Got an overflow indication. Please consider the following:\n"
-                                "  Your write medium must sustain a rate of %fMB/s.\n"
-                                "  Dropped samples will not be written to the file.\n"
-                                "  Please modify this example for your purposes.\n"
-                                "  This message will not appear again.\n")
-                                % (usrp->get_rx_rate() * sizeof(samp_type) / 1e6);
+                // Define error cases
+                    // - 1 - 
+                    if (rx_md.error_code == uhd::rx_metadata_t::ERROR_CODE_TIMEOUT) {
+                        std::cout << std::endl;
+                        std::cout << boost::format("Timeout while streaming") << std::endl;
+                        break;
                     }
-                    continue;
-                }
 
-                // - 3 - 
-                if (rx_md.error_code != uhd::rx_metadata_t::ERROR_CODE_NONE) {
-                    std::string error = str(boost::format("Receiver error: %s") % rx_md.strerror());
-                    if (continue_on_bad_packet) {
-                        std::cerr << error << std::endl;
+                    // - 2 - 
+                    if (rx_md.error_code == uhd::rx_metadata_t::ERROR_CODE_OVERFLOW) {
+                        if (overflow_message) {
+                            overflow_message = false;
+                            std::cerr
+                                << boost::format(
+                                    "Got an overflow indication. Please consider the following:\n"
+                                    "  Your write medium must sustain a rate of %fMB/s.\n"
+                                    "  Dropped samples will not be written to the file.\n"
+                                    "  Please modify this example for your purposes.\n"
+                                    "  This message will not appear again.\n")
+                                    % (usrp->get_rx_rate() * sizeof(samp_type) / 1e6);
+                        }
                         continue;
-                    } else
-                        throw std::runtime_error(error);
+                    }
+
+                    // - 3 - 
+                    if (rx_md.error_code != uhd::rx_metadata_t::ERROR_CODE_NONE) {
+                        std::string error = str(boost::format("Receiver error: %s") % rx_md.strerror());
+                        if (continue_on_bad_packet) {
+                            std::cerr << error << std::endl;
+                            continue;
+                        } else
+                            throw std::runtime_error(error);
+                    }
+
+
+                if (enable_size_map) {
+                    SizeMap::iterator it = mapSizes.find(num_rx_samps);
+                    if (it == mapSizes.end())
+                        mapSizes[num_rx_samps] = 0;
+                    mapSizes[num_rx_samps] += 1;
                 }
 
+                num_total_samps += num_rx_samps;
+
+                if (datafile.is_open()) {
+                    datafile.write((const char*)&buff.front(), num_rx_samps * sizeof(samp_type));
+                }
+
+                if (bw_summary) {
+                    last_update_samps += num_rx_samps;
+                    const auto time_since_last_update = now - last_update;
+                    if (time_since_last_update > std::chrono::seconds(1)) {
+                        const double time_since_last_update_s =
+                            std::chrono::duration<double>(time_since_last_update).count();
+                        const double rate = double(last_update_samps) / time_since_last_update_s;
+                        std::cout << "\t" << (rate / 1e6) << " Msps" << std::endl;
+                        last_update_samps = 0;
+                        last_update       = now;
+                    }
+                }
+        } //while ends
+        const auto actual_stop_time = std::chrono::steady_clock::now();
+
+
+    //// ====== Shut down receiver ======
+        stream_cmd.stream_mode = uhd::stream_cmd_t::STREAM_MODE_STOP_CONTINUOUS;
+        rx_stream->issue_stream_cmd(stream_cmd);
+
+
+    //// ====== Close files ======
+        if (datafile.is_open()) {
+            datafile.close();
+        }
+
+        // print Rx finishes
+        std::cout<<std::endl;
+        std::cout<< "Rx done!" <<std::endl;
+
+
+    //// ====== Status check ======
+        if (stats) {
+            std::cout << std::endl;
+            const double actual_duration_seconds =
+                std::chrono::duration<float>(actual_stop_time - start_time).count();
+
+            std::cout << boost::format("Received %d samples in %f seconds") % num_total_samps
+                            % actual_duration_seconds
+                    << std::endl;
+            const double rate = (double)num_total_samps / actual_duration_seconds;
+            std::cout << (rate / 1e6) << " Msps" << std::endl;
 
             if (enable_size_map) {
-                SizeMap::iterator it = mapSizes.find(num_rx_samps);
-                if (it == mapSizes.end())
-                    mapSizes[num_rx_samps] = 0;
-                mapSizes[num_rx_samps] += 1;
+                std::cout << std::endl;
+                std::cout << "Packet size map (bytes: count)" << std::endl;
+                for (SizeMap::iterator it = mapSizes.begin(); it != mapSizes.end(); it++)
+                    std::cout << it->first << ":\t" << it->second << std::endl;
             }
-
-            num_total_samps += num_rx_samps;
-
-            if (datafile.is_open()) {
-                datafile.write((const char*)&buff.front(), num_rx_samps * sizeof(samp_type));
-            }
-
-            if (bw_summary) {
-                last_update_samps += num_rx_samps;
-                const auto time_since_last_update = now - last_update;
-                if (time_since_last_update > std::chrono::seconds(1)) {
-                    const double time_since_last_update_s =
-                        std::chrono::duration<double>(time_since_last_update).count();
-                    const double rate = double(last_update_samps) / time_since_last_update_s;
-                    std::cout << "\t" << (rate / 1e6) << " Msps" << std::endl;
-                    last_update_samps = 0;
-                    last_update       = now;
-                }
-            }
-    } //while ends
-    const auto actual_stop_time = std::chrono::steady_clock::now();
-
-    // Shut down receiver
-    stream_cmd.stream_mode = uhd::stream_cmd_t::STREAM_MODE_STOP_CONTINUOUS;
-    rx_stream->issue_stream_cmd(stream_cmd);
-
-    // Close files
-    if (datafile.is_open()) {
-        datafile.close();
-    }
-
-    if (stats) {
-        std::cout << std::endl;
-        const double actual_duration_seconds =
-            std::chrono::duration<float>(actual_stop_time - start_time).count();
-
-        std::cout << boost::format("Received %d samples in %f seconds") % num_total_samps
-                         % actual_duration_seconds
-                  << std::endl;
-        const double rate = (double)num_total_samps / actual_duration_seconds;
-        std::cout << (rate / 1e6) << " Msps" << std::endl;
-
-        if (enable_size_map) {
-            std::cout << std::endl;
-            std::cout << "Packet size map (bytes: count)" << std::endl;
-            for (SizeMap::iterator it = mapSizes.begin(); it != mapSizes.end(); it++)
-                std::cout << it->first << ":\t" << it->second << std::endl;
         }
-    }
 
 
     //// ====== Save Rx Metadata ======
         long long rx_starting_tick = rx_md.time_spec.to_ticks(200e6);
         double rx_starting_sec = rx_md.time_spec.get_real_secs();
+        std::cout << std::endl;
         std::cout << std::endl;
         std::cout << "Rx Metadata Here... " << std::endl;
         std::cout << "  Streaming starting tick = " << rx_starting_tick << std::endl;
@@ -292,19 +300,15 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
         
         if (not null){
             strcpy(full_metafile_name, data_file.c_str());
-            strcat(full_metafile_name, "_metadata.dat");
-            metadatafile.open(full_metafile_name, std::ofstream::binary);
-            metadatafile.write((char*)&rx_starting_tick, sizeof(long long));
-            metadatafile.close();
+            strcat(full_metafile_name, "_rx_metadata.dat");
+            rx_metadatafile.open(full_metafile_name, std::ofstream::binary);
+            rx_metadatafile.write((char*)&rx_starting_tick, sizeof(long long));
+            rx_metadatafile.close();
 
             std::cout << std::endl;
             std::cout << "===============================" << std::endl;
             std::cout << boost::format("Data is saved in file: %s") % full_file_name
-                    << std::endl
                     << std::endl;
-
-            std::cout<< "Rx done!" <<std::endl;
-
         }
 } // recv_to_file ends
 
@@ -339,7 +343,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     double freq, setup_time;
     size_t spb;
     char full_metafile_name[200];
-    std::ofstream metadatafile;
+    std::ofstream tx_metadatafile;
     
 
     // setup the program options
@@ -777,10 +781,21 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         tx_md.end_of_burst   = false;
         tx_md.has_time_spec  = true;
         tx_md.time_spec      = uhd::time_spec_t(tx_start); // test if the Tx will not send until t = 10. 
+        long long tx_starting_tick = tx_md.time_spec.to_ticks(200e6);
+        double tx_starting_sec = tx_md.time_spec.get_real_secs();
 
+        std::cout << std::endl;
         std::cout << std::endl;
         std::cout << "Tx: Wait for less than " << tx_md.time_spec.get_real_secs() << " seconds to start streaming..."
                 << std::endl;
+
+        std::cout << std::endl;
+        std::cout << "Tx Metadata Here... " << std::endl;
+        std::cout << "  Streaming starting tick = " << tx_starting_tick << std::endl;
+        std::cout << "  Streaming starting sec = " << tx_starting_sec 
+                    << std::endl;
+
+        
 
 
 
@@ -793,11 +808,11 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
     //// ====== Start Tx ======
-    boost::thread_group transmit_thread;
-    transmit_thread.create_thread(boost::bind(
-        &transmit_worker, tx_buff, wave_table_Brian, tx_stream, tx_md, step, index, tx_size_channels));
+        boost::thread_group transmit_thread;
+        transmit_thread.create_thread(boost::bind(
+            &transmit_worker, tx_buff, wave_table_Brian, tx_stream, tx_md, step, index, tx_size_channels));
 
-
+        
 
     //// ====== Start Rx ======
         recv_to_file<std::complex<double>>(
@@ -808,20 +823,15 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
     //// ====== Save Tx Metadata ======
-        long long tx_starting_tick = tx_md.time_spec.to_ticks(200e6);
-        double tx_starting_sec = tx_md.time_spec.get_real_secs();
-        std::cout << std::endl;
-        std::cout << "Tx Metadata Here... " << std::endl;
-        std::cout << "  Streaming starting tick = " << tx_starting_tick << std::endl;
-        std::cout << "  Streaming starting sec = " << tx_starting_sec 
-                    << std::endl;
+        
+        
         
         if (not null){
             strcpy(full_metafile_name, data_file.c_str());
-            strcat(full_metafile_name, "_metadata.dat");
-            metadatafile.open(full_metafile_name, std::ofstream::binary);
-            metadatafile.write((char*)&tx_starting_tick, sizeof(long long));
-            metadatafile.close();
+            strcat(full_metafile_name, "_tx_metadata.dat");
+            tx_metadatafile.open(full_metafile_name, std::ofstream::binary);
+            tx_metadatafile.write((char*)&tx_starting_tick, sizeof(long long));
+            tx_metadatafile.close();
 
             std::cout << boost::format("Metadata is saved in file: %s") % full_metafile_name
                     << std::endl;
