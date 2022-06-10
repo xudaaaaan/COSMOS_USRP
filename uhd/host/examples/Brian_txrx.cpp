@@ -170,6 +170,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
 
         // --- prints ---
             std::cout << std::endl;
+            std::cout << std::endl;
             std::cout << "Rx: Wait for less than " << time_to_recv.get_real_secs() << " seconds to start streaming..."
                 << std::endl;
         // --------------
@@ -291,7 +292,6 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
     //// ====== Save Rx Metadata ======
         long long rx_starting_tick = rx_md.time_spec.to_ticks(200e6);
         double rx_starting_sec = rx_md.time_spec.get_real_secs();
-        std::cout << std::endl;
         std::cout << std::endl;
         std::cout << "Rx Metadata Here... " << std::endl;
         std::cout << "  Streaming starting tick = " << rx_starting_tick << std::endl;
