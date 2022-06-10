@@ -69,8 +69,10 @@ public:
             }
             std::cout<<std::endl;
             std::cout<<"read file flag: "<<reader.is_open()<<std::endl;
-            std::cout<<"wavetable generated! - Brian"<<std::endl;
-
+                if reader.is_open() == 1
+                    std::cout<<"wavetable generated! - Brian"<<std::endl;
+                else
+                    throw std::runtime_error("Signal file not found! ");
 
 
         } else if (wave_type == "SINE") {
