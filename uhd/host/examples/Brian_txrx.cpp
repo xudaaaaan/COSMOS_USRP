@@ -353,7 +353,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("help", "help message")
 
         // Tx parameters
-        ("ampl", po::value<float>(&ampl)->default_value(float(0.7)), "amplitude of the waveform [0 to 0.7]")
+        ("ampl", po::value<float>(&ampl)->default_value(float(1.0)), "amplitude of the waveform [0 to 0.7]")
         ("tx-ant", po::value<std::string>(&tx_ant)->default_value("AB"), "transmit antenna selection")
         ("tx-args", po::value<std::string>(&tx_args)->default_value("addr=10.38.14.1"), "uhd transmit device address args")
         ("tx-bw", po::value<double>(&tx_bw), "analog transmit filter bandwidth in Hz")
