@@ -306,13 +306,11 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
             rx_metadatafile_strm.open(full_rx_metafile_name, std::ofstream::binary);
             rx_metadatafile_strm.write((char*)&rx_starting_tick, sizeof(long long));
             rx_metadatafile_strm.close();
-            
-            if (round == 0){
-                std::cout << std::endl;
-                std::cout << "===============================" << std::endl;
-                std::cout << boost::format("Data is saved in file: %s") % full_file_name
-                        << std::endl;
-            }
+
+            std::cout << std::endl;
+            std::cout << "===============================" << std::endl;
+            std::cout << boost::format("Data is saved in file: %s") % full_file_name
+                    << std::endl;
         }
 } // recv_to_file ends
 
@@ -727,8 +725,9 @@ for (int round = 0; round < data_file_N; round++){
 
 
             // set the analog frontend filter bandwidth
-            if (round == 0){
-                if (vm.count("rx-bw")) {
+
+            if (vm.count("rx-bw")) {
+                if (round == 0){
                     std::cout << std::endl;
                     std::cout << boost::format("Setting Rx Bandwidth: %f MHz...") % (rx_bw / 1e6)
                             << std::endl;
@@ -920,16 +919,16 @@ for (int round = 0; round < data_file_N; round++){
             tx_metadatafile_strm.write((char*)&tx_starting_tick, sizeof(long long));
             tx_metadatafile_strm.close();
 
-            if (round == 0){
-                std::cout << std::endl;
-                std::cout << boost::format("Tx Metadata is saved in file: %s") % full_tx_metafile_name
-                        << std::endl;
-                std::cout << std::endl;
-                std::cout << boost::format("Rx Metadata is saved in file: %s") % full_rx_metafile_name
-                        << std::endl;
-                std::cout << "===============================" << std::endl;
-                std::cout << std::endl;
-            }
+
+            std::cout << std::endl;
+            std::cout << boost::format("Tx Metadata is saved in file: %s") % full_tx_metafile_name
+                    << std::endl;
+            std::cout << std::endl;
+            std::cout << boost::format("Rx Metadata is saved in file: %s") % full_rx_metafile_name
+                    << std::endl;
+            std::cout << "===============================" << std::endl;
+            std::cout << std::endl;
+
             std::cout << std::endl;
             std::cout<< "Both done!" <<std::endl;
 
