@@ -406,8 +406,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         po::store(po::parse_command_line(argc, argv, desc), vm);
         po::notify(vm);
 
-int round = 0;
-for (int testid = data_file_idx; testid++; round < data_file_N){
+for (int round = 0; round++; round < data_file_N){
 
     //// ====== Print the help message ======
         if (vm.count("help")) {
@@ -871,7 +870,7 @@ for (int testid = data_file_idx; testid++; round < data_file_N){
 
 
 
-    round++;
+    testid++;
 }
 
     // finished
