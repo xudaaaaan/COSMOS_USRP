@@ -126,6 +126,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
 
         size_t num_rx_samps = 0;
 
+
         // char full_file_name[200];
         // char full_metafile_name[200];
         // strcpy(full_file_name, data_file.c_str());
@@ -143,6 +144,9 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
         
         // Number of samples to receive
             stream_cmd.num_samps  = size_t(num_requested_samples);
+            
+            
+            std::cout << start_streaming_time << std::endl;
 
         // time to receive samples
             stream_cmd.stream_now = false;
@@ -835,6 +839,7 @@ for (int round = 0; round < data_file_N; round++){
         
 
     //// ====== Start Rx ======
+        std::cout << rx_start << std::endl;
         recv_to_file<std::complex<double>>(
             rx_usrp, "fc64", wirefmt, full_file_name, full_rx_metafile_name, spb, \
             total_num_samps, total_time, rx_start, bw_summary, stats, null, enable_size_map, \
