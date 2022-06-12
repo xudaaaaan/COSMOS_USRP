@@ -330,8 +330,9 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
     // receive variables to be set by po
     std::string rx_args, data_file, data_type, rx_ant, rx_subdev, rx_channels;
-    size_t total_num_samps, data_file_idx, data_file_N;
+    size_t total_num_samps;
     double rx_rate, rx_gain, rx_bw, rx_lo_offset, rx_start, total_time;
+    int data_file_group, data_file_idx, data_file_N
     
     //general variables
     float ampl;
@@ -372,9 +373,9 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("rx-continue", "don't abort on a bad packet")
         ("rx-duration", po::value<double>(&total_time)->default_value(0), "total number of seconds to receive")
         ("rx-file", po::value<std::string>(&data_file)->default_value("test_"), "name of the file to write binary samples to")
-        ("rx-file-group", po::value<std::string>(&data_file_group)->default_value("1"), "the group ID of the tests")
-        ("rx-file-idx", po::value<size_t>(&data_file_idx)->default_value(1), "the starting test ID of the test")
-        ("rx-file-N", po::value<size_t>(&data_file_N)->default_value(6), "the number of repeating data that captured from the same position")
+        ("rx-file-group", po::value<int>(&data_file_group)->default_value(1), "the group ID of the tests")
+        ("rx-file-idx", po::value<int>(&data_file_idx)->default_value(1), "the starting test ID of the test")
+        ("rx-file-N", po::value<int>(&data_file_N)->default_value(6), "the number of repeating data that captured from the same position")
         ("rx-gain", po::value<double>(&rx_gain)->default_value(6), "gain for the receive RF chain")
         ("rx-int-n", "tune USRP RX with integer-N tuning")
         ("rx-lo-offset", po::value<double>(&rx_lo_offset)->default_value(0.0),
@@ -405,8 +406,8 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         po::store(po::parse_command_line(argc, argv, desc), vm);
         po::notify(vm);
 
-size_t round = 0;
-for (size_t testid = data_file_idx; testid++; round < data_file_N){
+int round = 0;
+for (int testid = data_file_idx; testid++; round < data_file_N){
 
     //// ====== Print the help message ======
         if (vm.count("help")) {
@@ -811,7 +812,7 @@ for (size_t testid = data_file_idx; testid++; round < data_file_N){
         char full_rx_metafile_name[200];
         char full_tx_metafile_name[200];
         strcpy(full_file_name, data_file.c_str());  // test_
-        strcat(full_file_name, data_file_group.c_str());  // test_1
+        strcat(full_file_name, std::to_string(data_file_group));  // test_1
         strcat(full_file_name, "_");    // test_1_
         strcat(full_file_name, std::to_string(testid));     //test_1_5
         full_rx_metafile_name = full_file_name;     //test_1_5
