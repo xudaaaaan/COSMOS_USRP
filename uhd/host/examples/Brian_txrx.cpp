@@ -530,13 +530,13 @@ for (int round = 0; round < data_file_N; round++){
 
 
     //// ====== Reset timestamp and pps (always has default value) ======
+        std::cout << std::endl;
         std::cout << boost::format("Setting device timestamp to 0 for the next unknown PPS edge...") << std::endl;
 
         tx_usrp->set_time_source(pps);
         rx_usrp->set_time_source(pps);
         
         // Tx initialization
-        std::cout << std::endl;
         tx_usrp->set_time_unknown_pps(uhd::time_spec_t(0.0));  // set the next coming pps as t = 0;
         // std::this_thread::sleep_for(
         //     std::chrono::milliseconds(200)); // wait for pps sync pulse
