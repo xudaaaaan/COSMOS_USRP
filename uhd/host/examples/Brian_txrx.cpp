@@ -811,8 +811,9 @@ for (int testid = data_file_idx; testid++; round < data_file_N){
         char full_file_name[200];
         char full_rx_metafile_name[200];
         char full_tx_metafile_name[200];
+        std::string data_file_group_str = std::to_string(data_file_group);
         strcpy(full_file_name, data_file.c_str());  // test_
-        strcat(full_file_name, std::to_string(data_file_group));  // test_1
+        strcat(full_file_name, data_file_group_str.c_str());  // test_1
         strcat(full_file_name, "_");    // test_1_
         strcat(full_file_name, std::to_string(testid));     //test_1_5
         full_rx_metafile_name = full_file_name;     //test_1_5
