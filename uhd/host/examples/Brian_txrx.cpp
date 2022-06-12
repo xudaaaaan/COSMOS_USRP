@@ -536,6 +536,7 @@ for (int round = 0; round < data_file_N; round++){
         rx_usrp->set_time_source(pps);
         
         // Tx initialization
+        std::cout << std::endl;
         tx_usrp->set_time_unknown_pps(uhd::time_spec_t(0.0));  // set the next coming pps as t = 0;
         // std::this_thread::sleep_for(
         //     std::chrono::milliseconds(200)); // wait for pps sync pulse
