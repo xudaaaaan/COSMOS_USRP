@@ -411,6 +411,8 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         po::notify(vm);
 
 for (int round = 0; round < data_file_N; round++){
+    // initialization
+    stop_signal_called = false;
 
     //// ====== Print the help message ======
         if (vm.count("help")) {
