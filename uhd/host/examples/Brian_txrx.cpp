@@ -332,7 +332,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     std::string rx_args, data_file, data_type, rx_ant, rx_subdev, rx_channels;
     size_t total_num_samps;
     double rx_rate, rx_gain, rx_bw, rx_lo_offset, rx_start, total_time;
-    int data_file_group, data_file_idx, data_file_N
+    int data_file_group, data_file_idx, data_file_N;
     
     //general variables
     float ampl;
