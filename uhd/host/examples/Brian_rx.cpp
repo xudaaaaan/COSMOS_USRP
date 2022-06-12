@@ -47,11 +47,11 @@ template <typename samp_type>
 void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual) device
     const std::string& cpu_format,
     const std::string& wire_format,
-    const std::string& file,
+    const std::string& data_file,
     size_t samps_per_buff,
     unsigned long long num_requested_samples,
     double time_requested       = 0.0,
-    double start_streaming_time = 15.0,
+    double start_streaming_time = 10.0,
     bool bw_summary             = false,
     bool stats                  = false,
     bool null                   = false,
@@ -69,18 +69,18 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
 
         uhd::rx_metadata_t md;
         std::vector<samp_type> buff(samps_per_buff);
-        std::ofstream datafile;
-        std::ofstream metadatafile;
+        std::ofstream datafile_strm;
+        std::ofstream rx_metadatafile_strm;
         
         size_t num_rx_samps = 0;
         // size_t idx = 1;
 
         char full_file_name[200];
         char full_metafile_name[200];
-        strcpy(full_file_name, file.c_str());
+        strcpy(full_file_name, data_file.c_str());
         strcat(full_file_name, ".dat");
         if (not null)
-            datafile.open(full_file_name, std::ofstream::binary);
+            datafile_strm.open(full_file_name, std::ofstream::binary);
         bool overflow_message = true;
 
 
@@ -178,8 +178,8 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
 
             num_total_samps += num_rx_samps;
 
-            if (datafile.is_open()) {
-                datafile.write((const char*)&buff.front(), num_rx_samps * sizeof(samp_type));
+            if (datafile_strm.is_open()) {
+                datafile_strm.write((const char*)&buff.front(), num_rx_samps * sizeof(samp_type));
             }
 
             if (bw_summary) {
@@ -201,8 +201,8 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
     stream_cmd.stream_mode = uhd::stream_cmd_t::STREAM_MODE_STOP_CONTINUOUS;
     rx_stream->issue_stream_cmd(stream_cmd);
 
-    if (datafile.is_open()) {
-        datafile.close();
+    if (datafile_strm.is_open()) {
+        datafile_strm.close();
     }
 
     if (stats) {
@@ -235,15 +235,15 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
                     << std::endl;
         
         if (not null){
-            strcpy(full_metafile_name, file.c_str());
+            strcpy(full_metafile_name, data_file.c_str());
             strcat(full_metafile_name, "_metadata.dat");
-            metadatafile.open(full_metafile_name, std::ofstream::binary);
-            metadatafile.write((char*)&rx_starting_tick, sizeof(long long));
-            metadatafile.close();
+            rx_metadatafile_strm.open(full_metafile_name, std::ofstream::binary);
+            rx_metadatafile_strm.write((char*)&rx_starting_tick, sizeof(long long));
+            rx_metadatafile_strm.close();
 
 
             std::cout << "===============================" << std::endl;
-            std::cout << boost::format("Data is saved in file: %s") % full_file_name
+            std::cout << boost::format("Data is saved in data_file: %s") % full_file_name
                     << std::endl
                     << std::endl;
 

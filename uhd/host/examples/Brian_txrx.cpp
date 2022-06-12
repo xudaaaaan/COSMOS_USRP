@@ -61,8 +61,8 @@ std::string generate_out_filename(
  **********************************************************************/
 void transmit_worker(std::vector<std::complex<float>> buff,
     wave_table_class_Brian wave_table,
-    uhd::tx_streamer::sptr tx_streamer,
-    uhd::tx_metadata_t md,  // metadata
+    uhd::tx_streamer::sptr tx_stream,
+    uhd::tx_metadata_t tx_md,  // metadata
     size_t step,
     size_t index,
     int size_channels)
@@ -77,21 +77,15 @@ void transmit_worker(std::vector<std::complex<float>> buff,
         }
 
         // send the entire contents of the buffer
-        tx_streamer->send(buffs, buff.size(), md);
+        tx_stream->send(buffs, buff.size(), tx_md);
 
-        md.start_of_burst = false;
-        md.has_time_spec  = false;
+        tx_md.start_of_burst = false;
+        tx_md.has_time_spec  = false;
     }
 
     // send a mini EOB packet
-    md.end_of_burst = true;
-    tx_streamer->send("", 0, md);
-
-    // std::cout << std::endl;
-    // std::cout << "Tx Metadata Here... " << std::endl;
-    // std::cout << "  Streaming starting tick = " << md.time_spec.to_ticks(200e6) << std::endl;
-    // std::cout << "  Streaming starting sec = " << md.time_spec.get_real_secs() 
-    //             << std::endl;
+    tx_md.end_of_burst = true;
+    tx_stream->send("", 0, tx_md);
 }
 
 
@@ -103,17 +97,19 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
     const std::string& cpu_format,
     const std::string& wire_format,
     // const std::string& channel,
-    const std::string& data_file,
+    const std::string& full_file_name,
+    const std::string& full_rx_metafile_name,
     size_t samps_per_buff,
     size_t  num_requested_samples,
     double time_requested       = 0.0,
-    double start_streaming_time = 15.0,
+    double start_streaming_time = 10.0,
     bool bw_summary             = false,
     bool stats                  = false,
     bool null                   = false,
     bool enable_size_map        = false,
     bool continue_on_bad_packet = false,
     std::vector<size_t> rx_channel_nums = 0)
+    
 {
     size_t  num_total_samps = 0;   // number of samples have received so far
 
@@ -125,17 +121,17 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
         uhd::rx_metadata_t rx_md;
         std::vector<samp_type> buff(samps_per_buff);
 
-        std::ofstream datafile;
-        std::ofstream rx_metadatafile;
+        std::ofstream datafile_strm;
+        std::ofstream rx_metadatafile_strm;
 
         size_t num_rx_samps = 0;
 
-        char full_file_name[200];
-        char full_metafile_name[200];
-        strcpy(full_file_name, data_file.c_str());
-        strcat(full_file_name, ".dat");
+        // char full_file_name[200];
+        // char full_metafile_name[200];
+        // strcpy(full_file_name, data_file.c_str());
+        // strcat(full_file_name, ".dat");
         if (not null)
-            datafile.open(full_file_name, std::ofstream::binary);
+            datafile_strm.open(full_file_name, std::ofstream::binary);
         bool overflow_message = true;
 
 
@@ -187,7 +183,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
                 const auto now = std::chrono::steady_clock::now();
 
                 num_rx_samps = 
-                    rx_stream->recv(&buff.front(), buff.size(), rx_md, 30.0);
+                    rx_stream->recv(&buff.front(), buff.size(), rx_md, 30.0, enable_size_map);
 
                 // Define error cases
                     // - 1 - 
@@ -233,8 +229,8 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
 
                 num_total_samps += num_rx_samps;
 
-                if (datafile.is_open()) {
-                    datafile.write((const char*)&buff.front(), num_rx_samps * sizeof(samp_type));
+                if (datafile_strm.is_open()) {
+                    datafile_strm.write((const char*)&buff.front(), num_rx_samps * sizeof(samp_type));
                 }
 
                 if (bw_summary) {
@@ -259,8 +255,8 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
 
 
     //// ====== Close files ======
-        if (datafile.is_open()) {
-            datafile.close();
+        if (datafile_strm.is_open()) {
+            datafile_strm.close();
         }
 
         // print Rx finishes
@@ -299,11 +295,11 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
                     << std::endl;
         
         if (not null){
-            strcpy(full_metafile_name, data_file.c_str());
-            strcat(full_metafile_name, "_rx_metadata.dat");
-            rx_metadatafile.open(full_metafile_name, std::ofstream::binary);
-            rx_metadatafile.write((char*)&rx_starting_tick, sizeof(long long));
-            rx_metadatafile.close();
+            // strcpy(full_metafile_name, data_file.c_str());
+            // strcat(full_metafile_name, "_rx_metadata.dat");
+            rx_metadatafile_strm.open(full_rx_metafile_name, std::ofstream::binary);
+            rx_metadatafile_strm.write((char*)&rx_starting_tick, sizeof(long long));
+            rx_metadatafile_strm.close();
 
             std::cout << std::endl;
             std::cout << "===============================" << std::endl;
@@ -331,19 +327,19 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     // transmit variables to be set by po
     std::string tx_args, wave_type, tx_ant, tx_subdev, tx_channels, signal_file;
     double tx_rate, tx_gain, tx_bw, tx_lo_offset, tx_start;
-    float ampl;
 
     // receive variables to be set by po
     std::string rx_args, data_file, data_type, rx_ant, rx_subdev, rx_channels;
-    size_t total_num_samps;
+    size_t total_num_samps, data_file_idx, data_file_N;
     double rx_rate, rx_gain, rx_bw, rx_lo_offset, rx_start, total_time;
     
     //general variables
+    float ampl;
     std::string pps, ref, wirefmt;
     double freq, setup_time;
     size_t spb;
     char full_metafile_name[200];
-    std::ofstream tx_metadatafile;
+    std::ofstream tx_metadatafile_strm;
     
 
     // setup the program options
@@ -354,12 +350,10 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("help", "help message")
 
         // Tx parameters
-        ("ampl", po::value<float>(&ampl)->default_value(float(1.0)), "amplitude of the waveform [0 to 0.7]")
         ("tx-ant", po::value<std::string>(&tx_ant)->default_value("AB"), "transmit antenna selection")
         ("tx-args", po::value<std::string>(&tx_args)->default_value("addr=10.38.14.1"), "uhd transmit device address args")
         ("tx-bw", po::value<double>(&tx_bw), "analog transmit filter bandwidth in Hz")
         ("tx-channels", po::value<std::string>(&tx_channels)->default_value("0"), "which TX channel(s) to use (specify \"0\", \"1\", \"0,1\", etc)")
-        // ("tx-freq", po::value<double>(&tx_freq)->default_value(100e6), "transmit RF center frequency in Hz")
         ("tx-gain", po::value<double>(&tx_gain)->default_value(0), "gain for the transmit RF chain")
         ("tx-int-n", "tune USRP TX with integer-N tuning")
         ("tx-lo-offset", po::value<double>(&tx_lo_offset)->default_value(0.0),
@@ -377,8 +371,10 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("rx-channels", po::value<std::string>(&rx_channels)->default_value("0"), "which RX channel(s) to use (specify \"0\", \"1\", \"0,1\", etc)")
         ("rx-continue", "don't abort on a bad packet")
         ("rx-duration", po::value<double>(&total_time)->default_value(0), "total number of seconds to receive")
-        ("rx-file", po::value<std::string>(&data_file)->default_value("usrp_samples.dat"), "name of the file to write binary samples to")
-        // ("rx-freq", po::value<double>(&rx_freq)->default_value(100e6), "receive RF center frequency in Hz")
+        ("rx-file", po::value<std::string>(&data_file)->default_value("test_"), "name of the file to write binary samples to")
+        ("rx-file-group", po::value<std::string>(&data_file_group)->default_value("1"), "the group ID of the tests")
+        ("rx-file-idx", po::value<size_t>(&data_file_idx)->default_value(1), "the starting test ID of the test")
+        ("rx-file-N", po::value<size_t>(&data_file_N)->default_value(6), "the number of repeating data that captured from the same position")
         ("rx-gain", po::value<double>(&rx_gain)->default_value(6), "gain for the receive RF chain")
         ("rx-int-n", "tune USRP RX with integer-N tuning")
         ("rx-lo-offset", po::value<double>(&rx_lo_offset)->default_value(0.0),
@@ -387,7 +383,6 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("rx-null", "Determine if run the code and save data to file. Add 'rx-null' when you don't want to save the data. ")
         ("rx-progress", "periodically display short-term bandwidth")
         ("rx-rate", po::value<double>(&rx_rate)->default_value(200e6), "rate of receive incoming samples")
-        // ("rx-settling", po::value<double>(&settling)->default_value(double(15.0)), "settling time (seconds) before receiving")
         ("rx-sizemap", "track packet size and display breakdown on exit")
         ("rx-start", po::value<double>(&rx_start)->default_value(10.0), "Tx starts streaming time")
         ("rx-stats", "show average bandwidth on exit")
@@ -395,6 +390,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("rx-type", po::value<std::string>(&data_type)->default_value("double"), "sample type in file: double, float, or short")
                 
         //General
+        ("ampl", po::value<float>(&ampl)->default_value(float(1.0)), "amplitude of the waveform [0 to 0.7]")
         ("freq", po::value<double>(&freq)->default_value(100e6), "receive RF center frequency in Hz")
         ("pps", po::value<std::string>(&pps)->default_value("external"), "PPS source (internal, external, mimo, gpsdo)")
         ("ref", po::value<std::string>(&ref)->default_value("external"), "clock reference (internal, external, mimo, gpsdo)")
@@ -409,7 +405,8 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         po::store(po::parse_command_line(argc, argv, desc), vm);
         po::notify(vm);
 
-
+size_t round = 0;
+for (size_t testid = data_file_idx; testid++; round < data_file_N){
 
     //// ====== Print the help message ======
         if (vm.count("help")) {
@@ -442,6 +439,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         std::cout << std::endl;
         std::cout << boost::format("Creating the Tx USRP device with: %s...") % tx_args
                 << std::endl;
+        // uhd is defined at "<uhd/usrp/multi_usrp.hpp>" and implemented in "uhd/lib/.cpp" 
         uhd::usrp::multi_usrp::sptr tx_usrp = uhd::usrp::multi_usrp::make(tx_args);
 
         // Rx USRP
@@ -518,13 +516,14 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         tx_usrp->set_time_source(pps);
         rx_usrp->set_time_source(pps);
         
+        // Tx initialization
         tx_usrp->set_time_unknown_pps(uhd::time_spec_t(0.0));  // set the next coming pps as t = 0;
         std::this_thread::sleep_for(
             std::chrono::milliseconds(200)); // wait for pps sync pulse
-
         std::cout << "Current Tx time is: " << tx_usrp->get_time_now(0).get_real_secs() << std::endl;
+
+        // Rx initialization
         rx_usrp->set_time_unknown_pps(uhd::time_spec_t(2.0));  // set the next coming pps as t = 0;
-        // usrp->set_time_next_pps(uhd::time_spec_t(0.0));
         std::this_thread::sleep_for(
             std::chrono::seconds(1)); // wait for pps sync pulse
 
@@ -577,7 +576,6 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
                     % (tx_lo_offset / 1e6) << std::endl;            
 
             // start timed command with tune: 
-            std::cout << std::endl;
             tx_usrp->clear_command_time();
             tx_usrp->set_command_time(uhd::time_spec_t(4.0));  //operate any command after "set_command_time" at t sec;           
             
@@ -592,6 +590,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
             // print setting results
+            std::cout << std::endl;
             std::cout << boost::format("Actual Tx Freq: %f MHz...")
                             % (tx_usrp->get_tx_freq(channel) / 1e6)
                     << std::endl;
@@ -711,7 +710,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
             spb = tx_stream->get_max_num_samps() * 10;
         std::vector<std::complex<float>> tx_buff(spb);
         int tx_size_channels = tx_channel_nums.size();  // not sure what it is
-        std::vector<std::complex<float>*> buffs(tx_size_channels, &tx_buff.front());
+        // std::vector<std::complex<float>*> buffs(tx_size_channels, &tx_buff.front());
     
 
 
@@ -799,7 +798,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
 
-    //// ====== Rx streaming prints ======
+    //// ====== Streaming prints ======
         if (total_num_samps == 0) {
             std::signal(SIGINT, &sig_int_handler);
             std::cout << "Press Ctrl + C to stop streaming..." << std::endl;
@@ -807,6 +806,23 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
 
+    //// ====== File Naming ======
+        char full_file_name[200];
+        char full_rx_metafile_name[200];
+        char full_tx_metafile_name[200];
+        strcpy(full_file_name, data_file.c_str());  // test_
+        strcat(full_file_name, data_file_group.c_str());  // test_1
+        strcat(full_file_name, "_");    // test_1_
+        strcat(full_file_name, std::to_string(testid));     //test_1_5
+        full_rx_metafile_name = full_file_name;     //test_1_5
+        full_tx_metafile_name = full_file_name;     //test_1_5
+
+        strcat(full_file_name, ".dat"); //test_1_5.dat
+        strcat(full_rx_metafile_name, "_rx_metadata.dat"); //test_1_5_rx_metadata.dat
+        strcat(full_tx_metafile_name, "_tx_metadata.dat"); //test_1_5_tx_metadata.dat
+    
+    
+    
     //// ====== Start Tx ======
         boost::thread_group transmit_thread;
         transmit_thread.create_thread(boost::bind(
@@ -816,8 +832,8 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
     //// ====== Start Rx ======
         recv_to_file<std::complex<double>>(
-            rx_usrp, "fc64", wirefmt, data_file, spb, total_num_samps, \
-            total_time, rx_start, bw_summary, stats, null, enable_size_map, \
+            rx_usrp, "fc64", wirefmt, full_file_name, full_rx_metafile_name, spb, \
+            total_num_samps, total_time, rx_start, bw_summary, stats, null, enable_size_map, \
             continue_on_bad_packet, rx_channel_nums);
 
 
@@ -827,17 +843,21 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         
         
         if (not null){
-            strcpy(full_metafile_name, data_file.c_str());
-            strcat(full_metafile_name, "_tx_metadata.dat");
-            tx_metadatafile.open(full_metafile_name, std::ofstream::binary);
-            tx_metadatafile.write((char*)&tx_starting_tick, sizeof(long long));
-            tx_metadatafile.close();
+            // strcpy(full_metafile_name, data_file.c_str());
+            // strcat(full_metafile_name, "_tx_metadata.dat");
+            tx_metadatafile_strm.open(full_tx_metafile_name, std::ofstream::binary);
+            tx_metadatafile_strm.write((char*)&tx_starting_tick, sizeof(long long));
+            tx_metadatafile_strm.close();
 
-            std::cout << boost::format("Metadata is saved in file: %s") % full_metafile_name
+            std::cout << std::endl;
+            std::cout << boost::format("Tx Metadata is saved in file: %s") % full_tx_metafile_name
+                    << std::endl;
+            std::cout << std::endl;
+            std::cout << boost::format("Rx Metadata is saved in file: %s") % full_rx_metafile_name
                     << std::endl;
             std::cout << "===============================" << std::endl;
             std::cout << std::endl;
-            std::cout<< "Tx done!" <<std::endl;
+            std::cout<< "Both done!" <<std::endl;
 
         }
 
@@ -845,6 +865,11 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     // clean up transmit worker
     stop_signal_called = true;
     transmit_thread.join_all();
+
+
+
+    round++;
+}
 
     // finished
     return EXIT_SUCCESS;
