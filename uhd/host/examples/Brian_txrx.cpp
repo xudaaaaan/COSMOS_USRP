@@ -108,7 +108,8 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
     bool null                   = false,
     bool enable_size_map        = false,
     bool continue_on_bad_packet = false,
-    std::vector<size_t> rx_channel_nums = 0)
+    std::vector<size_t> rx_channel_nums = 0,
+    int round = 0)
     
 {
     size_t  num_total_samps = 0;   // number of samples have received so far
@@ -144,9 +145,6 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
         
         // Number of samples to receive
             stream_cmd.num_samps  = size_t(num_requested_samples);
-            
-            
-            std::cout << start_streaming_time << std::endl;
 
         // time to receive samples
             stream_cmd.stream_now = false;
@@ -169,10 +167,12 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
 
 
         // --- prints ---
-            std::cout << std::endl;
-            std::cout << std::endl;
-            std::cout << "Rx: Wait for less than " << time_to_recv.get_real_secs() << " seconds to start streaming..."
-                << std::endl;
+            if (round == 0){
+                std::cout << std::endl;
+                std::cout << std::endl;
+                std::cout << "Rx: Wait for less than " << time_to_recv.get_real_secs() << " seconds to start streaming..."
+                    << std::endl;
+            }
         // --------------
 
 
@@ -292,11 +292,13 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
     //// ====== Save Rx Metadata ======
         long long rx_starting_tick = rx_md.time_spec.to_ticks(200e6);
         double rx_starting_sec = rx_md.time_spec.get_real_secs();
-        std::cout << std::endl;
-        std::cout << "Rx Metadata Here... " << std::endl;
-        std::cout << "  Streaming starting tick = " << rx_starting_tick << std::endl;
-        std::cout << "  Streaming starting sec = " << rx_starting_sec 
-                    << std::endl;
+        if (round == 0){
+            std::cout << std::endl;
+            std::cout << "Rx Metadata Here... " << std::endl;
+            std::cout << "  Streaming starting tick = " << rx_starting_tick << std::endl;
+            std::cout << "  Streaming starting sec = " << rx_starting_sec 
+                        << std::endl;
+        }
         
         if (not null){
             // strcpy(full_metafile_name, data_file.c_str());
@@ -304,11 +306,13 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
             rx_metadatafile_strm.open(full_rx_metafile_name, std::ofstream::binary);
             rx_metadatafile_strm.write((char*)&rx_starting_tick, sizeof(long long));
             rx_metadatafile_strm.close();
-
-            std::cout << std::endl;
-            std::cout << "===============================" << std::endl;
-            std::cout << boost::format("Data is saved in file: %s") % full_file_name
-                    << std::endl;
+            
+            if (round == 0){
+                std::cout << std::endl;
+                std::cout << "===============================" << std::endl;
+                std::cout << boost::format("Data is saved in file: %s") % full_file_name
+                        << std::endl;
+            }
         }
 } // recv_to_file ends
 
@@ -410,9 +414,17 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         po::store(po::parse_command_line(argc, argv, desc), vm);
         po::notify(vm);
 
+
+
+
+
 for (int round = 0; round < data_file_N; round++){
     // initialization
     stop_signal_called = false;
+    std::cout << std::endl;
+    std::cout << std::endl;
+    std::cout << std::endl;
+    std::cout << "||||||||||||||||||||||||||||||||||||||||||||||||||||" << std::endl;
 
     //// ====== Print the help message ======
         if (vm.count("help")) {
@@ -466,13 +478,15 @@ for (int round = 0; round < data_file_N; round++){
         // "get_pp_string" will return:
         //  1. USRP clock device;
         //  2. board amount, and their references;
-        std::cout << std::endl;
-        std::cout << boost::format("Using TX Device: %s") % tx_usrp->get_pp_string()
-                << std::endl;
-        
-        std::cout << std::endl;
-        std::cout << boost::format("Using RX Device: %s") % rx_usrp->get_pp_string()
-                << std::endl;
+        if (round == 0){
+            std::cout << std::endl;
+            std::cout << boost::format("Using TX Device: %s") % tx_usrp->get_pp_string()
+                    << std::endl;
+            
+            std::cout << std::endl;
+            std::cout << boost::format("Using RX Device: %s") % rx_usrp->get_pp_string()
+                    << std::endl;
+        }
 
 
 
@@ -510,10 +524,11 @@ for (int round = 0; round < data_file_N; round++){
         tx_usrp->set_clock_source(ref);
         rx_usrp->set_clock_source(ref);
 
-        std::cout << std::endl;
-        std::cout<<boost::format("The reference clock for both Tx/Rx is: %s...") % ref
-                    <<std::endl;
-
+        if (round == 0){
+            std::cout << std::endl;
+            std::cout<<boost::format("The reference clock for both Tx/Rx is: %s...") % ref
+                        <<std::endl;
+        }
 
 
     //// ====== Reset timestamp and pps (always has default value) ======
@@ -524,8 +539,8 @@ for (int round = 0; round < data_file_N; round++){
         
         // Tx initialization
         tx_usrp->set_time_unknown_pps(uhd::time_spec_t(0.0));  // set the next coming pps as t = 0;
-        std::this_thread::sleep_for(
-            std::chrono::milliseconds(200)); // wait for pps sync pulse
+        // std::this_thread::sleep_for(
+        //     std::chrono::milliseconds(200)); // wait for pps sync pulse
         std::cout << "Current Tx time is: " << tx_usrp->get_time_now(0).get_real_secs() << std::endl;
 
         // Rx initialization
@@ -550,20 +565,32 @@ for (int round = 0; round < data_file_N; round++){
     
     //// ====== Set the sample rate (always has default value) ======
         // set the Tx sample rate
-        std::cout << std::endl;
-        std::cout << boost::format("Setting Tx Rate: %f Msps...") % (tx_rate / 1e6) << std::endl;
+        if (round == 0){
+            std::cout << std::endl;
+            std::cout << boost::format("Setting Tx Rate: %f Msps...") % (tx_rate / 1e6) << std::endl;
+        }
+
         tx_usrp->set_tx_rate(tx_rate);  // remove the channels parameters or not?
-        std::cout << boost::format("Actual Tx Rate: %f Msps...")
-                        % (tx_usrp->get_tx_rate() / 1e6)
-                << std::endl;
+
+        if (round == 0){
+            std::cout << boost::format("Actual Tx Rate: %f Msps...")
+                            % (tx_usrp->get_tx_rate() / 1e6)
+                    << std::endl;
+            }
 
         // set the Rx sample rate
-        std::cout << std::endl;
-        std::cout << boost::format("Setting Rx Rate: %f Msps...") % (rx_rate / 1e6) << std::endl;
+        if (round == 0){
+            std::cout << std::endl;
+            std::cout << boost::format("Setting Rx Rate: %f Msps...") % (rx_rate / 1e6) << std::endl;
+        }
+
         rx_usrp->set_rx_rate(rx_rate);  // remove the channels parameters or not?
-        std::cout << boost::format("Actual Rx Rate: %f Msps...")
-                        % (rx_usrp->get_rx_rate() / 1e6)
-                << std::endl;
+
+        if (round == 0){
+            std::cout << boost::format("Actual Rx Rate: %f Msps...")
+                            % (rx_usrp->get_rx_rate() / 1e6)
+                    << std::endl;
+        }
 
 
 
@@ -572,14 +599,16 @@ for (int round = 0; round < data_file_N; round++){
         for (size_t ch_idx = 0; ch_idx < tx_channel_nums.size(); ch_idx++) {
 
             size_t channel = tx_channel_nums[ch_idx];
-                
-            std::cout << std::endl;
-            std::cout << std::endl;
-            std::cout << "----------------------------" <<std::endl;
-            std::cout << boost::format("Timed command: Setting Tx Freq: %f MHz...") 
-                    % (freq / 1e6) << std::endl;
-            std::cout << boost::format("Timed command: Setting Tx LO Offset: %f MHz...") 
-                    % (tx_lo_offset / 1e6) << std::endl;            
+            
+            if (round == 0){
+                std::cout << std::endl;
+                std::cout << std::endl;
+                std::cout << "----------------------------" <<std::endl;
+                std::cout << boost::format("Timed command: Setting Tx Freq: %f MHz...") 
+                        % (freq / 1e6) << std::endl;
+                std::cout << boost::format("Timed command: Setting Tx LO Offset: %f MHz...") 
+                        % (tx_lo_offset / 1e6) << std::endl;            
+            }
 
             // start timed command with tune: 
             tx_usrp->clear_command_time();
@@ -596,30 +625,44 @@ for (int round = 0; round < data_file_N; round++){
 
 
             // print setting results
-            std::cout << std::endl;
-            std::cout << boost::format("Actual Tx Freq: %f MHz...")
-                            % (tx_usrp->get_tx_freq(channel) / 1e6)
-                    << std::endl;
-            std::cout << "----------------------------" <<std::endl;
+            if (round == 0){
+                std::cout << std::endl;
+                std::cout << boost::format("Actual Tx Freq: %f MHz...")
+                                % (tx_usrp->get_tx_freq(channel) / 1e6)
+                        << std::endl;
+                std::cout << "----------------------------" <<std::endl;
+            }
 
             // set the rf gain (always has default value)
-            std::cout << std::endl;
-            std::cout << boost::format("Setting Tx Gain: %f dB...") % tx_gain << std::endl;
+            if (round == 0){
+                std::cout << std::endl;
+                std::cout << boost::format("Setting Tx Gain: %f dB...") % tx_gain << std::endl;
+            }
+
             tx_usrp->set_tx_gain(tx_gain, channel);
-            std::cout << boost::format("Actual Tx Gain: %f dB...")
-                            % tx_usrp->get_tx_gain(channel)
-                    << std::endl;
+
+            if (round == 0){
+                std::cout << boost::format("Actual Tx Gain: %f dB...")
+                                % tx_usrp->get_tx_gain(channel)
+                        << std::endl;
+            }
 
 
             // set the analog frontend filter bandwidth
             if (vm.count("tx-bw")) {
-                std::cout << std::endl;
-                std::cout << boost::format("Setting Tx Bandwidth: %f MHz...") % (tx_bw / 1e6)
-                        << std::endl;
+                if (round == 0){
+                    std::cout << std::endl;
+                    std::cout << boost::format("Setting Tx Bandwidth: %f MHz...") % (tx_bw / 1e6)
+                            << std::endl;
+                }
+
                 tx_usrp->set_tx_bandwidth(tx_bw, channel);
-                std::cout << boost::format("Actual Tx Bandwidth: %f MHz...")
-                                % tx_usrp->get_tx_bandwidth(channel / 1e6)
-                        << std::endl;
+
+                if (round == 0){
+                    std::cout << boost::format("Actual Tx Bandwidth: %f MHz...")
+                                    % tx_usrp->get_tx_bandwidth(channel / 1e6)
+                            << std::endl;
+                }
             }
 
             // set the antenna (always has default value)
@@ -632,13 +675,15 @@ for (int round = 0; round < data_file_N; round++){
 
             size_t channel = rx_channel_nums[ch_idx];
                 
-            std::cout << std::endl;
-            std::cout << std::endl;
-            std::cout << "----------------------------" <<std::endl;
-            std::cout << boost::format("Timed command: Setting Rx Freq: %f MHz...") 
-                    % (freq / 1e6) << std::endl;
-            std::cout << boost::format("Timed command: Setting Rx LO Offset: %f MHz...") 
-                    % (rx_lo_offset / 1e6) << std::endl;
+            if (round == 0){
+                std::cout << std::endl;
+                std::cout << std::endl;
+                std::cout << "----------------------------" <<std::endl;
+                std::cout << boost::format("Timed command: Setting Rx Freq: %f MHz...") 
+                        % (freq / 1e6) << std::endl;
+                std::cout << boost::format("Timed command: Setting Rx LO Offset: %f MHz...") 
+                        % (rx_lo_offset / 1e6) << std::endl;
+            }
 
 
             // start timed command with tune: 
@@ -656,32 +701,46 @@ for (int round = 0; round < data_file_N; round++){
 
 
             // print setting results
-            std::cout << std::endl;
-            std::cout << boost::format("Actual Rx Freq: %f MHz...")
-                            % (rx_usrp->get_rx_freq(channel) / 1e6)
-                    << std::endl;
-            std::cout << "----------------------------" <<std::endl;
+            if (round == 0){
+                std::cout << std::endl;
+                std::cout << boost::format("Actual Rx Freq: %f MHz...")
+                                % (rx_usrp->get_rx_freq(channel) / 1e6)
+                        << std::endl;
+                std::cout << "----------------------------" <<std::endl;
+            }
 
 
             // set the rf gain (always has default value)
-            std::cout << std::endl;
-            std::cout << std::endl;
-            std::cout << boost::format("Setting Rx Gain: %f dB...") % rx_gain << std::endl;
+            if (round == 0){
+                std::cout << std::endl;
+                std::cout << std::endl;
+                std::cout << boost::format("Setting Rx Gain: %f dB...") % rx_gain << std::endl;
+            }
+
             rx_usrp->set_rx_gain(rx_gain, channel);
-            std::cout << boost::format("Actual Rx Gain: %f dB...")
-                            % rx_usrp->get_rx_gain(channel)
-                    << std::endl;
+
+            if (round == 0){
+                std::cout << boost::format("Actual Rx Gain: %f dB...")
+                                % rx_usrp->get_rx_gain(channel)
+                        << std::endl;
+            }
 
 
             // set the analog frontend filter bandwidth
-            if (vm.count("rx-bw")) {
-                std::cout << std::endl;
-                std::cout << boost::format("Setting Rx Bandwidth: %f MHz...") % (rx_bw / 1e6)
-                        << std::endl;
+            if (round == 0){
+                if (vm.count("rx-bw")) {
+                    std::cout << std::endl;
+                    std::cout << boost::format("Setting Rx Bandwidth: %f MHz...") % (rx_bw / 1e6)
+                            << std::endl;
+                }
+
                 rx_usrp->set_rx_bandwidth(rx_bw, channel);
-                std::cout << boost::format("Actual Rx Bandwidth: %f MHz...")
-                                % rx_usrp->get_rx_bandwidth(channel / 1e6)
-                        << std::endl;
+
+                if (round == 0){
+                    std::cout << boost::format("Actual Rx Bandwidth: %f MHz...")
+                                    % rx_usrp->get_rx_bandwidth(channel / 1e6)
+                            << std::endl;
+                }
             }
 
             // set the antenna (always has default value)
@@ -698,7 +757,7 @@ for (int round = 0; round < data_file_N; round++){
     //// ====== Pre-compute wavetable ======
         if (round == 0)
             signal_file = signal_file + ".txt";
-        std::cout << signal_file << std::endl;
+        
         const wave_table_class_Brian wave_table_Brian(wave_type, ampl, signal_file);
         const size_t step = 1;
         size_t index = 0;
@@ -708,7 +767,7 @@ for (int round = 0; round < data_file_N; round++){
     //// ====== Create a transmit streamer ======
         // linearly map channels (index0 = channel0, index1 = channel1, ...)
         uhd::stream_args_t tx_stream_args("fc32", wirefmt);
-        tx_stream_args.channels             = tx_channel_nums;
+        tx_stream_args.channels = tx_channel_nums;
         uhd::tx_streamer::sptr tx_stream = tx_usrp->get_tx_stream(tx_stream_args);
 
 
@@ -791,16 +850,18 @@ for (int round = 0; round < data_file_N; round++){
         long long tx_starting_tick = tx_md.time_spec.to_ticks(200e6);
         double tx_starting_sec = tx_md.time_spec.get_real_secs();
 
-        std::cout << std::endl;
-        std::cout << std::endl;
-        std::cout << "Tx: Wait for less than " << tx_md.time_spec.get_real_secs() << " seconds to start streaming..."
-                << std::endl;
-
-        std::cout << std::endl;
-        std::cout << "Tx Metadata Here... " << std::endl;
-        std::cout << "  Streaming starting tick = " << tx_starting_tick << std::endl;
-        std::cout << "  Streaming starting sec = " << tx_starting_sec 
+        if (round == 0){
+            std::cout << std::endl;
+            std::cout << std::endl;
+            std::cout << "Tx: Wait for less than " << tx_md.time_spec.get_real_secs() << " seconds to start streaming..."
                     << std::endl;
+
+            std::cout << std::endl;
+            std::cout << "Tx Metadata Here... " << std::endl;
+            std::cout << "  Streaming starting tick = " << tx_starting_tick << std::endl;
+            std::cout << "  Streaming starting sec = " << tx_starting_sec 
+                        << std::endl;
+        }
 
         
 
@@ -841,11 +902,10 @@ for (int round = 0; round < data_file_N; round++){
         
 
     //// ====== Start Rx ======
-        std::cout << rx_start << std::endl;
         recv_to_file<std::complex<double>>(
             rx_usrp, "fc64", wirefmt, full_file_name, full_rx_metafile_name, spb, \
             total_num_samps, total_time, rx_start, bw_summary, stats, null, enable_size_map, \
-            continue_on_bad_packet, rx_channel_nums);
+            continue_on_bad_packet, rx_channel_nums, round);
 
 
 
@@ -860,13 +920,16 @@ for (int round = 0; round < data_file_N; round++){
             tx_metadatafile_strm.write((char*)&tx_starting_tick, sizeof(long long));
             tx_metadatafile_strm.close();
 
-            std::cout << std::endl;
-            std::cout << boost::format("Tx Metadata is saved in file: %s") % full_tx_metafile_name
-                    << std::endl;
-            std::cout << std::endl;
-            std::cout << boost::format("Rx Metadata is saved in file: %s") % full_rx_metafile_name
-                    << std::endl;
-            std::cout << "===============================" << std::endl;
+            if (round == 0){
+                std::cout << std::endl;
+                std::cout << boost::format("Tx Metadata is saved in file: %s") % full_tx_metafile_name
+                        << std::endl;
+                std::cout << std::endl;
+                std::cout << boost::format("Rx Metadata is saved in file: %s") % full_rx_metafile_name
+                        << std::endl;
+                std::cout << "===============================" << std::endl;
+                std::cout << std::endl;
+            }
             std::cout << std::endl;
             std::cout<< "Both done!" <<std::endl;
 
