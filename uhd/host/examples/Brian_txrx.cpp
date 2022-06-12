@@ -691,6 +691,7 @@ for (int round = 0; round < data_file_N; round++){
 
     //// ====== Pre-compute wavetable ======
         signal_file = signal_file + ".txt";
+        std::cout<<signal_file<<endl;
         const wave_table_class_Brian wave_table_Brian(wave_type, ampl, signal_file);
         const size_t step = 1;
         size_t index = 0;
