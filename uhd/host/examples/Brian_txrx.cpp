@@ -339,7 +339,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     std::string pps, ref, wirefmt;
     double freq, setup_time;
     size_t spb;
-    char full_metafile_name[200];
+    // char full_metafile_name[200];
     std::ofstream tx_metadatafile_strm;
     
 
@@ -812,12 +812,13 @@ for (int testid = data_file_idx; testid++; round < data_file_N){
         char full_rx_metafile_name[200];
         char full_tx_metafile_name[200];
         std::string data_file_group_str = std::to_string(data_file_group);
+        std::string testid_str = std::to_string(testid);
         strcpy(full_file_name, data_file.c_str());  // test_
         strcat(full_file_name, data_file_group_str.c_str());  // test_1
         strcat(full_file_name, "_");    // test_1_
-        strcat(full_file_name, std::to_string(testid));     //test_1_5
-        full_rx_metafile_name = full_file_name;     //test_1_5
-        full_tx_metafile_name = full_file_name;     //test_1_5
+        strcat(full_file_name, testid_str.c_str());     //test_1_5
+        strcpy(full_rx_metafile_name, full_file_name);
+        strcpy(full_tx_metafile_name, full_file_name);
 
         strcat(full_file_name, ".dat"); //test_1_5.dat
         strcat(full_rx_metafile_name, "_rx_metadata.dat"); //test_1_5_rx_metadata.dat
