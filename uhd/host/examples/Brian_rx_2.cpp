@@ -449,7 +449,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
                 // timed command content:
                     uhd::tune_request_t rx_tune_request(freq, rx_lo_offset);
                     if (vm.count("rx-int-n"))
-                        rx_tune_request.rx_args = uhd::device_addr_t("mode_n=integer");
+                        rx_tune_request.args = uhd::device_addr_t("mode_n=integer");
                     rx_usrp->set_rx_freq(rx_tune_request, channel);
                     std::this_thread::sleep_for(std::chrono::milliseconds(110)); //sleep 110ms (~10ms after retune occurs) to allow LO to lock
 
