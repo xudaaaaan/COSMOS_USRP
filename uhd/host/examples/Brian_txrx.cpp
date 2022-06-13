@@ -943,6 +943,8 @@ for (int round = 0; round < data_file_N; round++){
 
 
     data_file_testid++;
+    std::cout << round << std::endl;
+    std::cout << data_file_N-1 << std::endl;
 
     if (round == data_file_N-1)
         std::this_thread::sleep_for(
