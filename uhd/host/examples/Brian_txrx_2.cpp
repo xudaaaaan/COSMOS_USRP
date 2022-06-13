@@ -475,8 +475,8 @@ for (int round = 0; round < data_file_N; round++){
 
 
     //// ====== Select Sub-device (always has default value) ======
-        both_args->set_tx_subdev_spec(tx_subdev, 0);
-        both_args->set_rx_subdev_spec(rx_subdev, 1);
+        both_args->set_tx_subdev_spec("A:AB", 0);
+        both_args->set_rx_subdev_spec("B:AB", 1);
 
 
     
