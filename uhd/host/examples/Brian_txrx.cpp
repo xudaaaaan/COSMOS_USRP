@@ -944,8 +944,9 @@ for (int round = 0; round < data_file_N; round++){
 
     data_file_testid++;
 
-    std::this_thread::sleep_for(
-            std::chrono::seconds(10)); // wait for stable?
+    if (data_file_N > 1)
+        std::this_thread::sleep_for(
+                std::chrono::seconds(10)); // wait for stable?
 }
 
     // finished
