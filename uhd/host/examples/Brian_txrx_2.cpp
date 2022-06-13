@@ -452,18 +452,18 @@ for (int round = 0; round < data_file_N; round++){
 
 
     //// ====== Create Tx and Rx USRP Devices ======
-        // // Tx USRP
-        // std::cout << std::endl;
-        // std::cout << boost::format("Creating the Tx USRP device with: %s...") % tx_args
-        //         << std::endl;
-        // // uhd is defined at "<uhd/usrp/multi_usrp.hpp>" and implemented in "uhd/lib/.cpp" 
-        // uhd::usrp::multi_usrp::sptr tx_usrp = uhd::usrp::multi_usrp::make(tx_args);
+        // Tx USRP
+        std::cout << std::endl;
+        std::cout << boost::format("Creating the Tx USRP device with: %s...") % tx_args
+                << std::endl;
+        // uhd is defined at "<uhd/usrp/multi_usrp.hpp>" and implemented in "uhd/lib/.cpp" 
+        uhd::usrp::multi_usrp::sptr tx_usrp = uhd::usrp::multi_usrp::make(tx_args);
 
-        // // Rx USRP
-        // std::cout << std::endl;
-        // std::cout << boost::format("Creating the Rx USRP device with: %s...") % rx_args
-        //         << std::endl;
-        // uhd::usrp::multi_usrp::sptr rx_usrp = uhd::usrp::multi_usrp::make(rx_args);
+        // Rx USRP
+        std::cout << std::endl;
+        std::cout << boost::format("Creating the Rx USRP device with: %s...") % rx_args
+                << std::endl;
+        uhd::usrp::multi_usrp::sptr rx_usrp = uhd::usrp::multi_usrp::make(rx_args);
 
         // Both USRPs
         std::cout << std::endl;
