@@ -26,6 +26,7 @@ set(example_sources
     txrx_loopback_to_file.cpp
     
     Brian_txrx.cpp
+    Brian_txrx_2.cpp
 
     usrp_list_sensors.cpp
     latency_test.cpp
