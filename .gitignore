@@ -5,6 +5,7 @@ debian
 .profile
 .cache/
 late_commands.sh
+.bash_history
 .bash_logout
 .bashrc
 .viminfo
