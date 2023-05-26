@@ -45,8 +45,8 @@ def main():
     # xytable_obj = mmwsdr.utils.XYTable(config[args.node]['table_name'], isdebug=isdebug)
     xytable_obj = mmwsdr.utils.XYTable('xytable'+args.index, isdebug=isdebug)
 
-    if args.x and args.y and args.a:
-        xytable_obj.move(x=args.x, y=args.y, angle=args.a)
+    if args.x and args.y and args.r:
+        xytable_obj.move(x=args.x, y=args.y, angle=args.r)
 
 
     t = threading.Thread(target=xytable_obj.video(t=args.videotime))
