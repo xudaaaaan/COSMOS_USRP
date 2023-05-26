@@ -35,7 +35,7 @@ rm -rf /tmp/*
 rm -rf /var/tmp/*
 
 #remove bash history
-rm -f /home/*/.bash_history
+# rm -f /home/*/.bash_history
 rm -f /root/.bash_history
 
 #Cleaning is completed
