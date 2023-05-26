@@ -27,7 +27,7 @@ class XYTable(object):
         :type table_name:
         """
         self.isdebug = isdebug
-        self.table = table_name  # either xytable1 or xytable2
+        self.table = table_name  # either xytable1 or xytable2, string
         self.main_url = 'http://am1.cosmos-lab.org:5054/xy_table/'
         self.xy_status = None
         self.rotator_status = None
