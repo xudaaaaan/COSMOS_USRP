@@ -72,5 +72,6 @@
         "variant": "cpp",
         "brian_tx_file": "cpp",
         "*.ipp": "cpp"
-    }
+    },
+    "cmake.configureOnOpen": true
 }
