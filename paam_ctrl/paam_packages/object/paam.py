@@ -16,7 +16,7 @@ import json
 import cv2
 
 
-class PAAMarray(object):
+class PAAM(object):
     """
     PAAM Array class
     """
@@ -80,6 +80,9 @@ class PAAMarray(object):
             self.state = json_data['response']['action']['state']
             self.adc_conv = json_data['response']['action']['adc']['conv']
 
+            print("The state of array: {}".format(self.state))
+            print("The ADCs of array: {}".format(self.adc_conv))
+
             return self.state, self.adc_conv
 
             
@@ -100,6 +103,8 @@ class PAAMarray(object):
 
             self.step = json_data['response']['action']['step']
 
+            print("The step(s) been executed: {}".format(self.step))
+
             return self.step
         
 
@@ -119,6 +124,8 @@ class PAAMarray(object):
             json_data = json.loads(json.dumps(xmltodict.parse(r.content)))       
 
             self.step = json_data['response']['action']['step']
+
+            print("The step(s) been executed: {}".format(self.step))
 
             return self.step
         
@@ -141,6 +148,8 @@ class PAAMarray(object):
             json_data = json.loads(json.dumps(xmltodict.parse(r.content)))      
 
             self.step = json_data['response']['action']['step']
+
+            print("The step(s) been executed: {}".format(self.step))
 
             return self.step
         
@@ -168,6 +177,10 @@ class PAAMarray(object):
             self.state = array_action['state']
             self.adc_conv = array_action['adc']['conv']
 
+            print("The step(s) been executed: {}".format(self.step))
+            print("The state of array: {}".format(self.state))
+            print("The ADCs of array: {}".format(self.adc_conv))
 
 
-            return self.step
+
+            return self.step, self.state, self.adc_conv

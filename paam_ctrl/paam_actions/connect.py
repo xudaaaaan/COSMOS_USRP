@@ -41,8 +41,8 @@ def main():
 
     # Execute
     print(" ")
-    print("Checking the status of the PAAM board...")
-    PAAM0.status
+    print("Connecting the PAAM board...")
+    PAAM0.connect()
 
     print(" ")
 

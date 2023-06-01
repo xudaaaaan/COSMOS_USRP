@@ -43,7 +43,7 @@ def main():
     args = parser.parse_args()
 
     # Create a PAAM object
-    PAAM0 = paam_packages.object.PAAMarray(args.node)
+    PAAM0 = paam_packages.object.PAAM(args.node)
 
     # Set up the RF configuration for the PAAM
     ics = args.ics
@@ -57,7 +57,9 @@ def main():
     theta = args.theta
     phi = args.phi
                  
-
+    # Execute
+    print(" ")
+    print("Configuring the PAAM board...")
     PAAM0.config(ics, num_elements, mode, Pol, theta, phi)
 
 
