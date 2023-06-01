@@ -41,8 +41,9 @@ def main():
 
     # Execute
     print(" ")
+    print("***********************************************")
     print("Checking the status of the PAAM board...")
-    print(" ")
+    print("***********************************************")
     PAAM0.status
 
     print(" ")

@@ -41,8 +41,9 @@ def main():
 
     # Execute
     print(" ")
+    print("*********************************")
     print("Cleaning up the PAAM board...")
-    print(" ")
+    print("*********************************")
     PAAM0.cleanup()
 
     print(" ")

@@ -55,8 +55,9 @@ def main():
                  
     # Execute
     print(" ")
+    print("*******************************")
     print("Enabling the PAAM board...")
-    print(" ")
+    print("*******************************")
     PAAM0.config(ics, num_elements, mode, Pol)
 
 

@@ -47,8 +47,9 @@ def main():
                  
     # Execute
     print(" ")
+    print("**************************************************")
     print("Steering the PAAM board to azimuth: {}, elevation: {}...".format(theta, phi))
-    print(" ")
+    print("**************************************************")
     PAAM0.steer(theta, phi)
 
 
