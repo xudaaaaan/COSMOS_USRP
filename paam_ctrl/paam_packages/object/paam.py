@@ -220,7 +220,6 @@ class PAAM(object):
 
             # Print information
             # --- steps ---
-            print("The step(s) been executed:")
             if 'ERROR' in json_data['response']['action']:
                 if json_data['response']['action']['ERROR']['@detail'] == " Array is already connected":
                     """
@@ -229,6 +228,7 @@ class PAAM(object):
                     print("The board is already connected!")
                 else:
                     print("Attention! Unknown error!")
+            print("The step(s) been executed:")
             for step_idx in self.step:
                 print("    {}".format(step_idx['@name']))
             # --- states ---
