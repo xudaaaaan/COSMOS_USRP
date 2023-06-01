@@ -1,1 +1,1 @@
-from .paam import PAAMarray
+from .paam import PAAM
