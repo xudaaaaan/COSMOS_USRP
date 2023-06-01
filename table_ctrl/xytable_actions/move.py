@@ -33,8 +33,6 @@ def main():
     :return:
     :rtype:
     """
-    # Parameters
-    isdebug = True
 
     # Create an argument parser
     parser = argparse.ArgumentParser()

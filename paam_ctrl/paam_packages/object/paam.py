@@ -30,10 +30,15 @@ class PAAMarray(object):
         # self.isdebug = isdebug
         self.array = array_name  # string format
         self.main_url = 'http://am1.orbit-lab.org:5054/array_mgmt/'
+        """
         self.xy_status = None
         self.rotator_status = None
         self.current_position = None
         self.target_position = None
+        """
+        self.state = None
+        self.adc_conv = None
+        self.step = None
 
     @property
     def array(self):
@@ -43,6 +48,7 @@ class PAAMarray(object):
         :rtype:
         """
         return self.__array
+
 
     @array.setter
     def array(self, array_name):
@@ -58,6 +64,7 @@ class PAAMarray(object):
         else:
             raise NotImplemented
 
+
     @property
     def status(self):
         params = {'dev_name': self.array + '.sb1.cosmos-lab.org'}
@@ -69,127 +76,98 @@ class PAAMarray(object):
         else:
             # Success: print status of the xytable
             json_data = json.loads(json.dumps(xmltodict.parse(r.content)))
-            array_data = json_data['response']['action']['state']
+            
+            self.state = json_data['response']['action']['state']
+            self.adc_conv = json_data['response']['action']['adc_conv']['conv']
 
+            return self.state, self.adc_conv
 
-            """
-            json_data = json.loads(json.dumps(xmltodict.parse(r.content)))
-            table_data = json_data['response']['action']['xy_table']
-            self.xy_status = table_data['@xy_status']
-            self.rotator_status = table_data['@rotator_status']
-            current_pos = table_data['current_position']
-            target_pos = table_data['target_position']
-            self.current_position = [current_pos['@x'], current_pos['@y'], current_pos['@angle']]
-            self.target_position = [target_pos['@x'], target_pos['@y'], target_pos['@angle']]
-
-            print("The current position: {}".format(self.current_position))
-            print("The target position: {}".format(self.target_position))
-
-            return self.xy_status, self.rotator_status, self.current_position, self.target_position
-            """
             
 
-'''
-    def move(self, x, y, angle):
+    def connect(self):
         """
-
-        :param x:
-        :type x:
-        :param y:
-        :type y:
-        :param angle:
-        :type angle:
-        :return:
-        :rtype:
+        "connect" will execute 3 steps: open, initialization, and enabling
         """
-
-        params = {'name': self.array + '.sb1.cosmos-lab.org',
-                  'x': int(x),
-                  'y': int(y),
-                  'angle': angle}
+        params = {'dev_name': self.array + '.sb1.cosmos-lab.org'}
         try:
-            r = requests.get(url=self.main_url + 'move_to', params=params)
+            r = requests.get(url=self.main_url + 'connect', params=params)
             r.raise_for_status()
         except requests.exceptions.HTTPError as err:
             raise SystemExit(err)
         else:
-            # Success: print new position of the xytable
-            json_data = json.loads(json.dumps(xmltodict.parse(r.content)))
-            table_data = json_data['response']['action']['xy_table']
-            self.xy_status = table_data['@xy_status']
-            self.rotator_status = table_data['@rotator_status']
-            current_pos = table_data['current_position']
-            target_pos = table_data['target_position']
-            self.current_position = [current_pos['@x'], current_pos['@y'], current_pos['@angle']]
-            self.target_position = [target_pos['@x'], target_pos['@y'], target_pos['@angle']]
+            # Success: print status of the xytable
+            json_data = json.loads(json.dumps(xmltodict.parse(r.content)))   
 
-            print("The current position: {}".format(self.current_position))
-            print("The target position: {}".format(self.target_position))
+            self.step = json_data['response']['action']['step']
 
-            return self.xy_status, self.rotator_status, self.current_position, self.target_position
+            return self.step
+        
 
 
-    def check(self):
+    def disconnect(self):
         """
-
-        :param x:
-        :type x:
-        :param y:
-        :type y:
-        :param angle:
-        :type angle:
-        :return:
-        :rtype:
+        "disconnect" will execute 1 step: close
         """
-
-        params = {'name': self.array + '.sb1.cosmos-lab.org'}
+        params = {'dev_name': self.array + '.sb1.cosmos-lab.org'}
         try:
-            r = requests.get(url=self.main_url + 'status', params=params)
+            r = requests.get(url=self.main_url + 'disconnect', params=params)
             r.raise_for_status()
         except requests.exceptions.HTTPError as err:
             raise SystemExit(err)
         else:
-            # Success: print new position of the xytable
-            json_data = json.loads(json.dumps(xmltodict.parse(r.content)))
-            table_data = json_data['response']['action']['xy_table']
-            self.xy_status = table_data['@xy_status']
-            self.rotator_status = table_data['@rotator_status']
-            current_pos = table_data['current_position']
-            target_pos = table_data['target_position']
-            self.current_position = [current_pos['@x'], current_pos['@y'], current_pos['@angle']]
-            self.target_position = [target_pos['@x'], target_pos['@y'], target_pos['@angle']]
+            # Success: print status of the xytable
+            json_data = json.loads(json.dumps(xmltodict.parse(r.content)))       
 
-            print("The current position: {}".format(self.current_position))
-            print("The target position: {}".format(self.target_position))
-            print("The array status is: {}".format(self.xy_status))   # Idle, or moving, or other status, it's not the RF status of the array but its movement status
-            print("The rotor status is: {}".format(self.rotator_status))
+            self.step = json_data['response']['action']['step']
 
-            return self.xy_status, self.rotator_status, self.current_position
+            return self.step
+        
 
 
-    def stop(self):
+    def cleanup(self):
         """
-
-        :return:
-        :rtype:
+        "disconnect" will execute 1 step: close
+            
+        ***Question***: the same as disconnect?
         """
-
-        params = {'name': self.array + '.sb1.cosmos-lab.org'}
+        params = {'dev_name': self.array + '.sb1.cosmos-lab.org'}
         try:
-            r = requests.get(url=self.main_url + 'stop', params=params)
+            r = requests.get(url=self.main_url + 'cleanup', params=params)
             r.raise_for_status()
         except requests.exceptions.HTTPError as err:
             raise SystemExit(err)
         else:
-            # Success: print the current stop position of the xytable
-            json_data = json.loads(json.dumps(xmltodict.parse(r.content)))
-            table_data = json_data['response']['action']['xy_table']
-            self.xy_status = table_data['@xy_status']
-            self.rotator_status = table_data['@rotator_status']
-            current_pos = table_data['current_position']
-            self.current_position = [current_pos['@x'], current_pos['@y'], current_pos['@angle']]
+            # Success: print status of the xytable
+            json_data = json.loads(json.dumps(xmltodict.parse(r.content)))      
 
-            print("The current position: {}".format(self.current_position))
+            self.step = json_data['response']['action']['step']
 
-            return self.xy_status, self.rotator_status, self.current_position
-'''
+            return self.step
+        
+
+
+    def config(self, ics, num_elements, txrx, pol, theta, phi):
+        params = {'dev_name': self.array + '.sb1.cosmos-lab.org',
+                  'ics': ics,
+                  'num_elements': int(num_elements),
+                  'txrx': txrx,
+                  'pol': pol, 
+                  'theta': theta,
+                  'phi': phi}
+        try:
+            r = requests.get(url=self.main_url + 'configure', params=params)
+            r.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            raise SystemExit(err)
+        else:
+            # Success: print status of the xytable
+            json_data = json.loads(json.dumps(xmltodict.parse(r.content)))         
+            array_action = json_data['response']['action']
+
+            self.step = array_action['step']
+            self.state = array_action['state']
+            self.adc_conv = array_action['adc_conv']['conv']
+
+
+
+            return self.step
