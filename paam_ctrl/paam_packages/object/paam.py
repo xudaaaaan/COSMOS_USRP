@@ -253,8 +253,19 @@ class PAAM(object):
             raise SystemExit(err)
         else:
             # Success to get return info: print status of the xytable
-            json_data = json.loads(json.dumps(xmltodict.parse(r.content)))       
-            if 'step' in json_data['response']['action']:
+            json_data = json.loads(json.dumps(xmltodict.parse(r.content)))      
+            if 'error' in json_data['response']['action']:
+                if json_data['response']['action']['error']['@detail'] == "Board not connected":
+                    """
+                    If the board is already disconnected
+                    """
+                    print("The board is already disconnected!")
+                else:
+                    print("Attention! Unknown error!")
+            else:
+                """
+                If the board is not already disconnected
+                """
                 self.step = json_data['response']['action']['step']
                 # Print information
                 # --- steps ---
@@ -262,13 +273,8 @@ class PAAM(object):
                 print("    {}".format(self.step['@name']))
 
                 return self.step
-            elif 'error' in json_data['response']['action']:
-                print("The board is already disconnected!")
-
-
-            
+                        
         
-
 
     def cleanup(self):
         """
