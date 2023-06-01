@@ -255,7 +255,7 @@ class PAAM(object):
             # Success to get return info: print status of the xytable
             json_data = json.loads(json.dumps(xmltodict.parse(r.content)))      
             if 'error' in json_data['response']['action']:
-                if json_data['response']['action']['error']['@detail'] == "Board not connected":
+                if json_data['response']['action']['error']['@msg'] == "Board not connected":
                     """
                     If the board is already disconnected
                     """
