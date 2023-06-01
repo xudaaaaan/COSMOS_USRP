@@ -229,9 +229,8 @@ class PAAM(object):
                     print("The board is already connected!")
                 else:
                     print("Attention! Unknown error!")
-            else:
-                for step_idx in self.step:
-                    print("    {}".format(step_idx['@name']))
+            for step_idx in self.step:
+                print("    {}".format(step_idx['@name']))
             # --- states ---
             print("Array RF state: ")
             print("    PAAM_ID = {}".format(self.state['@PAAM_ID']))
