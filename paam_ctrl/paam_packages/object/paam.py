@@ -78,7 +78,7 @@ class PAAMarray(object):
             json_data = json.loads(json.dumps(xmltodict.parse(r.content)))
             
             self.state = json_data['response']['action']['state']
-            self.adc_conv = json_data['response']['action']['adc_conv']['conv']
+            self.adc_conv = json_data['response']['action']['adc']['conv']
 
             return self.state, self.adc_conv
 
@@ -166,7 +166,7 @@ class PAAMarray(object):
 
             self.step = array_action['step']
             self.state = array_action['state']
-            self.adc_conv = array_action['adc_conv']['conv']
+            self.adc_conv = array_action['adc']['conv']
 
 
 
