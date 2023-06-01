@@ -259,9 +259,8 @@ class PAAM(object):
 
             # Print information
             # --- steps ---
-            print("The step(s) been executed:")
-            for step_idx in self.step:
-                print("    {}".format(step_idx['@name']))
+            print("The step been executed:")
+            print("    {}".format(self.step['@name']))
 
             return self.step
         
