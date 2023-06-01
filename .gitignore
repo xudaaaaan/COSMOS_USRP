@@ -1,5 +1,4 @@
 .Xauthority
-build/
 debian
 .local/
 .profile
