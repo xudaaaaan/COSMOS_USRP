@@ -42,6 +42,7 @@ def main():
     # Execute
     print(" ")
     print("Connecting the PAAM board...")
+    print(" ")
     PAAM0.connect()
 
     print(" ")

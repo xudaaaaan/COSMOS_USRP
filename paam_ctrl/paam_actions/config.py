@@ -60,6 +60,7 @@ def main():
     # Execute
     print(" ")
     print("Configuring the PAAM board...")
+    print(" ")
     PAAM0.config(ics, num_elements, mode, Pol, theta, phi)
 
 

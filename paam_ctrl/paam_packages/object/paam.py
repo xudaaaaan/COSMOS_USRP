@@ -126,9 +126,9 @@ class PAAM(object):
                     """
                     If the board is already connected
                     """
-                    print("    The board is already connected!")
+                    print("The board is already connected!")
                 else:
-                    print("    Attention! Unknown error!")
+                    print("Attention! Unknown error!")
             else:
                 self.step = json_data['response']['action']['step']
                 # Print information
@@ -163,9 +163,9 @@ class PAAM(object):
 
             # Print information
             # --- steps ---
-            print("    The step(s) been executed:")
+            print("The step(s) been executed:")
             for step_idx in self.step:
-                print("        {}".format(step_idx['@name']))
+                print("    {}".format(step_idx['@name']))
 
             return self.step
         
@@ -188,9 +188,9 @@ class PAAM(object):
 
             # Print information
             # --- steps ---
-            print("    The step(s) been executed:")
+            print("The step(s) been executed:")
             for step_idx in self.step:
-                print("        {}".format(step_idx['@name']))
+                print("    {}".format(step_idx['@name']))
 
             return self.step
         
@@ -220,39 +220,39 @@ class PAAM(object):
 
             # Print information
             # --- steps ---
-            print("    The step(s) been executed:")
+            print("The step(s) been executed:")
             if 'ERROR' in json_data['response']['action']:
                 if json_data['response']['action']['ERROR']['@detail'] == " Array is already connected":
                     """
                     If the board is already connected
                     """
-                    print("    The board is already connected!")
+                    print("The board is already connected!")
                 else:
-                    print("    Attention! Unknown error!")
+                    print("Attention! Unknown error!")
             else:
                 for step_idx in self.step:
-                    print("        {}".format(step_idx['@name']))
+                    print("    {}".format(step_idx['@name']))
             # --- states ---
-            print("    Array RF state: ")
-            print("        PAAM_ID = {}".format(self.state['@PAAM_ID']))
-            print("        LO_switch = {}".format(self.state['@LO_switch']))
-            print("        if_sw1 = {}".format(self.state['@if_sw1']))
-            print("        if_sw2 = {}".format(self.state['@if_sw2']))
-            print("        if_sw3 = {}".format(self.state['@if_sw3']))
-            print("        if_sw4 = {}".format(self.state['@if_sw4']))
+            print("Array RF state: ")
+            print("    PAAM_ID = {}".format(self.state['@PAAM_ID']))
+            print("    LO_switch = {}".format(self.state['@LO_switch']))
+            print("    if_sw1 = {}".format(self.state['@if_sw1']))
+            print("    if_sw2 = {}".format(self.state['@if_sw2']))
+            print("    if_sw3 = {}".format(self.state['@if_sw3']))
+            print("    if_sw4 = {}".format(self.state['@if_sw4']))
             # --- ADCs ---
-            print("    ADC status: ")
+            print("ADC status: ")
             for step_idx in self.adc_conv[:-2]:
-                print("        index = {}, name = {}, tADC = {}, tVolt = {}, tCurr = {}".format(step_idx['@index'], 
-                                                                                                step_idx['@name'],
-                                                                                                step_idx['@tADC'],
-                                                                                                step_idx['@tVolt'],
-                                                                                                step_idx['@tCurr']))
+                print("    index = {}, name = {}, tADC = {}, tVolt = {}, tCurr = {}".format(step_idx['@index'], 
+                                                                                            step_idx['@name'],
+                                                                                            step_idx['@tADC'],
+                                                                                            step_idx['@tVolt'],
+                                                                                            step_idx['@tCurr']))
             for step_idx in self.adc_conv[-2:]:
-                print("        index = {}, name = {}, tADC = {}, tVolt = {}".format(step_idx['@index'], 
-                                                                                    step_idx['@name'],
-                                                                                    step_idx['@tADC'],
-                                                                                    step_idx['@tVolt']))
+                print("    index = {}, name = {}, tADC = {}, tVolt = {}".format(step_idx['@index'], 
+                                                                                step_idx['@name'],
+                                                                                step_idx['@tADC'],
+                                                                                step_idx['@tVolt']))
 
 
             return self.step, self.state, self.adc_conv
@@ -277,9 +277,9 @@ class PAAM(object):
                     """
                     If the board is already disconnected
                     """
-                    print("    The board is already disconnected!")
+                    print("The board is already disconnected!")
                 else:
-                    print("    Attention! Unknown error!")
+                    print("Attention! Unknown error!")
             else:
                 """
                 If the board is not already disconnected
@@ -287,8 +287,8 @@ class PAAM(object):
                 self.step = json_data['response']['action']['step']
                 # Print information
                 # --- steps ---
-                print("    The step been executed:")
-                print("        {}".format(self.step['@name']))
+                print("The step been executed:")
+                print("    {}".format(self.step['@name']))
 
                 return self.step
                         
@@ -314,9 +314,9 @@ class PAAM(object):
 
             # Print information
             # --- steps ---
-            print("    The step(s) been executed:")
+            print("The step(s) been executed:")
             for step_idx in self.step:
-                print("        {}".format(step_idx['@name']))
+                print("    {}".format(step_idx['@name']))
 
             return self.step
         
