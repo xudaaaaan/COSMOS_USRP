@@ -252,17 +252,21 @@ class PAAM(object):
         except requests.exceptions.HTTPError as err:
             raise SystemExit(err)
         else:
-            # Success: print status of the xytable
+            # Success to get return info: print status of the xytable
             json_data = json.loads(json.dumps(xmltodict.parse(r.content)))       
+            if 'step' in json_data['response']['action']:
+                self.step = json_data['response']['action']['step']
+                # Print information
+                # --- steps ---
+                print("The step been executed:")
+                print("    {}".format(self.step['@name']))
 
-            self.step = json_data['response']['action']['step']
+                return self.step
+            elif 'error' in json_data['response']['action']:
+                print("The board is already disconnected!")
 
-            # Print information
-            # --- steps ---
-            print("The step been executed:")
-            print("    {}".format(self.step['@name']))
 
-            return self.step
+            
         
 
 
