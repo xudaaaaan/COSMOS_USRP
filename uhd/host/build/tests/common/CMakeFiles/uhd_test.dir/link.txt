@@ -1,2 +1,0 @@
-/usr/bin/ar qc libuhd_test.a  CMakeFiles/uhd_test.dir/mock_ctrl_iface_impl.cpp.o CMakeFiles/uhd_test.dir/mock_zero_copy.cpp.o CMakeFiles/uhd_test.dir/__/__/lib/rfnoc/graph_impl.cpp.o CMakeFiles/uhd_test.dir/__/__/lib/rfnoc/async_msg_handler.cpp.o
-/usr/bin/ranlib libuhd_test.a
