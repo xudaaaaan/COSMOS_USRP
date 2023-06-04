@@ -34,19 +34,23 @@ def main():
     # Create an argument parser
     parser = argparse.ArgumentParser()
     parser.add_argument("-n", "--node", type=str, default='rfdev4-in2', help="the domain of the PAAM that you want to control")
+    parser.add_argument("-t", "--theta", type=int, default=0, help="the direction of azimuth steering")
+    parser.add_argument("-p", "--phi", type=int, default=0, help="the direction of elevation steering")
     args = parser.parse_args()
 
     # Create a PAAM object
     PAAM0 = paam_packages.object.PAAM(args.node)
 
+    # Set up the RF configuration for the PAAM
+    theta = args.theta
+    phi = args.phi
+                 
     # Execute
     print(" ")
-    print("*********************************")
-    print("Cleaning up the PAAM board...")
-    print("*********************************")
-    PAAM0.cleanup()
-
-    print(" ")
+    print("**************************************************")
+    print("Steering the PAAM board to azimuth: {}, elevation: {}...".format(theta, phi))
+    print("**************************************************")
+    PAAM0.steer(theta, phi)
 
 
 

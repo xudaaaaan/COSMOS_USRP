@@ -34,19 +34,31 @@ def main():
     # Create an argument parser
     parser = argparse.ArgumentParser()
     parser.add_argument("-n", "--node", type=str, default='rfdev4-in2', help="the domain of the PAAM that you want to control")
+    parser.add_argument("-c", "--ics", default='all', help="can be either 'all' or any number between 1~4")
+    parser.add_argument("-N", "--num_elements", type=int, default=16, help="the number of elements to be activated on each IC")
+    parser.add_argument("-m", "--mode", type=str, default='tx', help="assign the working mode, tx or rx")
+    parser.add_argument("-P", "--pol", type=str, default='v', help="assign the polarization, vertical or horizontal")
     args = parser.parse_args()
 
     # Create a PAAM object
     PAAM0 = paam_packages.object.PAAM(args.node)
 
+    # Set up the RF configuration for the PAAM
+    ics = args.ics
+    try:
+        ics = int(ics)
+    except ValueError:
+        pass  # ics remains as "all"
+    num_elements = args.num_elements
+    mode = args.mode
+    Pol = args.pol
+                 
     # Execute
     print(" ")
-    print("*********************************")
-    print("Cleaning up the PAAM board...")
-    print("*********************************")
-    PAAM0.cleanup()
-
-    print(" ")
+    print("*******************************")
+    print("Enabling the PAAM board...")
+    print("*******************************")
+    PAAM0.config(ics, num_elements, mode, Pol)
 
 
 

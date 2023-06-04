@@ -1,0 +1,1 @@
+this config folder is for the 60 GHz Sivers array only. 

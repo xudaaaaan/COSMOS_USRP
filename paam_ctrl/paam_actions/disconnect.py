@@ -41,8 +41,10 @@ def main():
 
     # Execute
     print(" ")
+    print("************************************")
     print("Disconnecting the PAAM board...")
-    PAAM0.diconnect()
+    print("************************************")
+    PAAM0.disconnect()
 
     print(" ")
 
