@@ -1,0 +1,28 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../include/uhd/config.hpp
+boost/config.hpp
+-
+boost/version.hpp
+-
+ciso646
+-
+cstddef
+-
+
+../include/uhd/utils/static.hpp
+uhd/config.hpp
+-
+
+/root/uhd/host/tests/module_test.cpp
+uhd/utils/static.hpp
+-
+iostream
+-
+
