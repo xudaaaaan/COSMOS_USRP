@@ -1,0 +1,40 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../include/uhd/config.hpp
+boost/config.hpp
+-
+boost/version.hpp
+-
+ciso646
+-
+cstddef
+-
+
+../include/uhd/types/time_spec.hpp
+uhd/config.hpp
+-
+stdint.h
+-
+boost/operators.hpp
+-
+
+/root/uhd/host/tests/time_spec_test.cpp
+uhd/types/time_spec.hpp
+-
+stdint.h
+-
+boost/test/unit_test.hpp
+-
+boost/thread.hpp
+-
+iomanip
+-
+iostream
+-
+

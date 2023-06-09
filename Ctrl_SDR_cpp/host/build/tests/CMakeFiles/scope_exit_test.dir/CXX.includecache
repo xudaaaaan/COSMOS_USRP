@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../include/uhd/utils/scope_exit.hpp
+functional
+-
+memory
+-
+
+/root/uhd/host/tests/scope_exit_test.cpp
+uhd/utils/scope_exit.hpp
+-
+boost/test/unit_test.hpp
+-
+iostream
+-
+
