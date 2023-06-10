@@ -9,12 +9,35 @@
 // Copyright: 2023
 //
 
+
+
+/**********************************************
+This code will be used as the Tx 
+(USRP 2974) for the indoor experiment. 
+
+USRP-2974 is the equivalent to a USRP X310 with two UBX-160 boards, a GPSDO and an onboard Intel i7 computer.
+
+USRP Configuration reference: https://files.ettus.com/manual/page_usrp_x3x0.html
+RF Configuration reference: https://files.ettus.com/manual/classuhd_1_1usrp_1_1multi__usrp.html
+**********************************************/
+
+
+/*------------------------------------
+Notes:
+    1. USRP Interface should be set to 10 Gigabit Ethernet - makes max sampling rate as 200MS/s (https://kb.ettus.com/About_USRP_Bandwidths_and_Sampling_Rates)
+------------------------------------*/
+
+
+
 /*=========================================
 Items waited to be implemented:
     1. Integrate Python as a library into C++
     2. Automation logic for indoor experiment
     3. RF configuration block - pack as a subfunction or whatever to make
         the main code as simple as possible
+Question:
+    1. What is the difference between ant/channels/subdev?
+    2. How to make the send buffer size as equal to the txt file length?
 =========================================*/
 
 #include <uhd/types/tune_request.hpp>
@@ -52,7 +75,6 @@ void send_from_file(
     std::ifstream infile(file.c_str(), std::ifstream::binary);
 
     // loop until the entire file has been read
-
     while (not md.end_of_burst and not stop_signal_called) {
         infile.read((char*)&buff.front(), buff.size() * sizeof(samp_type));
         size_t num_tx_samps = size_t(infile.gcount() / sizeof(samp_type));
@@ -67,63 +89,55 @@ void send_from_file(
 
 int UHD_SAFE_MAIN(int argc, char* argv[])
 {
-    // variables to be set by po
-    std::string args, file, type, ant, subdev, ref, pps, wirefmt, channel_list;
-    size_t spb;
-    double rate, freq, gain, bw, delay, lo_offset;
-
-    // setup the program options
-    po::options_description desc("Allowed options");
-    // clang-format off
-    desc.add_options()
-        // ("help", "help message")
-        // ("args", po::value<std::string>(&args)->default_value(""), "multi uhd device address args")
-        // ("file", po::value<std::string>(&file)->default_value("usrp_samples.dat"), "name of the file to read binary samples from")
-        // ("type", po::value<std::string>(&type)->default_value("short"), "sample type: double, float, or short")
-        // ("spb", po::value<size_t>(&spb)->default_value(10000), "samples per buffer")
-        // ("rate", po::value<double>(&rate), "rate of outgoing samples")
-        // ("freq", po::value<double>(&freq), "RF center frequency in Hz")
-        // ("lo-offset", po::value<double>(&lo_offset)->default_value(0.0),
-        //     "Offset for frontend LO in Hz (optional)")
-        // ("lo_off", po::value<double>(&lo_offset),
-        //     "(DEPRECATED) will go away soon! Use --lo-offset instead")
-        // ("gain", po::value<double>(&gain), "gain for the RF chain")
-        // ("ant", po::value<std::string>(&ant), "antenna selection")
-        // ("subdev", po::value<std::string>(&subdev), "subdevice specification")
-        // ("bw", po::value<double>(&bw), "analog frontend filter bandwidth in Hz")
-        // ("ref", po::value<std::string>(&ref)->default_value("internal"), "reference source (internal, external, mimo)")
-        // ("wirefmt", po::value<std::string>(&wirefmt)->default_value("sc16"), "wire format (sc8 or sc16)")
-        // ("delay", po::value<double>(&delay)->default_value(0.0), "specify a delay between repeated transmission of file (in seconds)")
-        // ("channel", po::value<std::string>(&channel)->default_value("0"), "which channel to use")
-        // ("repeat", "repeatedly transmit file")
-        // ("int-n", "tune USRP with integer-n tuning")
-
-
-        ("help", "help message")
-
-        ("ant", po::value<std::string>(&ant)->default_value("AB"), "antenna selection")
-        ("args", po::value<std::string>(&args)->default_value("addr=10.38.14.1"), "multi uhd device address args")
-        ("bw", po::value<double>(&bw), "analog frontend filter bandwidth in Hz")
-        ("channels", po::value<std::string>(&channel_list)->default_value("0"), "which channels to use (specify \"0\", \"1\", \"0,1\", etc)")
-        ("delay", po::value<double>(&delay)->default_value(0.0), "specify a delay between repeated transmission of file (in seconds)")
-        ("file", po::value<std::string>(&file)->default_value(""), "name of the file to read binary samples from")
-        ("freq", po::value<double>(&freq)->default_value(80e6), "RF center frequency in Hz")
-        ("gain", po::value<double>(&gain)->default_value(0), "gain for the RF chain")
-        ("int-n", "tune USRP with integer-n tuning")
-        ("lo-offset", po::value<double>(&lo_offset)->default_value(0.0),
-            "Offset for frontend LO in Hz (optional)")
-        ("pps", po::value<std::string>(&pps)->default_value("external"), "PPS source (internal, external, mimo, gpsdo)")
-        ("rate", po::value<double>(&rate)->default_value(10e6), "rate of outgoing samples")
-        ("ref", po::value<std::string>(&ref)->default_value("external"), "reference source (internal, external, mimo)")
-        ("onetime", "NOT repeatedly transmit file, only transmit for onetime only")
-        ("spb", po::value<size_t>(&spb)->default_value(10000), "samples per buffer")
-        ("subdev", po::value<std::string>(&subdev)->default_value("A:AB"), "subdevice specification")
-        ("type", po::value<std::string>(&type)->default_value("double"), "sample type: double, float, or short")
-        ("wirefmt", po::value<std::string>(&wirefmt)->default_value("sc16"), "wire format (sc8 or sc16)")    
+    //// ====== Setup Variables ======
+        //constant variables
+        /* --- Timing configuration ---
+        Reference: 
+            1 PPS: https://files.ettus.com/manual/classuhd_1_1usrp_1_1multi__usrp.html#a57a5580ba06d7d6a037c9ef64f1ea361
+            Ref: https://files.ettus.com/manual/classuhd_1_1usrp_1_1multi__usrp.html#a73ed40009d0d3787c183d42423d25026
+        */
+        const std::string pps = "external";
+        const std::string ref = "external";
         
+        /* --- RF configuration --- */
+        const double rate = 200e6;  // Tx sampling rate, in Samples/sec
+        const double bw = 100e6;    // Transmission bandwidth, in Hz
+        const double freq = 3e9;    // 1st-stage IF center frequency, in Hz, should be 3 GHz. Then PAAM will keep UPC from 3 GHz to 28 GHz. 
+    
 
+        // variables to be set by po
+        std::string args, file, ant, subdev, channel_list;
+        size_t spb;
+        double gain;
         
-    ;
+        po::options_description desc("Allowed options");    // setup the program options
+        desc.add_options()
+            ("help", "help message")
+
+            /*
+            For USRP 2974, RF0 - Tx(H)+Rx(H); RF1 - Tx(V)+Rx(V).
+            Most likely, the subdev should be: B:0
+            Refer to: https://files.ettus.com/manual/page_dboards.html#dboards_ubx
+
+            set "args" as USRP's address
+            Refer to: https://files.ettus.com/manual/page_usrp_x3x0.html#x3x0_usage_device_args
+            */
+            ("ant", po::value<std::string>(&ant)->default_value("AB"), "antenna selection")
+            ("channels", po::value<std::string>(&channel_list)->default_value("0"), "which channels to use (specify \"0\", \"1\", \"0,1\", etc)")
+            ("subdev", po::value<std::string>(&subdev)->default_value("A:AB"), "subdevice specification")
+            ("args", po::value<std::string>(&args)->default_value("addr=10.37.21.1"), "USRP addresses, default is for the portable node mob4")
+
+            // RF parameters
+            ("gain", po::value<double>(&gain)->default_value(0), "gain for the Tx USRP")
+            ("int-n", "tune USRP with integer-n tuning")
+
+            // sounding signal/transmission
+            ("file", po::value<std::string>(&file)->default_value(""), "name of the file to read binary samples from")
+            ("spb", po::value<size_t>(&spb)->default_value(10000), "samples per buffer")  
+        ;
+
+
+
     //// ====== Clang-format on ======
         po::variables_map vm;
         po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -139,11 +153,6 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
 
-    //// ====== Set transmission mode, repeatedly or onetime only ======
-        bool onetime = vm.count("onetime") > 0;
-
-
-
     //// ====== Create a usrp device ======
         std::cout << std::endl;
         std::cout << boost::format("Creating the usrp device with: %s...") % args
@@ -153,7 +162,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
 
-    //// ====== Select Sub-device (always has default value) ======
+    //// ====== Select Sub-device (always use default value) ======
         if (vm.count("subdev"))
             usrp->set_tx_subdev_spec(subdev);  // A:AB for Tx, and B:AB for Rx, check the "X310 probe" note in Samsung Notes
     
@@ -210,10 +219,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         for (size_t ch_idx = 0; ch_idx < channel_nums.size(); ch_idx++) {
             std::cout << boost::format("Setting TX Freq: %f MHz...") % (freq / 1e6) 
                     << std::endl;
-            std::cout << boost::format("Setting TX LO Offset: %f MHz...") % (lo_offset / 1e6)
-                    << std::endl;
-            uhd::tune_request_t tune_request(freq, lo_offset);
-            // tune_request = uhd::tune_request_t(freq, lo_offset);
+            uhd::tune_request_t tune_request(freq);
             if (vm.count("int-n"))
                 tune_request.args = uhd::device_addr_t("mode_n=integer");
             usrp->set_tx_freq(tune_request, channel_nums[ch_idx]);
@@ -321,23 +327,36 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         }
 
 
+    //// ************ copied from test_pps_input *********************
+        // set the time at an unknown pps (will throw if no pps)
+        std::cout << std::endl
+                << "Attempt to detect the PPS and set the time..." << std::endl
+                << std::endl;
+        usrp->set_time_unknown_pps(uhd::time_spec_t(0.0));
+        std::cout << std::endl << "Success!" << std::endl << std::endl;
 
-    //// ====== Set sigint if user wants to receive ======
-        if (not onetime) {
-            std::signal(SIGINT, &sig_int_handler);
-            std::cout << "Press Ctrl + C to stop streaming..." << std::endl;
+        if (product_requires_reflock(usrp->get_mboard_name())) {
+            std::cout << "Product requires verification of ref_locked sensor!" << std::endl;
+            std::cout << "Checking ref_locked sensor..." << std::flush;
+            if (!usrp->get_mboard_sensor("ref_locked").to_bool()) {
+                std::cout << "FAIL!" << std::endl;
+                return EXIT_FAILURE;
+            }
+            std::cout << "PASS!" << std::endl;
         }
 
 
 
+    //// ====== Set sigint if user wants to receive ======
+        std::signal(SIGINT, &sig_int_handler);
+        std::cout << "Press Ctrl + C to stop streaming..." << std::endl;
+
+
+
     //// ====== Create a transmit streamer ======
-        std::string cpu_format;
-        if (type == "double")
-            cpu_format = "fc64";
-        else if (type == "float")
-            cpu_format = "fc32";
-        else if (type == "short")
-            cpu_format = "sc16";
+        // refer to: https://files.ettus.com/manual/page_configuration.html#config_stream_args_cpu_format
+        std::string cpu_format = "f32"; // Single-precision 32-bit data
+        std::string wirefmt = "s16"; // Signed 16-bit integer data
         uhd::stream_args_t stream_args(cpu_format, wirefmt);
         channel_nums.push_back(boost::lexical_cast<size_t>(channel_list));
         stream_args.channels             = channel_nums;
@@ -345,21 +364,10 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
 
-    //// ====== Send data ======
+    //// ====== Continuosly Send data ======
         do {
-            if (type == "double")
-                send_from_file<std::complex<double>>(tx_stream, file, spb);
-            else if (type == "float")
-                send_from_file<std::complex<float>>(tx_stream, file, spb);
-            else if (type == "short")
-                send_from_file<std::complex<short>>(tx_stream, file, spb);
-            else
-                throw std::runtime_error("Unknown type " + type);
-
-            if (not onetime and delay > 0.0) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(int64_t(delay * 1000)));
-            }
-        } while (not onetime and not stop_signal_called);
+            send_from_file<float>(tx_stream, file, spb);
+        } while (not stop_signal_called);
 
 
 
