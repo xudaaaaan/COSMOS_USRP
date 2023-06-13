@@ -449,9 +449,9 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         // close file
         signal_file.close();
 
-        // shut down transmitter
-        stream_cmd.stream_mode = uhd::stream_cmd_t::STREAM_MODE_STOP_CONTINUOUS;
-        tx_stream->issue_stream_cmd(stream_cmd);
+        // // shut down transmitter
+        // stream_cmd.stream_mode = uhd::stream_cmd_t::STREAM_MODE_STOP_CONTINUOUS;
+        // tx_stream->issue_stream_cmd(stream_cmd);
 
         // print Tx finishes
         std::cout << std::endl << "Tx Done!" << std::endl << std::endl;
