@@ -25,7 +25,7 @@ namespace uhd { namespace build_info {
     }
 
     const std::string build_date() {
-        return "Thu, 09 Jun 2022 00:07:10";
+        return "Tue, 13 Jun 2023 02:05:48";
     }
 
     const std::string c_compiler() {

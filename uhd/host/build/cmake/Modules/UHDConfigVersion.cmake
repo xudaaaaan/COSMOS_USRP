@@ -25,7 +25,7 @@ set(ABI_VERSION 0)
 set(PATCH_VERSION main)
 set(DEVEL_VERSION TRUE)
 
-set(PACKAGE_VERSION "3.15.0.main-0-33359f8a")
+set(PACKAGE_VERSION "3.15.0.main-0-ee6805b3")
 set(ENV{UHD_PACKAGE_VERSION} ${PACKAGE_VERSION})
 
 # There is a bug in CMake whereby calling "find_package(FOO)" within
@@ -165,4 +165,4 @@ if(${PACKAGE_FIND_VERSION} VERSION_EQUAL ${PACKAGE_VERSION})
 endif()
 
 # Undo our patch-version-number hack
-set(PACKAGE_VERSION 3.15.0.main-0-33359f8a)
+set(PACKAGE_VERSION 3.15.0.main-0-ee6805b3)

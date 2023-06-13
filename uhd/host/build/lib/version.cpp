@@ -12,7 +12,7 @@
 #include <iostream>
 
 std::string uhd::get_version_string(void){
-    return "3.15.0.main-0-33359f8a";
+    return "3.15.0.main-0-ee6805b3";
 }
 
 std::string uhd::get_abi_string(void){
