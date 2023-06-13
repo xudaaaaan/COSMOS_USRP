@@ -371,23 +371,23 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         }
 
 
-    //// ************ copied from test_pps_input *********************
-        // set the time at an unknown pps (will throw if no pps)
-        std::cout << std::endl
-                << "Attempt to detect the PPS and set the time..." << std::endl
-                << std::endl;
-        tx_usrp->set_time_unknown_pps(uhd::time_spec_t(0.0));
-        std::cout << std::endl << "Success!" << std::endl << std::endl;
+    // //// ************ copied from test_pps_input *********************
+    //     // set the time at an unknown pps (will throw if no pps)
+    //     std::cout << std::endl
+    //             << "Attempt to detect the PPS and set the time..." << std::endl
+    //             << std::endl;
+    //     tx_usrp->set_time_unknown_pps(uhd::time_spec_t(0.0));
+    //     std::cout << std::endl << "Success!" << std::endl << std::endl;
 
-        if (product_requires_reflock(tx_usrp->get_mboard_name())) {
-            std::cout << "Product requires verification of ref_locked sensor!" << std::endl;
-            std::cout << "Checking ref_locked sensor..." << std::flush;
-            if (!tx_usrp->get_mboard_sensor("ref_locked").to_bool()) {
-                std::cout << "FAIL!" << std::endl;
-                return EXIT_FAILURE;
-            }
-            std::cout << "PASS!" << std::endl;
-        }
+    //     if (product_requires_reflock(tx_usrp->get_mboard_name())) {
+    //         std::cout << "Product requires verification of ref_locked sensor!" << std::endl;
+    //         std::cout << "Checking ref_locked sensor..." << std::flush;
+    //         if (!tx_usrp->get_mboard_sensor("ref_locked").to_bool()) {
+    //             std::cout << "FAIL!" << std::endl;
+    //             return EXIT_FAILURE;
+    //         }
+    //         std::cout << "PASS!" << std::endl;
+    //     }
 
 
 
@@ -421,20 +421,20 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         tx_metadata.end_of_burst   = false;
 
         // define buffer
-        std::vector<std::complex<double>>  buff(samps_per_buff);
+        std::vector<std::complex<double>>  buff(spb);
 
         // Set up data reading and read sample data from txt file to pre-assigned buffer
         // data is saved in "buff"
         std::ifstream signal_file(filename_read.c_str(), std::ifstream::binary);
-        signal_file.read((char*)&buff.front(), buff.size() * sizeof(samp_type));
-        size_t num_tx_samps = size_t(signal_file.gcount() / sizeof(samp_type));  // the number of samples will be transmitted at one time
+        signal_file.read((char*)&buff.front(), buff.size() * sizeof(std::complex<double>));
+        size_t num_tx_samps = size_t(signal_file.gcount() / sizeof(std::complex<double>));  // the number of samples will be transmitted at one time
 
-        // Setup streaming command - is this part redundant/comflict with the "while" loop in the "continuously trnasmitting" section?
-        uhd::stream_cmd_t stream_cmd(uhd::stream_cmd_t::STREAM_MODE_START_CONTINUOUS);
-        stream_cmd.num_samps  = size_t(samps_per_buff);
-        stream_cmd.stream_now = false;
-        stream_cmd.time_spec  = uhd::time_spec_t(1.0);
-        tx_stream->issue_stream_cmd(stream_cmd);
+        // // Setup streaming command - is this part redundant/comflict with the "while" loop in the "continuously trnasmitting" section?
+        // uhd::stream_cmd_t stream_cmd(uhd::stream_cmd_t::STREAM_MODE_START_CONTINUOUS);
+        // stream_cmd.num_samps  = size_t(spb);
+        // stream_cmd.stream_now = false;
+        // stream_cmd.time_spec  = uhd::time_spec_t(1.0);
+        // tx_stream->issue_stream_cmd(stream_cmd);
 
 
 
