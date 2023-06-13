@@ -38,8 +38,8 @@ set(example_sources
     tx_waveforms4.cpp
 
     # 2023
-    Brian_Indoor_Rx.cpp
-    Brian_Indoor_Tx.cpp
+    Brian_Indoor_Rx_v1.cpp
+    Brian_Indoor_Tx_v1.cpp
 )
 
 if(ENABLE_RFNOC)
