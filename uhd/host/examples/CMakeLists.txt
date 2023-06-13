@@ -36,6 +36,10 @@ set(example_sources
     Brian_tx_file.cpp
     Brian_rx.cpp
     tx_waveforms4.cpp
+
+    # 2023
+    Brian_Indoor_Rx.cpp
+    Brian_Indoor_Tx.cpp
 )
 
 if(ENABLE_RFNOC)

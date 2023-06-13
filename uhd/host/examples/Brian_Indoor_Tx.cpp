@@ -76,44 +76,44 @@ void sig_int_handler(int)
 
 
 
-/***********************************************************************
- * send_from_file function - one time action
- **********************************************************************/
-template <typename samp_type>
-void send_from_file(
-    uhd::tx_streamer::sptr tx_stream, const std::string& read_file, size_t samps_per_buff)
-{
-    // Tx metadata
-    uhd::tx_metadata_t tx_metadata;
-    tx_metadata.start_of_burst = false;
-    tx_metadata.end_of_burst   = false;
+// /***********************************************************************
+//  * send_from_file function - one time action
+//  **********************************************************************/
+// template <typename samp_type>
+// void send_from_file(
+//     uhd::tx_streamer::sptr tx_stream, const std::string& read_file, size_t samps_per_buff)
+// {
+//     // Tx metadata
+//     uhd::tx_metadata_t tx_metadata;
+//     tx_metadata.start_of_burst = false;
+//     tx_metadata.end_of_burst   = false;
     
-    // define buffer
-    std::vector<samp_type>  buff(samps_per_buff);
+//     // define buffer
+//     std::vector<samp_type>  buff(samps_per_buff);
     
-    // Setup data reading
-    std::ifstream signal_file(read_file.c_str(), std::ifstream::binary);
+//     // Setup data reading
+//     std::ifstream signal_file(read_file.c_str(), std::ifstream::binary);
 
 
-    /********************
-     * Perhaps there is a need to use stream command to control the bahavior of the Tx streamer
-    ********************/
+//     /********************
+//      * Perhaps there is a need to use stream command to control the bahavior of the Tx streamer
+//     ********************/
 
 
 
-    // loop until the entire file has been read
-    while (not tx_metadata.end_of_burst and not stop_signal_called) {
-        // read sample data from txt file to pre-assigned buffer
-        signal_file.read((char*)&buff.front(), buff.size() * sizeof(samp_type));
-        size_t num_tx_samps = size_t(signal_file.gcount() / sizeof(samp_type));
+//     // loop until the entire file has been read
+//     while (not tx_metadata.end_of_burst and not stop_signal_called) {
+//         // read sample data from txt file to pre-assigned buffer
+//         signal_file.read((char*)&buff.front(), buff.size() * sizeof(samp_type));
+//         size_t num_tx_samps = size_t(signal_file.gcount() / sizeof(samp_type));
 
-        tx_metadata.end_of_burst = signal_file.eof();
+//         tx_metadata.end_of_burst = signal_file.eof();
 
-        tx_stream->send(&buff.front(), num_tx_samps, tx_metadata);
-    }
+//         tx_stream->send(&buff.front(), num_tx_samps, tx_metadata);
+//     }
 
-    signal_file.close();
-} // send_from_file ends
+//     signal_file.close();
+// } // "send_from_file()" ends
 
 
 
@@ -129,7 +129,6 @@ void send_from_file(
 
 /***********************************************************************
  * Main function
- * @param 
  * @return None.
  **********************************************************************/
 int UHD_SAFE_MAIN(int argc, char* argv[])
@@ -409,7 +408,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
 
-    //// ====== Continuosly Send data ======
+    //// ====== Prepare for the transmitting ======
         // Not 100% sure if there will be software/systmetic processing time between two calls of the send_from_file() function. 
         // If there is, then we need to modify the while-loop structure or logic in the send_from_file() and make the continuouty there
         // so that it can be a continuous action instead of a one-time action.  
@@ -425,50 +424,36 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         std::vector<samp_type>  buff(samps_per_buff);
 
         // Set up data reading and read sample data from txt file to pre-assigned buffer
+        // data is saved in "buff"
         std::ifstream signal_file(read_file.c_str(), std::ifstream::binary);
         signal_file.read((char*)&buff.front(), buff.size() * sizeof(samp_type));
+        size_t num_tx_samps = size_t(signal_file.gcount() / sizeof(samp_type));  // the number of samples will be transmitted at one time
+
+        // Setup streaming command - is this part redundant/comflict with the "while" loop in the "continuously trnasmitting" section?
+        uhd::stream_cmd_t stream_cmd(uhd::stream_cmd_t::STREAM_MODE_START_CONTINUOUS);
+        stream_cmd.num_samps  = size_t(samps_per_buff);
+        stream_cmd.stream_now = false;
+        stream_cmd.time_spec  = uhd::time_spec_t(1.0);
+        tx_stream->issue_stream_cmd(stream_cmd);
 
 
-    //// finished
-        std::cout << std::endl << "Done!" << std::endl << std::endl;
+
+    //// ====== Continuously transmitting ======
+        while (not stop_signal_called) {
+            tx_stream->send(&buff.front(), num_tx_samps, tx_metadata);
+        }
+
+
+
+    //// ====== Wrap up ======
+        // close file
+        signal_file.close();
+
+        // shut down transmitter
+        stream_cmd.stream_mode = uhd::stream_cmd_t::STREAM_MODE_STOP_CONTINUOUS;
+        tx_stream->issue_stream_cmd(stream_cmd);
+
+        // print Tx finishes
+        std::cout << std::endl << "Tx Done!" << std::endl << std::endl;
         return EXIT_SUCCESS;
 }
-
-
-
-
-
-
-
-
-void send_from_file(
-    uhd::tx_streamer::sptr tx_stream, const std::string& read_file, size_t samps_per_buff)
-{
-    // Tx metadata
-
-    
-    // define buffer
-
-    
-    // Set up data reading and read sample data from txt file to pre-assigned buffer
-
-
-    /********************
-     * Perhaps there is a need to use stream command to control the bahavior of the Tx streamer
-    ********************/
-
-
-
-    // loop until the entire file has been read
-    while (not tx_metadata.end_of_burst and not stop_signal_called) {
-        // read sample data from txt file to pre-assigned buffer
-        
-        size_t num_tx_samps = size_t(signal_file.gcount() / sizeof(samp_type));
-
-        tx_metadata.end_of_burst = signal_file.eof();
-
-        tx_stream->send(&buff.front(), num_tx_samps, tx_metadata);
-    }
-
-    signal_file.close();
-} // send_from_file ends

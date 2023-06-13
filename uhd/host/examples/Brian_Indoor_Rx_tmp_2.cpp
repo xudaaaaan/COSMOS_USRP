@@ -33,6 +33,7 @@ Question:
     1. What is the difference between ant/channels/subdev?
     2. How to make the send buffer size as equal to the txt file length?
         - I want to achieve an action that each receive will full the assigned buffer, which MIGHT be a full repetition of the sounding signal, or multiple repetitions. 
+    3. What are the values of "rx_starting_tick" and "rx_starting_sec"?
 =========================================*/
 
 
@@ -72,33 +73,30 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,         // a USRP object
     double              start_streaming_delay    = 3.0,    // how many seconds to start streaming after the Rx USRP receives its first 1 PPS
     )
 {
-    // system parameters
-    bool continue_on_bad_packet     = false;
-    bool stats                      = true;
-    size_t num_received_samps       = 0;   // number of samples have received so far
-    size_t num_rx_samps_tmp         = 0;
-    const double timeout            = 10.0;   // in sec
+    //// ====== Define Variables ======
+        // system parameters
+        bool continue_on_bad_packet     = false;
+        bool stats                      = true;
+        size_t num_received_samps       = 0;   // number of samples have received so far
+        size_t num_rx_samps_tmp         = 0;
+        const double timeout            = 10.0;   // in sec
 
-    // Rx metadata
-    uhd::rx_metadata_t rx_metadata;
+        // Rx metadata
+        uhd::rx_metadata_t rx_metadata;
 
-    // define buffer
-    std::vector<samp_type> buff(samps_per_buff);
+        // define buffer
+        std::vector<samp_type> buff(samps_per_buff);
 
-    // Set up data writing
-    std::ofstream data_file;
-    char full_file_name[200];
-    strcpy(full_file_name, write_file.c_str());
-    strcat(full_file_name, ".dat");
-    data_file.open(full_file_name, std::ofstream::binary);
+        // Set up data writing
+        std::ofstream data_file;
+        char full_file_name[200];
+        strcpy(full_file_name, write_file.c_str());
+        strcat(full_file_name, ".dat");
+        data_file.open(full_file_name, std::ofstream::binary);
 
-    // Set up metadata writing
-    std::ofstream metadata_file;
-    char full_metafile_name[200];
-    
-
-    
-
+        // Set up metadata writing
+        std::ofstream metadata_file;
+        char full_metafile_name[200];
 
     //// ====== Configurations ======
         // Setup streaming command - each receiving action will be achieved by issuing a streaming command
@@ -117,78 +115,65 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,         // a USRP object
             * when to stream (related to synchronization) - stream_now & time_spec
         */
         rx_stream->issue_stream_cmd(stream_cmd);    // configure the USRP accordingly
-        
 
-        // --- prints ---
+        // print starting info
         std::cout << std::endl;
         std::cout << std::endl;
         std::cout << "Rx: capturing will start in " << time_to_recv.get_real_secs() << " seconds..."
             << std::endl;
-        // --------------
 
-
-         // Mark the starting timestamp
+        // Mark the starting timestamp
         const auto start_time = std::chrono::steady_clock::now();
 
+    //// ====== Receive and Write Data ======
+        // Receive samples into the pre-assigned buffer
+        num_rx_samps_tmp =
+            rx_stream->recv(&buff.front(), buff.size(), rx_metadata, timeout);
 
-    //// ====== Keep running until... ======
-        // until all the requested number of samples were collected
-        while (num_requested_samples != num_received_samps) {
-
-            // Receive samples into the pre-assigned buffer
-            num_rx_samps_tmp =
-                rx_stream->recv(&buff.front(), buff.size(), rx_metadata, timeout);
-
-            // Define error cases
-                // - 1 - Time out
-                if (rx_metadata.error_code == uhd::rx_metadata_t::ERROR_CODE_TIMEOUT) {
-                    std::cout << boost::format("Timeout while streaming") << std::endl;
-                    break;
-                }
-                // - 2 - Overflow
-                if (rx_metadata.error_code == uhd::rx_metadata_t::ERROR_CODE_OVERFLOW) {
-                    std::cerr
-                        << boost::format(
-                            "Got an overflow indication. Please consider the following:\n"
-                            "  Your write medium must sustain a rate of %fMB/s.\n"
-                            "  Dropped samples will not be written to the file.\n"
-                            "  Please modify this example for your purposes.\n")
-                            % (usrp->get_rx_rate() * sizeof(samp_type) / 1e6);
+        // Define error cases
+            // - 1 - Time out
+            if (rx_metadata.error_code == uhd::rx_metadata_t::ERROR_CODE_TIMEOUT) {
+                std::cout << boost::format("Timeout while streaming") << std::endl;
+                break;}
+            // - 2 - Overflow
+            if (rx_metadata.error_code == uhd::rx_metadata_t::ERROR_CODE_OVERFLOW) {
+                std::cerr
+                    << boost::format(
+                        "Got an overflow indication. Please consider the following:\n"
+                        "  Your write medium must sustain a rate of %fMB/s.\n"
+                        "  Dropped samples will not be written to the file.\n"
+                        "  Please modify this example for your purposes.\n")
+                        % (usrp->get_rx_rate() * sizeof(samp_type) / 1e6);
+                continue;}
+            // - 3 - Other errors
+            if (rx_metadata.error_code != uhd::rx_metadata_t::ERROR_CODE_NONE) {
+                std::string error = str(boost::format("Receiver error: %s") % rx_metadata.strerror());
+                if (continue_on_bad_packet) {
+                    std::cerr << error << std::endl;
                     continue;
-                }
-                // - 3 - Other errors
-                if (rx_metadata.error_code != uhd::rx_metadata_t::ERROR_CODE_NONE) {
-                    std::string error = str(boost::format("Receiver error: %s") % rx_metadata.strerror());
-                    if (continue_on_bad_packet) {
-                        std::cerr << error << std::endl;
-                        continue;
-                    } else
-                        throw std::runtime_error(error);
-                }
+                } else
+                    throw std::runtime_error(error);}
 
-            // update Rx sample counter
-            num_received_samps += num_rx_samps_tmp;
+        // update Rx sample counter
+        num_received_samps += num_rx_samps_tmp;
 
-            // write data to file from buffer
-            data_file.write((const char*)&buff.front(), num_rx_samps_tmp * sizeof(samp_type));       
-        }   // while ends
+        // write data to file from buffer
+        data_file.write((const char*)&buff.front(), num_rx_samps_tmp * sizeof(samp_type));       
+
+        // Mark the starting timestamp
         const auto actual_stop_time = std::chrono::steady_clock::now();
 
+    //// ====== Wrap up ======
+        // close files
+        data_file.close();
 
-    //// ====== Shut down receiver ======
+        // shut down receiver
         stream_cmd.stream_mode = uhd::stream_cmd_t::STREAM_MODE_STOP_CONTINUOUS;
-        rx_stream->issue_stream_cmd(stream_cmd);
-
-
-    //// ====== Close files ======
-        if (data_file.is_open()) {
-            data_file.close();
-        }
+        rx_stream->issue_stream_cmd(stream_cmd);       
 
         // print Rx finishes
         std::cout<<std::endl;
-        std::cout<< "Rx done!" <<std::endl;
-
+        std::cout<< "Rx Done!" <<std::endl;
 
     //// ====== Status check ======
         std::cout << std::endl;
@@ -200,7 +185,6 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,         // a USRP object
                 << std::endl;
         const double rate_checked = (double)num_received_samps / actual_duration_seconds;
         std::cout << (rate_checked / 1e6) << " Msps" << std::endl;
-
 
     //// ====== Process Metadata ======
         long long rx_starting_tick = rx_metadata.time_spec.to_ticks(200e6);
@@ -217,7 +201,6 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,         // a USRP object
         metadata_file.write((char*)&rx_starting_tick, sizeof(long long));
         metadata_file.close();
 
-
         std::cout << "===============================" << std::endl;
         std::cout << boost::format("Data is saved in file: %s") % full_file_name
                 << std::endl
@@ -226,7 +209,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,         // a USRP object
         std::cout << boost::format("Metadata is saved in file: %s") % full_metafile_name
                 << std::endl;
         std::cout << "===============================" << std::endl;
-} // recv_to_file ends
+} // "recv_to_file()" ends
 
 
 
