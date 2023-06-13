@@ -81,7 +81,6 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,         // a USRP object
 {
     //// ====== Define Variables ======
         // system parameters
-        bool stats                      = true;
         size_t num_received_samps       = 0;   // number of samples have received so far
         size_t num_rx_samps_tmp         = 0;
         const double timeout            = 10.0;   // in sec
@@ -274,7 +273,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("rx-sizemap", "track packet size and display breakdown on exit")
         ("rx-skip-lo", "skip checking LO lock status")
         ("rx-start", po::value<double>(&rx_start)->default_value(15.0), "start streaming time")
-        ("rx-stats", "show average bandwidth on exit")
+        // ("rx-stats", "show average bandwidth on exit")
         ("rx-subdev", po::value<std::string>(&rx_subdev)->default_value("B:AB"), "subdevice specification")
         ("rx-type", po::value<std::string>(&data_type)->default_value("double"), "sample type: double, float, or short")
                 
@@ -283,7 +282,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         // ("ref", po::value<std::string>(&ref)->default_value("external"), "reference source (internal, external, mimo)")
         ("setup", po::value<double>(&setup_time)->default_value(1.0), "seconds of setup time")
         ("spb", po::value<size_t>(&spb)->default_value(10000), "samples per buffer")
-        ("wirefmt", po::value<std::string>(&wirefmt)->default_value("sc16"), "wire format (sc8, sc16 or s16)")
+        // ("wirefmt", po::value<std::string>(&wirefmt)->default_value("sc16"), "wire format (sc8, sc16 or s16)")
     ;
 
 
