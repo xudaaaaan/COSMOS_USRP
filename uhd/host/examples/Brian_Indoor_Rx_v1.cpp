@@ -65,23 +65,22 @@ namespace po = boost::program_options;
  * recv_to_file function - one time action
  * @param usrp a created usrp object
  * @param rx_stream a created receiver streamer
- * @param write_file the name of the file that will store the data
+ * @param filename_write the name of the file that will store the data
  * @param samps_per_buff buffer size, should equals to "num_requested_samples"
  * @param num_requested_samples the total number of samples that will be captured
  * @param start_streaming_delay the delay that USRP will wait after it receives a 1 PPS trigger
  **********************************************************************/
 template <typename samp_type>
 void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,         // a USRP object
-    uhd::tx_streamer::sptr rx_stream                        // Tx streamer
-    const std::string&  write_file,                         // file name to save data
+    uhd::rx_streamer::sptr rx_stream,                       // Rx streamer
+    const std::string&  filename_write,                     // file name to save data
     size_t              samps_per_buff,                     // buffer size to save data
     size_t              num_requested_samples,              // total number of samples to be received
-    double              start_streaming_delay    = 3.0,    // how many seconds to start streaming after the Rx USRP receives its first 1 PPS
+    double              start_streaming_delay    = 3.0      // how many seconds to start streaming after the Rx USRP receives its first 1 PPS
     )
 {
     //// ====== Define Variables ======
         // system parameters
-        bool continue_on_bad_packet     = false;
         bool stats                      = true;
         size_t num_received_samps       = 0;   // number of samples have received so far
         size_t num_rx_samps_tmp         = 0;
@@ -96,7 +95,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,         // a USRP object
         // Set up data writing
         std::ofstream data_file;
         char full_file_name[200];
-        strcpy(full_file_name, write_file.c_str());
+        strcpy(full_file_name, filename_write.c_str());
         strcat(full_file_name, ".dat");
         data_file.open(full_file_name, std::ofstream::binary);
 
@@ -140,7 +139,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,         // a USRP object
             // - 1 - Time out
             if (rx_metadata.error_code == uhd::rx_metadata_t::ERROR_CODE_TIMEOUT) {
                 std::cout << boost::format("Timeout while streaming") << std::endl;
-                break;}
+                throw std::runtime_error("Timeout");}
             // - 2 - Overflow
             if (rx_metadata.error_code == uhd::rx_metadata_t::ERROR_CODE_OVERFLOW) {
                 std::cerr
@@ -150,15 +149,11 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,         // a USRP object
                         "  Dropped samples will not be written to the file.\n"
                         "  Please modify this example for your purposes.\n")
                         % (usrp->get_rx_rate() * sizeof(samp_type) / 1e6);
-                continue;}
+                throw std::runtime_error("Overflow");}
             // - 3 - Other errors
             if (rx_metadata.error_code != uhd::rx_metadata_t::ERROR_CODE_NONE) {
                 std::string error = str(boost::format("Receiver error: %s") % rx_metadata.strerror());
-                if (continue_on_bad_packet) {
-                    std::cerr << error << std::endl;
-                    continue;
-                } else
-                    throw std::runtime_error(error);}
+                throw std::runtime_error(error);}
 
         // update Rx sample counter
         num_received_samps += num_rx_samps_tmp;
@@ -201,7 +196,7 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,         // a USRP object
                     << std::endl
                     << std::endl;
         
-        strcpy(full_metafile_name, write_file.c_str());
+        strcpy(full_metafile_name, filename_write.c_str());
         strcat(full_metafile_name, "_metadata.dat");
         metadata_file.open(full_metafile_name, std::ofstream::binary);
         metadata_file.write((char*)&rx_starting_tick, sizeof(long long));
@@ -244,13 +239,13 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         const std::string ref = "external";
 
         /* --- RF configuration --- */
-        const double rx_rate = 200e6;  // Tx sampling rate, in Samples/sec
+        const double rx_rate = 200e6;  // Rx sampling rate, in Samples/sec
         const double rx_bw = 100e6;    // Transmission bandwidth, in Hz
         const double freq = 3e9;    // 1st-stage IF center frequency, in Hz, should be 3 GHz. Then PAAM will keep UPC from 3 GHz to 28 GHz.
 
 
     // variables to be set by po
-    std::string rx_args, write_file, data_type, rx_ant, rx_subdev, wirefmt, rx_channels;
+    std::string rx_args, filename_write, data_type, rx_ant, rx_subdev, rx_channels;
     size_t num_samps_to_recv, spb;
     double rx_gain, total_time, setup_time, rx_lo_offset, rx_start;
 
@@ -267,7 +262,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("rx-channels", po::value<std::string>(&rx_channels)->default_value("0"), "which channels to use (specify \"0\", \"1\", \"0,1\", etc)")
         ("rx-continue", "don't abort on a bad packet")
         ("rx-duration", po::value<double>(&total_time)->default_value(0), "total number of seconds to receive")
-        ("rx-file", po::value<std::string>(&write_file)->default_value("usrp_samples.dat"), "name of the file to write binary samples to")
+        ("rx-file", po::value<std::string>(&filename_write)->default_value("usrp_samples.dat"), "name of the file to write binary samples to")
         ("rx-gain", po::value<double>(&rx_gain)->default_value(6), "gain for the RF chain")
         ("rx-int-n", "tune USRP with integer-N tuning")
         ("rx-lo-offset", po::value<double>(&rx_lo_offset)->default_value(0.0),
@@ -480,18 +475,17 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
     //// ====== Create a receive streamer ======
         // refer to: https://files.ettus.com/manual/page_configuration.html#config_stream_args_cpu_format
         std::string cpu_format = "f32"; // Single-precision 32-bit data
-        std::string wirefmt = "s16"; // Signed 16-bit integer data
+        std::string wire_format = "s16"; // Signed 16-bit integer data
         uhd::stream_args_t stream_args(cpu_format, wire_format);
         rx_channel_nums.push_back(boost::lexical_cast<size_t>(rx_channels)); // copied from Brian_Indoor_Tx.cpp
         stream_args.channels = rx_channel_nums;
-        uhd::rx_streamer::sptr rx_stream = usrp->get_rx_stream(stream_args);
+        uhd::rx_streamer::sptr rx_stream = rx_usrp->get_rx_stream(stream_args);
 
  
     
     //// ====== Start Rx ======
         // figure out a way to set spb = rep * signal_length
-        recv_to_file<std::complex<double>>(
-            rx_usrp, rx_stream, write_file, spb, num_samps_to_recv, rx_start);
+        recv_to_file<std::complex<double>>(rx_usrp, rx_stream, filename_write, spb, num_samps_to_recv, rx_start);
 
 
 
