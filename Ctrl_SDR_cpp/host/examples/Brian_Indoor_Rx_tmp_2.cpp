@@ -1,198 +1,176 @@
 //
-// Copyright 2010-2011,2014 Ettus Research LLC
+// Copyright 2011-2012,2014 Ettus Research LLC
 // Copyright 2018 Ettus Research, a National Instruments Company
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 //
-//
-// Modified by:
-//      Yuning (Brian) Zhang, 5/13/2022
+// Modifier: Yuning (Brian) Zhang
+// Copyright: 2023
 //
 
-#include <uhd/exception.hpp>
+
+
+/**********************************************
+This code will be used as the Rx 
+(USRP N310) for the indoor experiment. 
+
+USRP Configuration reference: https://files.ettus.com/manual/page_usrp_n3xx.html
+RF Configuration reference: https://files.ettus.com/manual/classuhd_1_1usrp_1_1multi__usrp.html
+N310 UHD usage: https://files.ettus.com/manual/page_usrp_n3xx.html#n3xx_usage
+**********************************************/
+
+
+
+/*=========================================
+Items waited to be implemented:
+    1. Integrate Python as a library into C++
+         - https://www.codeproject.com/Articles/820116/Embedding-Python-program-in-a-C-Cplusplus-code
+    2. Automation logic for indoor experiment
+        - Create the automation structure with necessary loops, put the integration of Python as pseudo code or comment to take the place only
+    3. RF configuration block - pack as a subfunction or whatever to make the main code as simple as possible
+Question:
+    1. What is the difference between ant/channels/subdev?
+    2. How to make the send buffer size as equal to the txt file length?
+        - I want to achieve an action that each receive will full the assigned buffer, which MIGHT be a full repetition of the sounding signal, or multiple repetitions. 
+=========================================*/
+
+
+
 // #include "wavetable_Brian.hpp"
+#include <uhd/exception.hpp>
 #include <uhd/types/tune_request.hpp>
 #include <uhd/usrp/multi_usrp.hpp>
 #include <uhd/utils/safe_main.hpp>
 #include <uhd/utils/thread.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/program_options.hpp>
+#include <boost/math/special_functions/round.hpp>
 #include <chrono>
 #include <complex>
 #include <csignal>
 #include <fstream>
 #include <iostream>
-#include <thread>   // to solve error: this_thread and std::chrono is not declared
+#include <thread>  // to solve error: this_thread and std::chrono is not declared
 #include <string>
-
 namespace po = boost::program_options;
 
-/***********************************************************************
- * Signal handlers
- **********************************************************************/
-static bool stop_signal_called = false;
-void sig_int_handler(int)
-{
-    stop_signal_called = true;
-}
+
 
 
 
 /***********************************************************************
- * recv_to_file function
+ * recv_to_file function - one time action
  **********************************************************************/
 template <typename samp_type>
-void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual) device
-    const std::string& cpu_format,
-    const std::string& wire_format,
-    const std::string& data_file,
-    size_t samps_per_buff,
-    size_t num_requested_samples,
-    double time_requested       = 0.0,
-    double start_streaming_time = 10.0,
-    bool bw_summary             = false,
-    bool stats                  = false,
-    bool null                   = false,
-    bool enable_size_map        = false,
-    bool continue_on_bad_packet = false,
-    std::vector<size_t> rx_channel_nums = 0)
+void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,         // a USRP object
+    uhd::tx_streamer::sptr rx_stream                        // Tx streamer
+    const std::string&  write_file,                         // file name to save data
+    size_t              samps_per_buff,                     // buffer size to save data
+    size_t              num_requested_samples,              // total number of samples to be received
+    double              start_streaming_delay    = 3.0,    // how many seconds to start streaming after the Rx USRP receives its first 1 PPS
+    )
 {
-    size_t num_total_samps = 0;   // number of samples have received so far
+    // system parameters
+    bool continue_on_bad_packet     = false;
+    bool stats                      = true;
+    size_t num_received_samps       = 0;   // number of samples have received so far
+    size_t num_rx_samps_tmp         = 0;
+    const double timeout            = 10.0;   // in sec
 
-    //// ====== Create a receive streamer ======
-        uhd::stream_args_t stream_args(cpu_format, wire_format);
-        stream_args.channels = rx_channel_nums;
-        uhd::rx_streamer::sptr rx_stream = usrp->get_rx_stream(stream_args);
+    // Rx metadata
+    uhd::rx_metadata_t rx_metadata;
 
-        uhd::rx_metadata_t rx_md;
-        std::vector<samp_type> buff(samps_per_buff);
+    // define buffer
+    std::vector<samp_type> buff(samps_per_buff);
 
-        std::ofstream datafile_strm;
-        std::ofstream rx_metadatafile_strm;
-        
-        size_t num_rx_samps = 0;
+    // Set up data writing
+    std::ofstream data_file;
+    char full_file_name[200];
+    strcpy(full_file_name, write_file.c_str());
+    strcat(full_file_name, ".dat");
+    data_file.open(full_file_name, std::ofstream::binary);
 
-        char full_file_name[200];
-        char full_metafile_name[200];
-        strcpy(full_file_name, data_file.c_str());
-        strcat(full_file_name, ".dat");
-        if (not null)
-            datafile_strm.open(full_file_name, std::ofstream::binary);
-        bool overflow_message = true;
+    // Set up metadata writing
+    std::ofstream metadata_file;
+    char full_metafile_name[200];
+    
+
+    
 
 
     //// ====== Configurations ======
-        // Setup streaming
-            uhd::stream_cmd_t stream_cmd((num_requested_samples == 0)
-                        ? uhd::stream_cmd_t::STREAM_MODE_START_CONTINUOUS
-                        : uhd::stream_cmd_t::STREAM_MODE_NUM_SAMPS_AND_DONE);
-        
+        // Setup streaming command - each receiving action will be achieved by issuing a streaming command
+        uhd::stream_cmd_t stream_cmd(uhd::stream_cmd_t::STREAM_MODE_NUM_SAMPS_AND_DONE);
+                        
         // Number of samples to receive
-            stream_cmd.num_samps  = size_t(num_requested_samples);
+        stream_cmd.num_samps  = size_t(num_requested_samples);
 
         // time to receive samples
-            stream_cmd.stream_now = false;
-            uhd::time_spec_t time_to_recv = uhd::time_spec_t(start_streaming_time);
-            stream_cmd.time_spec  = time_to_recv;
-            rx_stream->issue_stream_cmd(stream_cmd);
-
-        // Define starting and stop time when request a duration
-            const auto start_time = std::chrono::steady_clock::now();
-            const auto stop_time =
-                start_time + std::chrono::milliseconds(int64_t(1000 * time_requested));
-
-        // Define sizemap
-            typedef std::map<size_t, size_t> SizeMap;
-            SizeMap mapSizes;
-
-        // Track time and samps between updating the BW summary
-            auto last_update = start_time;
-            unsigned long long last_update_samps = 0; 
-
+        stream_cmd.stream_now = false;  // do NOT set it as true - otherwise the synchronization status will be lost!
+        uhd::time_spec_t time_to_recv = uhd::time_spec_t(start_streaming_delay);
+        stream_cmd.time_spec  = time_to_recv;
+        /* USRP configured item:
+            * streaming mode: continuous
+            * number of samples to receive every time
+            * when to stream (related to synchronization) - stream_now & time_spec
+        */
+        rx_stream->issue_stream_cmd(stream_cmd);    // configure the USRP accordingly
+        
 
         // --- prints ---
-            std::cout << std::endl;
-            std::cout << std::endl;
-            std::cout << "Rx: Wait for less than " << time_to_recv.get_real_secs() << " seconds to start streaming..."
-                << std::endl;
+        std::cout << std::endl;
+        std::cout << std::endl;
+        std::cout << "Rx: capturing will start in " << time_to_recv.get_real_secs() << " seconds..."
+            << std::endl;
         // --------------
 
 
+         // Mark the starting timestamp
+        const auto start_time = std::chrono::steady_clock::now();
+
+
     //// ====== Keep running until... ======
-    // Until either time expired (if a duration was given), until
-    // the requested number of samples were collected (if such a number was
-    // given), or until Ctrl-C was pressed.
-        while (not stop_signal_called
-            and (num_requested_samples != num_total_samps or num_requested_samples == 0)
-            and (time_requested == 0.0 or std::chrono::steady_clock::now() <= stop_time)) {
+        // until all the requested number of samples were collected
+        while (num_requested_samples != num_received_samps) {
 
-                const auto now = std::chrono::steady_clock::now();
+            // Receive samples into the pre-assigned buffer
+            num_rx_samps_tmp =
+                rx_stream->recv(&buff.front(), buff.size(), rx_metadata, timeout);
 
-                num_rx_samps =
-                    rx_stream->recv(&buff.front(), buff.size(), rx_md, 30.0, enable_size_map);
-
-                // Define error cases
-                    // - 1 - 
-                    if (rx_md.error_code == uhd::rx_metadata_t::ERROR_CODE_TIMEOUT) {
-                        std::cout << boost::format("Timeout while streaming") << std::endl;
-                        break;
-                    }
-
-                    // - 2 - 
-                    if (rx_md.error_code == uhd::rx_metadata_t::ERROR_CODE_OVERFLOW) {
-                        if (overflow_message) {
-                            overflow_message = false;
-                            std::cerr
-                                << boost::format(
-                                    "Got an overflow indication. Please consider the following:\n"
-                                    "  Your write medium must sustain a rate of %fMB/s.\n"
-                                    "  Dropped samples will not be written to the file.\n"
-                                    "  Please modify this example for your purposes.\n"
-                                    "  This message will not appear again.\n")
-                                    % (usrp->get_rx_rate() * sizeof(samp_type) / 1e6);
-                        }
+            // Define error cases
+                // - 1 - Time out
+                if (rx_metadata.error_code == uhd::rx_metadata_t::ERROR_CODE_TIMEOUT) {
+                    std::cout << boost::format("Timeout while streaming") << std::endl;
+                    break;
+                }
+                // - 2 - Overflow
+                if (rx_metadata.error_code == uhd::rx_metadata_t::ERROR_CODE_OVERFLOW) {
+                    std::cerr
+                        << boost::format(
+                            "Got an overflow indication. Please consider the following:\n"
+                            "  Your write medium must sustain a rate of %fMB/s.\n"
+                            "  Dropped samples will not be written to the file.\n"
+                            "  Please modify this example for your purposes.\n")
+                            % (usrp->get_rx_rate() * sizeof(samp_type) / 1e6);
+                    continue;
+                }
+                // - 3 - Other errors
+                if (rx_metadata.error_code != uhd::rx_metadata_t::ERROR_CODE_NONE) {
+                    std::string error = str(boost::format("Receiver error: %s") % rx_metadata.strerror());
+                    if (continue_on_bad_packet) {
+                        std::cerr << error << std::endl;
                         continue;
-                    }
-
-                    // - 3 - 
-                    if (rx_md.error_code != uhd::rx_metadata_t::ERROR_CODE_NONE) {
-                        std::string error = str(boost::format("Receiver error: %s") % rx_md.strerror());
-                        if (continue_on_bad_packet) {
-                            std::cerr << error << std::endl;
-                            continue;
-                        } else
-                            throw std::runtime_error(error);
-                    }
-
-
-                if (enable_size_map) {
-                    SizeMap::iterator it = mapSizes.find(num_rx_samps);
-                    if (it == mapSizes.end())
-                        mapSizes[num_rx_samps] = 0;
-                    mapSizes[num_rx_samps] += 1;
+                    } else
+                        throw std::runtime_error(error);
                 }
 
-                num_total_samps += num_rx_samps;
+            // update Rx sample counter
+            num_received_samps += num_rx_samps_tmp;
 
-                if (datafile_strm.is_open()) {
-                    datafile_strm.write((const char*)&buff.front(), num_rx_samps * sizeof(samp_type));
-                }
-
-                if (bw_summary) {
-                    last_update_samps += num_rx_samps;
-                    const auto time_since_last_update = now - last_update;
-                    if (time_since_last_update > std::chrono::seconds(1)) {
-                        const double time_since_last_update_s =
-                            std::chrono::duration<double>(time_since_last_update).count();
-                        const double rate = double(last_update_samps) / time_since_last_update_s;
-                        std::cout << "\t" << (rate / 1e6) << " Msps" << std::endl;
-                        last_update_samps = 0;
-                        last_update       = now;
-                    }
-                }            
+            // write data to file from buffer
+            data_file.write((const char*)&buff.front(), num_rx_samps_tmp * sizeof(samp_type));       
         }   // while ends
         const auto actual_stop_time = std::chrono::steady_clock::now();
 
@@ -203,8 +181,8 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
 
 
     //// ====== Close files ======
-        if (datafile_strm.is_open()) {
-            datafile_strm.close();
+        if (data_file.is_open()) {
+            data_file.close();
         }
 
         // print Rx finishes
@@ -213,52 +191,41 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
 
 
     //// ====== Status check ======
-        if (stats) {
-            std::cout << std::endl;
-            const double actual_duration_seconds =
-                std::chrono::duration<float>(actual_stop_time - start_time).count();
+        std::cout << std::endl;
+        const double actual_duration_seconds =
+            std::chrono::duration<float>(actual_stop_time - start_time).count();
 
-            std::cout << boost::format("Received %d samples in %f seconds") % num_total_samps
-                            % actual_duration_seconds
-                    << std::endl;
-            const double rate = (double)num_total_samps / actual_duration_seconds;
-            std::cout << (rate / 1e6) << " Msps" << std::endl;
-
-            if (enable_size_map) {
-                std::cout << std::endl;
-                std::cout << "Packet size map (bytes: count)" << std::endl;
-                for (SizeMap::iterator it = mapSizes.begin(); it != mapSizes.end(); it++)
-                    std::cout << it->first << ":\t" << it->second << std::endl;
-            }
-        }
+        std::cout << boost::format("Received %d samples in %f seconds") % num_received_samps
+                        % actual_duration_seconds
+                << std::endl;
+        const double rate_checked = (double)num_received_samps / actual_duration_seconds;
+        std::cout << (rate_checked / 1e6) << " Msps" << std::endl;
 
 
     //// ====== Process Metadata ======
-        long long rx_starting_tick = rx_md.time_spec.to_ticks(200e6);
-        double rx_starting_sec = rx_md.time_spec.get_real_secs();
+        long long rx_starting_tick = rx_metadata.time_spec.to_ticks(200e6);
+        double rx_starting_sec = rx_metadata.time_spec.get_real_secs();
         std::cout << "Metadata Here... " << std::endl;
         std::cout << "  Streaming starting tick = " << rx_starting_tick << std::endl;
         std::cout << "  Streaming starting sec = " << rx_starting_sec 
                     << std::endl
                     << std::endl;
         
-        if (not null){
-            strcpy(full_metafile_name, data_file.c_str());
-            strcat(full_metafile_name, "_metadata.dat");
-            rx_metadatafile_strm.open(full_metafile_name, std::ofstream::binary);
-            rx_metadatafile_strm.write((char*)&rx_starting_tick, sizeof(long long));
-            rx_metadatafile_strm.close();
+        strcpy(full_metafile_name, write_file.c_str());
+        strcat(full_metafile_name, "_metadata.dat");
+        metadata_file.open(full_metafile_name, std::ofstream::binary);
+        metadata_file.write((char*)&rx_starting_tick, sizeof(long long));
+        metadata_file.close();
 
 
-            std::cout << "===============================" << std::endl;
-            std::cout << boost::format("Data is saved in data_file: %s") % full_file_name
-                    << std::endl
-                    << std::endl;
+        std::cout << "===============================" << std::endl;
+        std::cout << boost::format("Data is saved in file: %s") % full_file_name
+                << std::endl
+                << std::endl;
 
-            std::cout << boost::format("Metadata is saved in file: %s") % full_metafile_name
-                    << std::endl;
-            std::cout << "===============================" << std::endl;
-        }
+        std::cout << boost::format("Metadata is saved in file: %s") % full_metafile_name
+                << std::endl;
+        std::cout << "===============================" << std::endl;
 } // recv_to_file ends
 
 
@@ -275,16 +242,32 @@ void recv_to_file(uhd::usrp::multi_usrp::sptr usrp,   // a USRP object/(virtual)
 
 /***********************************************************************
  * Main function
+ * @param 
+ * @return None.
  **********************************************************************/
 int UHD_SAFE_MAIN(int argc, char* argv[])
 {
+    //// ====== Setup Variables ======
+        //constant variables
+        /* --- Timing configuration ---
+        Reference: 
+            1 PPS: https://files.ettus.com/manual/classuhd_1_1usrp_1_1multi__usrp.html#a57a5580ba06d7d6a037c9ef64f1ea361
+            Ref: https://files.ettus.com/manual/classuhd_1_1usrp_1_1multi__usrp.html#a73ed40009d0d3787c183d42423d25026
+        */
+        const std::string pps = "external";
+        const std::string ref = "external";
+
+        /* --- RF configuration --- */
+        const double rx_rate = 200e6;  // Tx sampling rate, in Samples/sec
+        const double rx_bw = 100e6;    // Transmission bandwidth, in Hz
+        const double freq = 3e9;    // 1st-stage IF center frequency, in Hz, should be 3 GHz. Then PAAM will keep UPC from 3 GHz to 28 GHz.
+
+
     // variables to be set by po
-    std::string rx_args, data_file, data_type, rx_ant, rx_subdev, ref, wirefmt, pps, rx_channels;
-    // std::string wave_type;
-    size_t total_num_samps, spb;
-    double rx_rate, freq, rx_gain, rx_bw, total_time, setup_time, rx_lo_offset, rx_start;
-    // double wave_freq;
-    // float T0 = 1e-6;
+    std::string rx_args, write_file, data_type, rx_ant, rx_subdev, wirefmt, rx_channels;
+    size_t num_samps_to_recv, spb;
+    double rx_gain, total_time, setup_time, rx_lo_offset, rx_start;
+
 
     // setup the program options
     po::options_description desc("Allowed options");
@@ -294,19 +277,19 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
         ("rx-ant", po::value<std::string>(&rx_ant)->default_value("AB"), "antenna selection")
         ("rx-args", po::value<std::string>(&rx_args)->default_value("addr=10.38.14.2"), "multi uhd device address args")
-        ("rx-bw", po::value<double>(&rx_bw), "analog frontend filter bandwidth in Hz")
+        // ("rx-bw", po::value<double>(&rx_bw), "analog frontend filter bandwidth in Hz")
         ("rx-channels", po::value<std::string>(&rx_channels)->default_value("0"), "which channels to use (specify \"0\", \"1\", \"0,1\", etc)")
         ("rx-continue", "don't abort on a bad packet")
         ("rx-duration", po::value<double>(&total_time)->default_value(0), "total number of seconds to receive")
-        ("rx-file", po::value<std::string>(&data_file)->default_value("usrp_samples.dat"), "name of the file to write binary samples to")
+        ("rx-file", po::value<std::string>(&write_file)->default_value("usrp_samples.dat"), "name of the file to write binary samples to")
         ("rx-gain", po::value<double>(&rx_gain)->default_value(6), "gain for the RF chain")
         ("rx-int-n", "tune USRP with integer-N tuning")
         ("rx-lo-offset", po::value<double>(&rx_lo_offset)->default_value(0.0),
             "Offset for frontend LO in Hz (optional)")
-        ("rx-nsamps", po::value<size_t>(&total_num_samps)->default_value(0), "total number of samples to receive (requested)")     
-        ("rx-null", "Determine if run the code and save data to file. Add 'null' when you don't want to save the data. ")
+        ("rx-nsamps", po::value<size_t>(&num_samps_to_recv)->default_value(0), "total number of samples to receive (requested)")     
+        // ("rx-null", "Determine if run the code and save data to file. Add 'null' when you don't want to save the data. ")
         ("rx-progress", "periodically display short-term bandwidth")
-        ("rx-rate", po::value<double>(&rx_rate)->default_value(200e6), "rate of incoming samples")
+        // ("rx-rate", po::value<double>(&rx_rate)->default_value(200e6), "rate of incoming samples")
         ("rx-sizemap", "track packet size and display breakdown on exit")
         ("rx-skip-lo", "skip checking LO lock status")
         ("rx-start", po::value<double>(&rx_start)->default_value(15.0), "start streaming time")
@@ -314,9 +297,9 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("rx-subdev", po::value<std::string>(&rx_subdev)->default_value("B:AB"), "subdevice specification")
         ("rx-type", po::value<std::string>(&data_type)->default_value("double"), "sample type: double, float, or short")
                 
-        ("freq", po::value<double>(&freq)->default_value(100e6), "IF center frequency in Hz")
-        ("pps", po::value<std::string>(&pps)->default_value("external"), "PPS source (internal, external, mimo, gpsdo)")
-        ("ref", po::value<std::string>(&ref)->default_value("external"), "reference source (internal, external, mimo)")
+        // ("freq", po::value<double>(&freq)->default_value(100e6), "IF center frequency in Hz")
+        // ("pps", po::value<std::string>(&pps)->default_value("external"), "PPS source (internal, external, mimo, gpsdo)")
+        // ("ref", po::value<std::string>(&ref)->default_value("external"), "reference source (internal, external, mimo)")
         ("setup", po::value<double>(&setup_time)->default_value(1.0), "seconds of setup time")
         ("spb", po::value<size_t>(&spb)->default_value(10000), "samples per buffer")
         ("wirefmt", po::value<std::string>(&wirefmt)->default_value("sc16"), "wire format (sc8, sc16 or s16)")
@@ -340,19 +323,6 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
             return ~0;
         }
 
-
-
-    //// ====== Set the Rx info parameters ======
-        // vm.count("x") > 0 means there is an option named "x" is found. 
-        bool bw_summary             = vm.count("progress") > 0; // initial value = 1
-        bool stats                  = vm.count("stats") > 0;    // initial value = 1
-        bool null                   = vm.count("null") > 0;     // initial value = 1
-        bool enable_size_map        = vm.count("sizemap") > 0;  // initial value = 1
-        bool continue_on_bad_packet = vm.count("continue") > 0; // initial value = 1
-
-        if (enable_size_map)
-            std::cout << "Packet size tracking enabled - will only recv one packet at a time!"
-                    << std::endl;
 
 
     //// ====== Create Rx USRP Devices ======
@@ -379,8 +349,6 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
     //// ====== Detect which channels to use ======
-        // if build error: split is not member of boost, then add library:
-        // #include <boost/algorithm/string.hpp>
         std::vector<std::string> rx_channel_strings;
         std::vector<size_t> rx_channel_nums;
         boost::split(rx_channel_strings, rx_channels, boost::is_any_of("\"',"));
@@ -523,19 +491,34 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
 
 
 
-    //// ====== Rx streaming prints ======
-        if (total_num_samps == 0) {
-            std::signal(SIGINT, &sig_int_handler);
-            std::cout << "Press Ctrl + C to stop streaming..." << std::endl;
-        }
+    //// ====== Create a receive streamer ======
+        // refer to: https://files.ettus.com/manual/page_configuration.html#config_stream_args_cpu_format
+        std::string cpu_format = "f32"; // Single-precision 32-bit data
+        std::string wirefmt = "s16"; // Signed 16-bit integer data
+        uhd::stream_args_t stream_args(cpu_format, wire_format);
+        rx_channel_nums.push_back(boost::lexical_cast<size_t>(rx_channels)); // copied from Brian_Indoor_Tx.cpp
+        stream_args.channels = rx_channel_nums;
+        uhd::rx_streamer::sptr rx_stream = usrp->get_rx_stream(stream_args);
 
     
+
+
+
+
+
+
+
     
     //// ====== Start Rx ======
+        // figure out a way to set spb = rep * signal_length
         recv_to_file<std::complex<double>>(
-            rx_usrp, "fc64", wirefmt, data_file, spb, total_num_samps, \
-            total_time, rx_start, bw_summary, stats, null, enable_size_map, \
-            continue_on_bad_packet, rx_channel_nums);
+            rx_usrp, rx_stream, write_file, spb, num_samps_to_recv, rx_start);
+
+
+
+
+
+
 
     // finished
     std::cout << std::endl << "Done!" << std::endl << std::endl;
