@@ -265,6 +265,36 @@ tx_timed_samples/fast:
 .PHONY : tx_timed_samples/fast
 
 # Convenience name for target.
+examples/CMakeFiles/tx_bursts.dir/rule:
+	cd /root/uhd/host/build && $(MAKE) -f CMakeFiles/Makefile2 examples/CMakeFiles/tx_bursts.dir/rule
+.PHONY : examples/CMakeFiles/tx_bursts.dir/rule
+
+# Convenience name for target.
+tx_bursts: examples/CMakeFiles/tx_bursts.dir/rule
+
+.PHONY : tx_bursts
+
+# fast build rule for target.
+tx_bursts/fast:
+	cd /root/uhd/host/build && $(MAKE) -f examples/CMakeFiles/tx_bursts.dir/build.make examples/CMakeFiles/tx_bursts.dir/build
+.PHONY : tx_bursts/fast
+
+# Convenience name for target.
+examples/CMakeFiles/sync_to_gps.dir/rule:
+	cd /root/uhd/host/build && $(MAKE) -f CMakeFiles/Makefile2 examples/CMakeFiles/sync_to_gps.dir/rule
+.PHONY : examples/CMakeFiles/sync_to_gps.dir/rule
+
+# Convenience name for target.
+sync_to_gps: examples/CMakeFiles/sync_to_gps.dir/rule
+
+.PHONY : sync_to_gps
+
+# fast build rule for target.
+sync_to_gps/fast:
+	cd /root/uhd/host/build && $(MAKE) -f examples/CMakeFiles/sync_to_gps.dir/build.make examples/CMakeFiles/sync_to_gps.dir/build
+.PHONY : sync_to_gps/fast
+
+# Convenience name for target.
 examples/CMakeFiles/rx_samples_to_file.dir/rule:
 	cd /root/uhd/host/build && $(MAKE) -f CMakeFiles/Makefile2 examples/CMakeFiles/rx_samples_to_file.dir/rule
 .PHONY : examples/CMakeFiles/rx_samples_to_file.dir/rule
@@ -340,6 +370,21 @@ Brian_tx_file/fast:
 .PHONY : Brian_tx_file/fast
 
 # Convenience name for target.
+examples/CMakeFiles/Brian_Indoor_Tx_v1.dir/rule:
+	cd /root/uhd/host/build && $(MAKE) -f CMakeFiles/Makefile2 examples/CMakeFiles/Brian_Indoor_Tx_v1.dir/rule
+.PHONY : examples/CMakeFiles/Brian_Indoor_Tx_v1.dir/rule
+
+# Convenience name for target.
+Brian_Indoor_Tx_v1: examples/CMakeFiles/Brian_Indoor_Tx_v1.dir/rule
+
+.PHONY : Brian_Indoor_Tx_v1
+
+# fast build rule for target.
+Brian_Indoor_Tx_v1/fast:
+	cd /root/uhd/host/build && $(MAKE) -f examples/CMakeFiles/Brian_Indoor_Tx_v1.dir/build.make examples/CMakeFiles/Brian_Indoor_Tx_v1.dir/build
+.PHONY : Brian_Indoor_Tx_v1/fast
+
+# Convenience name for target.
 examples/CMakeFiles/tx_samples_from_file.dir/rule:
 	cd /root/uhd/host/build && $(MAKE) -f CMakeFiles/Makefile2 examples/CMakeFiles/tx_samples_from_file.dir/rule
 .PHONY : examples/CMakeFiles/tx_samples_from_file.dir/rule
@@ -353,36 +398,6 @@ tx_samples_from_file: examples/CMakeFiles/tx_samples_from_file.dir/rule
 tx_samples_from_file/fast:
 	cd /root/uhd/host/build && $(MAKE) -f examples/CMakeFiles/tx_samples_from_file.dir/build.make examples/CMakeFiles/tx_samples_from_file.dir/build
 .PHONY : tx_samples_from_file/fast
-
-# Convenience name for target.
-examples/CMakeFiles/tx_bursts.dir/rule:
-	cd /root/uhd/host/build && $(MAKE) -f CMakeFiles/Makefile2 examples/CMakeFiles/tx_bursts.dir/rule
-.PHONY : examples/CMakeFiles/tx_bursts.dir/rule
-
-# Convenience name for target.
-tx_bursts: examples/CMakeFiles/tx_bursts.dir/rule
-
-.PHONY : tx_bursts
-
-# fast build rule for target.
-tx_bursts/fast:
-	cd /root/uhd/host/build && $(MAKE) -f examples/CMakeFiles/tx_bursts.dir/build.make examples/CMakeFiles/tx_bursts.dir/build
-.PHONY : tx_bursts/fast
-
-# Convenience name for target.
-examples/CMakeFiles/sync_to_gps.dir/rule:
-	cd /root/uhd/host/build && $(MAKE) -f CMakeFiles/Makefile2 examples/CMakeFiles/sync_to_gps.dir/rule
-.PHONY : examples/CMakeFiles/sync_to_gps.dir/rule
-
-# Convenience name for target.
-sync_to_gps: examples/CMakeFiles/sync_to_gps.dir/rule
-
-.PHONY : sync_to_gps
-
-# fast build rule for target.
-sync_to_gps/fast:
-	cd /root/uhd/host/build && $(MAKE) -f examples/CMakeFiles/sync_to_gps.dir/build.make examples/CMakeFiles/sync_to_gps.dir/build
-.PHONY : sync_to_gps/fast
 
 # Convenience name for target.
 examples/CMakeFiles/network_relay.dir/rule:
@@ -668,6 +683,75 @@ benchmark_streamer: examples/CMakeFiles/benchmark_streamer.dir/rule
 benchmark_streamer/fast:
 	cd /root/uhd/host/build && $(MAKE) -f examples/CMakeFiles/benchmark_streamer.dir/build.make examples/CMakeFiles/benchmark_streamer.dir/build
 .PHONY : benchmark_streamer/fast
+
+# Convenience name for target.
+examples/CMakeFiles/Brian_Indoor_Rx_v1.dir/rule:
+	cd /root/uhd/host/build && $(MAKE) -f CMakeFiles/Makefile2 examples/CMakeFiles/Brian_Indoor_Rx_v1.dir/rule
+.PHONY : examples/CMakeFiles/Brian_Indoor_Rx_v1.dir/rule
+
+# Convenience name for target.
+Brian_Indoor_Rx_v1: examples/CMakeFiles/Brian_Indoor_Rx_v1.dir/rule
+
+.PHONY : Brian_Indoor_Rx_v1
+
+# fast build rule for target.
+Brian_Indoor_Rx_v1/fast:
+	cd /root/uhd/host/build && $(MAKE) -f examples/CMakeFiles/Brian_Indoor_Rx_v1.dir/build.make examples/CMakeFiles/Brian_Indoor_Rx_v1.dir/build
+.PHONY : Brian_Indoor_Rx_v1/fast
+
+Brian_Indoor_Rx_v1.o: Brian_Indoor_Rx_v1.cpp.o
+
+.PHONY : Brian_Indoor_Rx_v1.o
+
+# target to build an object file
+Brian_Indoor_Rx_v1.cpp.o:
+	cd /root/uhd/host/build && $(MAKE) -f examples/CMakeFiles/Brian_Indoor_Rx_v1.dir/build.make examples/CMakeFiles/Brian_Indoor_Rx_v1.dir/Brian_Indoor_Rx_v1.cpp.o
+.PHONY : Brian_Indoor_Rx_v1.cpp.o
+
+Brian_Indoor_Rx_v1.i: Brian_Indoor_Rx_v1.cpp.i
+
+.PHONY : Brian_Indoor_Rx_v1.i
+
+# target to preprocess a source file
+Brian_Indoor_Rx_v1.cpp.i:
+	cd /root/uhd/host/build && $(MAKE) -f examples/CMakeFiles/Brian_Indoor_Rx_v1.dir/build.make examples/CMakeFiles/Brian_Indoor_Rx_v1.dir/Brian_Indoor_Rx_v1.cpp.i
+.PHONY : Brian_Indoor_Rx_v1.cpp.i
+
+Brian_Indoor_Rx_v1.s: Brian_Indoor_Rx_v1.cpp.s
+
+.PHONY : Brian_Indoor_Rx_v1.s
+
+# target to generate assembly for a file
+Brian_Indoor_Rx_v1.cpp.s:
+	cd /root/uhd/host/build && $(MAKE) -f examples/CMakeFiles/Brian_Indoor_Rx_v1.dir/build.make examples/CMakeFiles/Brian_Indoor_Rx_v1.dir/Brian_Indoor_Rx_v1.cpp.s
+.PHONY : Brian_Indoor_Rx_v1.cpp.s
+
+Brian_Indoor_Tx_v1.o: Brian_Indoor_Tx_v1.cpp.o
+
+.PHONY : Brian_Indoor_Tx_v1.o
+
+# target to build an object file
+Brian_Indoor_Tx_v1.cpp.o:
+	cd /root/uhd/host/build && $(MAKE) -f examples/CMakeFiles/Brian_Indoor_Tx_v1.dir/build.make examples/CMakeFiles/Brian_Indoor_Tx_v1.dir/Brian_Indoor_Tx_v1.cpp.o
+.PHONY : Brian_Indoor_Tx_v1.cpp.o
+
+Brian_Indoor_Tx_v1.i: Brian_Indoor_Tx_v1.cpp.i
+
+.PHONY : Brian_Indoor_Tx_v1.i
+
+# target to preprocess a source file
+Brian_Indoor_Tx_v1.cpp.i:
+	cd /root/uhd/host/build && $(MAKE) -f examples/CMakeFiles/Brian_Indoor_Tx_v1.dir/build.make examples/CMakeFiles/Brian_Indoor_Tx_v1.dir/Brian_Indoor_Tx_v1.cpp.i
+.PHONY : Brian_Indoor_Tx_v1.cpp.i
+
+Brian_Indoor_Tx_v1.s: Brian_Indoor_Tx_v1.cpp.s
+
+.PHONY : Brian_Indoor_Tx_v1.s
+
+# target to generate assembly for a file
+Brian_Indoor_Tx_v1.cpp.s:
+	cd /root/uhd/host/build && $(MAKE) -f examples/CMakeFiles/Brian_Indoor_Tx_v1.dir/build.make examples/CMakeFiles/Brian_Indoor_Tx_v1.dir/Brian_Indoor_Tx_v1.cpp.s
+.PHONY : Brian_Indoor_Tx_v1.cpp.s
 
 Brian_rx.o: Brian_rx.cpp.o
 
@@ -1547,15 +1631,16 @@ help:
 	@echo "... test_pps_input"
 	@echo "... test_messages"
 	@echo "... tx_timed_samples"
+	@echo "... test"
+	@echo "... tx_bursts"
+	@echo "... sync_to_gps"
 	@echo "... rx_samples_to_file"
 	@echo "... test_dboard_coercion"
 	@echo "... benchmark_rate"
 	@echo "... rx_multi_samples"
 	@echo "... Brian_tx_file"
+	@echo "... Brian_Indoor_Tx_v1"
 	@echo "... tx_samples_from_file"
-	@echo "... tx_bursts"
-	@echo "... sync_to_gps"
-	@echo "... test"
 	@echo "... network_relay"
 	@echo "... rx_samples_to_udp"
 	@echo "... rx_samples_c"
@@ -1579,7 +1664,14 @@ help:
 	@echo "... install/strip"
 	@echo "... rx_timed_samples"
 	@echo "... benchmark_streamer"
+	@echo "... Brian_Indoor_Rx_v1"
 	@echo "... package"
+	@echo "... Brian_Indoor_Rx_v1.o"
+	@echo "... Brian_Indoor_Rx_v1.i"
+	@echo "... Brian_Indoor_Rx_v1.s"
+	@echo "... Brian_Indoor_Tx_v1.o"
+	@echo "... Brian_Indoor_Tx_v1.i"
+	@echo "... Brian_Indoor_Tx_v1.s"
 	@echo "... Brian_rx.o"
 	@echo "... Brian_rx.i"
 	@echo "... Brian_rx.s"

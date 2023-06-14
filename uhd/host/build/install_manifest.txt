@@ -196,6 +196,8 @@
 /usr/local/lib/uhd/examples/Brian_tx_file
 /usr/local/lib/uhd/examples/Brian_rx
 /usr/local/lib/uhd/examples/tx_waveforms4
+/usr/local/lib/uhd/examples/Brian_Indoor_Rx_v1
+/usr/local/lib/uhd/examples/Brian_Indoor_Tx_v1
 /usr/local/lib/uhd/examples/rfnoc_nullsource_ce_rx
 /usr/local/lib/uhd/examples/rfnoc_rx_to_file
 /usr/local/lib/uhd/examples/rfnoc_radio_loopback

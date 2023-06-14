@@ -61,7 +61,7 @@ _CONTACT                  = "support@ettus.com"
 _DEFAULT_BUFFER_SIZE      = 8192
 _DEFAULT_DOWNLOAD_LIMIT   = 100 * 1024 * 1024 # Bytes
 _ARCHIVE_DEFAULT_TYPE     = "zip"
-_UHD_VERSION              = "3.15.0.main-0-ee6805b3"
+_UHD_VERSION              = "3.15.0.main-0-2ec8990e"
 # Note: _MANIFEST_CONTENTS are placed at the bottom of this file for aesthetic reasons
 _LOG_LEVELS = {"TRACE": 1,
                "DEBUG": 2,

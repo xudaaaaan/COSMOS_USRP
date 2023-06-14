@@ -135,15 +135,16 @@
 /root/uhd/host/build/examples/CMakeFiles/test_pps_input.dir
 /root/uhd/host/build/examples/CMakeFiles/test_messages.dir
 /root/uhd/host/build/examples/CMakeFiles/tx_timed_samples.dir
+/root/uhd/host/build/examples/CMakeFiles/test.dir
+/root/uhd/host/build/examples/CMakeFiles/tx_bursts.dir
+/root/uhd/host/build/examples/CMakeFiles/sync_to_gps.dir
 /root/uhd/host/build/examples/CMakeFiles/rx_samples_to_file.dir
 /root/uhd/host/build/examples/CMakeFiles/test_dboard_coercion.dir
 /root/uhd/host/build/examples/CMakeFiles/benchmark_rate.dir
 /root/uhd/host/build/examples/CMakeFiles/rx_multi_samples.dir
 /root/uhd/host/build/examples/CMakeFiles/Brian_tx_file.dir
+/root/uhd/host/build/examples/CMakeFiles/Brian_Indoor_Tx_v1.dir
 /root/uhd/host/build/examples/CMakeFiles/tx_samples_from_file.dir
-/root/uhd/host/build/examples/CMakeFiles/tx_bursts.dir
-/root/uhd/host/build/examples/CMakeFiles/sync_to_gps.dir
-/root/uhd/host/build/examples/CMakeFiles/test.dir
 /root/uhd/host/build/examples/CMakeFiles/network_relay.dir
 /root/uhd/host/build/examples/CMakeFiles/rx_samples_to_udp.dir
 /root/uhd/host/build/examples/CMakeFiles/rx_samples_c.dir
@@ -167,6 +168,7 @@
 /root/uhd/host/build/examples/CMakeFiles/install/strip.dir
 /root/uhd/host/build/examples/CMakeFiles/rx_timed_samples.dir
 /root/uhd/host/build/examples/CMakeFiles/benchmark_streamer.dir
+/root/uhd/host/build/examples/CMakeFiles/Brian_Indoor_Rx_v1.dir
 /root/uhd/host/build/examples/CMakeFiles/package.dir
 /root/uhd/host/build/examples/getopt/CMakeFiles/install/strip.dir
 /root/uhd/host/build/examples/getopt/CMakeFiles/install.dir

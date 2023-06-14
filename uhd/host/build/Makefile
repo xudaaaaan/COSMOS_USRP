@@ -294,6 +294,32 @@ tx_timed_samples/fast:
 .PHONY : tx_timed_samples/fast
 
 #=============================================================================
+# Target rules for targets named tx_bursts
+
+# Build rule for target.
+tx_bursts: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 tx_bursts
+.PHONY : tx_bursts
+
+# fast build rule for target.
+tx_bursts/fast:
+	$(MAKE) -f examples/CMakeFiles/tx_bursts.dir/build.make examples/CMakeFiles/tx_bursts.dir/build
+.PHONY : tx_bursts/fast
+
+#=============================================================================
+# Target rules for targets named sync_to_gps
+
+# Build rule for target.
+sync_to_gps: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 sync_to_gps
+.PHONY : sync_to_gps
+
+# fast build rule for target.
+sync_to_gps/fast:
+	$(MAKE) -f examples/CMakeFiles/sync_to_gps.dir/build.make examples/CMakeFiles/sync_to_gps.dir/build
+.PHONY : sync_to_gps/fast
+
+#=============================================================================
 # Target rules for targets named rx_samples_to_file
 
 # Build rule for target.
@@ -359,6 +385,19 @@ Brian_tx_file/fast:
 .PHONY : Brian_tx_file/fast
 
 #=============================================================================
+# Target rules for targets named Brian_Indoor_Tx_v1
+
+# Build rule for target.
+Brian_Indoor_Tx_v1: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 Brian_Indoor_Tx_v1
+.PHONY : Brian_Indoor_Tx_v1
+
+# fast build rule for target.
+Brian_Indoor_Tx_v1/fast:
+	$(MAKE) -f examples/CMakeFiles/Brian_Indoor_Tx_v1.dir/build.make examples/CMakeFiles/Brian_Indoor_Tx_v1.dir/build
+.PHONY : Brian_Indoor_Tx_v1/fast
+
+#=============================================================================
 # Target rules for targets named tx_samples_from_file
 
 # Build rule for target.
@@ -370,32 +409,6 @@ tx_samples_from_file: cmake_check_build_system
 tx_samples_from_file/fast:
 	$(MAKE) -f examples/CMakeFiles/tx_samples_from_file.dir/build.make examples/CMakeFiles/tx_samples_from_file.dir/build
 .PHONY : tx_samples_from_file/fast
-
-#=============================================================================
-# Target rules for targets named tx_bursts
-
-# Build rule for target.
-tx_bursts: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 tx_bursts
-.PHONY : tx_bursts
-
-# fast build rule for target.
-tx_bursts/fast:
-	$(MAKE) -f examples/CMakeFiles/tx_bursts.dir/build.make examples/CMakeFiles/tx_bursts.dir/build
-.PHONY : tx_bursts/fast
-
-#=============================================================================
-# Target rules for targets named sync_to_gps
-
-# Build rule for target.
-sync_to_gps: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 sync_to_gps
-.PHONY : sync_to_gps
-
-# fast build rule for target.
-sync_to_gps/fast:
-	$(MAKE) -f examples/CMakeFiles/sync_to_gps.dir/build.make examples/CMakeFiles/sync_to_gps.dir/build
-.PHONY : sync_to_gps/fast
 
 #=============================================================================
 # Target rules for targets named network_relay
@@ -643,6 +656,19 @@ benchmark_streamer: cmake_check_build_system
 benchmark_streamer/fast:
 	$(MAKE) -f examples/CMakeFiles/benchmark_streamer.dir/build.make examples/CMakeFiles/benchmark_streamer.dir/build
 .PHONY : benchmark_streamer/fast
+
+#=============================================================================
+# Target rules for targets named Brian_Indoor_Rx_v1
+
+# Build rule for target.
+Brian_Indoor_Rx_v1: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 Brian_Indoor_Rx_v1
+.PHONY : Brian_Indoor_Rx_v1
+
+# fast build rule for target.
+Brian_Indoor_Rx_v1/fast:
+	$(MAKE) -f examples/CMakeFiles/Brian_Indoor_Rx_v1.dir/build.make examples/CMakeFiles/Brian_Indoor_Rx_v1.dir/build
+.PHONY : Brian_Indoor_Rx_v1/fast
 
 #=============================================================================
 # Target rules for targets named getopt
@@ -1668,14 +1694,15 @@ help:
 	@echo "... test_pps_input"
 	@echo "... test_messages"
 	@echo "... tx_timed_samples"
+	@echo "... tx_bursts"
+	@echo "... sync_to_gps"
 	@echo "... rx_samples_to_file"
 	@echo "... test_dboard_coercion"
 	@echo "... benchmark_rate"
 	@echo "... rx_multi_samples"
 	@echo "... Brian_tx_file"
+	@echo "... Brian_Indoor_Tx_v1"
 	@echo "... tx_samples_from_file"
-	@echo "... tx_bursts"
-	@echo "... sync_to_gps"
 	@echo "... network_relay"
 	@echo "... rx_samples_to_udp"
 	@echo "... rx_samples_c"
@@ -1695,6 +1722,7 @@ help:
 	@echo "... replay_samples_from_file"
 	@echo "... rx_timed_samples"
 	@echo "... benchmark_streamer"
+	@echo "... Brian_Indoor_Rx_v1"
 	@echo "... getopt"
 	@echo "... module_test"
 	@echo "... config_parser_test"
