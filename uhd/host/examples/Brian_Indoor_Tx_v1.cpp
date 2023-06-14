@@ -144,10 +144,6 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
             ("file", po::value<std::string>(&filename_read)->default_value(""), "name of the txt file to read samples - will be a known file name")
             ("spb", po::value<size_t>(&spb)->default_value(10000), "samples per buffer");
 
-        // input check
-        if (not vm.count("rate")) {
-            std::cerr << "Please specify the sample rate with --rate" << std::endl;
-            return ~0;}
 
 
     //// ====== Preparation ======
@@ -159,6 +155,29 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         // print the help message
         if (vm.count("help")) {
             std::cout << boost::format("UHD TX samples from file %s") % desc << std::endl;
+            return ~0;}
+
+        // input check
+        if (not vm.count("ant")) {
+            std::cerr << "Please specify the antenna port with --ant" << std::endl;
+            return ~0;}
+        if (not vm.count("channel")) {
+            std::cerr << "Please specify the channel on USRP with --channel" << std::endl;
+            return ~0;}
+        if (not vm.count("subdev")) {
+            std::cerr << "Please specify the subdev with --subdev" << std::endl;
+            return ~0;}
+        if (not vm.count("args")) {
+            std::cerr << "Please specify the USRP address with --args" << std::endl;
+            return ~0;}
+        if (not vm.count("gain")) {
+            std::cerr << "Please specify the RF gain with --gain" << std::endl;
+            return ~0;}
+        if (not vm.count("file")) {
+            std::cerr << "Please specify the sounding signal source file name with --file" << std::endl;
+            return ~0;}
+        if (not vm.count("spb")) {
+            std::cerr << "Please specify the buffer size with --spb" << std::endl;
             return ~0;}
 
 
@@ -238,8 +257,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         std::string cpu_format = "f32"; // Single-precision 32-bit data
         std::string wire_format = "s16"; // Signed 16-bit integer data
         uhd::stream_args_t stream_args(cpu_format, wire_format);
-        tx_channel_nums.push_back(boost::lexical_cast<size_t>(tx_channel));
-        stream_args.channels = tx_channel_nums;
+        stream_args.channels = tx_channel;
         uhd::tx_streamer::sptr tx_stream = tx_usrp->get_tx_stream(stream_args);
 
         // Setup metadata
