@@ -40,6 +40,7 @@ Items waited to be implemented:
          - We may even have to use the stream_cmd_t to set the Tx streaming mode as continuous. 
 Question:
     1. What is the difference between ant/channels/subdev?
+        - A: refer to the Section Q&A in overleaf. 
     2. How to make the send buffer size as equal to the txt file length?
         - I want to achieve an action that each send will empty the assigned buffer, whose size is a full repetition of the sounding signal. 
         So: buffer size = sounding signal size = txt file sample amount
@@ -131,14 +132,13 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
             set "args" as USRP's address
             Refer to: https://files.ettus.com/manual/page_usrp_x3x0.html#x3x0_usage_device_args
             */
-            ("ant", po::value<std::string>(&tx_ant)->default_value("B"), "antenna selection")
-            // ("channels", po::value<std::string>(&tx_channel)->default_value("1"), "which channels to use (specify \"0\", \"1\", \"0,1\", etc)")
-            ("channel", po::value<size_t>(&tx_channel)->default_value(1), "which channels to use (specify 0 or 1 for single channel usage)")
-            ("subdev", po::value<std::string>(&tx_subdev)->default_value("B:A"), "subdevice specification")
+            ("ant", po::value<std::string>(&tx_ant)->default_value("TX/RX"), "antenna selection")
+            ("channel", po::value<size_t>(&tx_channel)->default_value(0), "which channels to use (specify 0 or 1 for single channel usage)")
+            ("subdev", po::value<std::string>(&tx_subdev)->default_value("B:0"), "subdevice specification")  // for now just keep it as: B:channel
             ("args", po::value<std::string>(&args)->default_value("addr=10.37.21.1"), "USRP addresses, default is for the portable node mob4")
 
             // RF parameters
-            ("gain", po::value<double>(&gain)->default_value(0), "gain for the Tx USRP")
+            ("gain", po::value<double>(&gain)->default_value(0), "gain for the Tx USRP, 0~31.5dB")
 
             // sounding signal/transmission
             ("file", po::value<std::string>(&filename_read)->default_value(""), "name of the txt file to read samples - will be a known file name")
