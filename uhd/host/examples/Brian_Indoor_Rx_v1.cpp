@@ -263,7 +263,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         ("rx-duration", po::value<double>(&total_time)->default_value(0), "total number of seconds to receive")
         ("rx-file", po::value<std::string>(&filename_write)->default_value("usrp_samples.dat"), "name of the file to write binary samples to")
         ("rx-gain", po::value<double>(&rx_gain)->default_value(6), "gain for the RF chain")
-        ("rx-int-n", "tune USRP with integer-N tuning")
+        // ("rx-int-n", "tune USRP with integer-N tuning")
         ("rx-lo-offset", po::value<double>(&rx_lo_offset)->default_value(0.0),
             "Offset for frontend LO in Hz (optional)")
         ("rx-nsamps", po::value<size_t>(&num_samps_to_recv)->default_value(0), "total number of samples to receive (requested)")     
@@ -397,8 +397,7 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
             
                 // timed command content:
                     uhd::tune_request_t rx_tune_request(freq, rx_lo_offset);
-                    if (vm.count("rx-int-n"))
-                        rx_tune_request.args = uhd::device_addr_t("mode_n=integer");
+                    rx_tune_request.args = uhd::device_addr_t("mode_n=integer");
                     rx_usrp->set_rx_freq(rx_tune_request, channel);
                     std::this_thread::sleep_for(std::chrono::milliseconds(110)); //sleep 110ms (~10ms after retune occurs) to allow LO to lock
 
