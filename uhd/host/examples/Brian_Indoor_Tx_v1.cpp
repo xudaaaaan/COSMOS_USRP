@@ -257,7 +257,9 @@ int UHD_SAFE_MAIN(int argc, char* argv[])
         std::string cpu_format = "f32"; // Single-precision 32-bit data
         std::string wire_format = "s16"; // Signed 16-bit integer data
         uhd::stream_args_t stream_args(cpu_format, wire_format);
-        stream_args.channels = tx_channel;
+        std::vector<size_t> stream_args_channels;
+        stream_args_channels.push_back(tx_channel);
+        stream_args.channels = stream_args_channels;
         uhd::tx_streamer::sptr tx_stream = tx_usrp->get_tx_stream(stream_args);
 
         // Setup metadata
